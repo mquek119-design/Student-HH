@@ -53,7 +53,9 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
   } | null>(null);
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
 
-  const [isPending, startTransition] = useTransition();
+  // isSyncing drives the disabled states, so the transition's own pending
+  // flag is not needed.
+  const [, startTransition] = useTransition();
   const [isSyncing, setIsSyncing] = useState(false);
   const [sessionAuth, setSessionAuth] = useState(false);
   const [sessionExpiry, setSessionExpiry] = useState<string | undefined>();
@@ -110,6 +112,13 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
     items: liveItems.filter((item) => item.category === category),
   })).filter((group) => group.items.length > 0);
 
+  /** Days until the Tesco session lapses, or null when unknown. */
+  const sessionDaysLeft = (() => {
+    if (!sessionExpiry) return null;
+    const ms = new Date(sessionExpiry).getTime() - Date.now();
+    return Number.isFinite(ms) ? Math.floor(ms / 86_400_000) : null;
+  })();
+
   async function handleCheckoutClick() {
     if (!sessionAuth) {
       setSyncStatusMsg('Tesco session required. Please set up your Tesco session cookies in House Settings.');
@@ -145,7 +154,7 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
 
       // Fetch actual checkout cost dynamically
       setSyncStatusMsg('Fetching actual Tesco checkout cost...');
-      const checkoutRes = await startTescoCheckout(planId);
+      const checkoutRes = await startTescoCheckout();
       if (checkoutRes.status === 'success' && checkoutRes.totalCost !== undefined) {
         setActualTotalCost(checkoutRes.totalCost);
         setSyncStatusMsg(null); // Clear success message - keep it silent as requested
@@ -374,6 +383,18 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
       })}
 
       {/* Persistent action bar — sits above the bottom nav on mobile. */}
+      {sessionAuth && sessionDaysLeft !== null && sessionDaysLeft <= 2 && (
+        <p
+          role="status"
+          className="font-body-sm text-body-sm text-secondary flex items-center gap-xs"
+        >
+          <Icon name="schedule" className="text-[18px]" />
+          {sessionDaysLeft <= 0
+            ? 'Your Tesco session expires today — re-import cookies before checking out.'
+            : `Your Tesco session expires in ${sessionDaysLeft} day${sessionDaysLeft === 1 ? '' : 's'}.`}
+        </p>
+      )}
+
       <div className="fixed bottom-[76px] md:bottom-0 left-0 w-full bg-surface-container-lowest border-t border-surface-container-highest p-md shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-md px-margin-mobile md:px-margin-desktop">
           <div className="flex flex-col">

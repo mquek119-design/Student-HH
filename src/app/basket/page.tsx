@@ -1,12 +1,14 @@
 import { redirect } from 'next/navigation';
 import { BasketView } from '@/components/basket/BasketView';
 import { BuildBasketPanel } from '@/components/basket/BuildBasketPanel';
+import { SlotPicker } from '@/components/basket/SlotPicker';
 import { PackDataForm } from '@/components/basket/PackDataForm';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageShell } from '@/components/ui/PageShell';
 import {
   getBasketItems,
+  getHouse,
   getCollector,
   getCurrentUser,
   getHousemates,
@@ -20,11 +22,12 @@ export default async function BasketPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser.houseId) redirect('/onboarding');
 
-  const [items, housemates, collector, plan] = await Promise.all([
+  const [items, housemates, collector, plan, house] = await Promise.all([
     getBasketItems(),
     getHousemates(),
     getCollector(),
     getWeeklyPlan(),
+    getHouse(),
   ]);
 
   const mealCount = plan?.meals.length ?? 0;
@@ -47,6 +50,21 @@ export default async function BasketPage() {
         mealCount={mealCount}
         overlapSavings={plan?.sharedSavings ?? 0}
       />
+
+      {/* Deliberately not gated on the basket having items: Tesco lets you hold
+          a slot before you have shopped, and slots for a busy weekend go early.
+          Only a plan is required, since the charge is stored against it. */}
+      {plan?.id && (
+        <SlotPicker
+          preference={house.slotPreference}
+          bookedSlot={
+            plan.slot
+              ? { startsAt: plan.slot.startsAt, charge: plan.slot.charge, method: plan.slot.method }
+              : null
+          }
+          isCollector={collector?.id === currentUser.id}
+        />
+      )}
 
       {/* Pack size and price normally come from Tesco search. This only appears
           for the leftovers — an ingredient with no sensible product match. */}

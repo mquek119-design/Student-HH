@@ -49,7 +49,7 @@ Not done:
 1. Create a project at supabase.com.
 2. Run `supabase/migrations/0001_initial_schema.sql` then `0002_rls.sql` in the SQL editor.
 3. Copy `.env.example` to `.env.local` and fill in the URL and anon key.
-4. Set the Site URL and add `http://localhost:3000/auth/callback` to Redirect URLs (Authentication → URL Configuration), or magic links will bounce.
+4. Set the Site URL and add `http://localhost:3002/auth/callback` to Redirect URLs (Authentication → URL Configuration), or magic links will bounce.
 5. Optional: create four users, paste their UUIDs into the top of `supabase/seed.sql`, and run it to get the demo house.
 6. **Regenerate the types** — do not hand-edit them:
    ```

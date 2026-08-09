@@ -26,7 +26,7 @@ import {
   toSubstitution,
   toUser,
 } from './mappers';
-import { allocateLine, formatPence } from './money';
+import { allocateLine, formatPence, splitPence } from './money';
 import { createClient } from './supabase/server';
 import type {
   BasketItem,
@@ -290,6 +290,7 @@ function emptyPlan(houseId: string, cutoffDay: string, cutoffTime: string): Week
     status: 'planning',
     cutoffAt: nextCutoff(cutoffDay, cutoffTime),
     sharedSavings: 0,
+    slot: null,
     meals: [],
     conflicts: [],
   };
@@ -349,6 +350,16 @@ export const getWeeklyPlan = cache(async (): Promise<WeeklyPlan | null> => {
     status: planRow.status,
     cutoffAt: planRow.cutoff_at,
     sharedSavings: planRow.shared_savings,
+    slot:
+      planRow.slot_id && planRow.slot_charge !== null
+        ? {
+            id: planRow.slot_id,
+            method: planRow.slot_method ?? 'delivery',
+            startsAt: planRow.slot_starts_at,
+            endsAt: planRow.slot_ends_at,
+            charge: planRow.slot_charge,
+          }
+        : null,
     meals,
     conflicts: detectConflicts(meals, recipes, names),
   };
@@ -469,12 +480,47 @@ export const getCurrentSplit = cache(async (): Promise<Split | null> => {
     });
   }
 
+  // The delivery or collection charge is a real cost of the shop, so it belongs
+  // in the split. Nobody "ordered" it, so it divides equally across the house —
+  // splitPence keeps that penny-exact rather than letting rounding vanish.
+  let slotShare = 0;
+  if (plan.slot && plan.slot.charge > 0 && allUserIds.length > 0) {
+    const shares = splitPence(
+      plan.slot.charge,
+      allUserIds.map(() => 1)
+    );
+    slotShare = shares[allUserIds.indexOf(me.id)] ?? 0;
+
+    if (slotShare > 0) {
+      lines.push({
+        label: plan.slot.method === 'collect' ? 'Collection Charge' : 'Delivery Charge',
+        detail: plan.slot.startsAt
+          ? new Date(plan.slot.startsAt).toLocaleString('en-GB', {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+              hour: 'numeric',
+              minute: '2-digit',
+            })
+          : 'Booked slot',
+        amount: slotShare,
+        icon: 'local_shipping',
+        workings: [
+          {
+            label: `${formatPence(plan.slot.charge)} ÷ ${allUserIds.length}`,
+            value: formatPence(slotShare),
+          },
+        ],
+      });
+    }
+  }
+
   return {
     id: `${plan.id}:${me.id}`,
     planId: plan.id,
     fromUserId: me.id,
     toUserId: collector.id,
-    amount: myTotal,
+    amount: myTotal + slotShare,
     status: 'pending',
     lines,
   };

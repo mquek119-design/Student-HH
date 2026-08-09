@@ -9,6 +9,7 @@
 const { chromium } = eval('require')('playwright');
 import * as fs from 'fs';
 import * as os from 'os';
+import { normaliseCookies } from './normalise-cookies';
 
 const SESSION_FILE = `${os.homedir()}/.tesco/session.json`;
 
@@ -27,7 +28,9 @@ async function loadSession(page: Page): Promise<void> {
     throw new Error('No Tesco session found. Please run: npm run groc -- --provider tesco login');
   }
   const session = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf-8'));
-  await page.context().addCookies(session.cookies);
+  // LOCAL CHANGE: Cookie Editor exports use sameSite spellings Playwright
+  // rejects. See lib/tesco/browser/normalise-cookies.ts
+  await page.context().addCookies(normaliseCookies(session.cookies));
 }
 
 export async function getTescoSlots(headless: boolean = true): Promise<TescoSlot[]> {

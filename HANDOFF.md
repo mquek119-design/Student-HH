@@ -1,190 +1,132 @@
-# HouseGrocer — Handoff
+# HouseGrocer — Status & Handoff
 
-**Read `CLAUDE.md` first.** It is the authoritative description of the product, the
-stack, the design tokens and the rules. This file only covers *where things stand*
-and *what to do next*.
-
----
-
-## 30-second context
-
-A Next.js 14 (App Router) + TypeScript + Tailwind + Supabase web app for UK student
-shared houses: plan meals together → one optimised Tesco shop → split the cost
-**per item**, not equally.
-
-The core claim is the **overlap optimiser**: two housemates each needing 300 g of
-pasta buy one 500 g pack between them, not two. That is where the savings come from,
-and it is built and unit-tested.
-
-Everything runs locally on **http://localhost:3002** (`npm run dev`). There is no
-deployed environment.
+**Read `CLAUDE.md` first** for the product, stack and rules. This file covers
+where things stand and who should do what next.
 
 ---
 
 ## State
 
-`npm run typecheck` and `npm run build` are both clean. **Nothing is committed yet —
-133 uncommitted files, no git history.** Consider an initial commit before changing
-anything, so there is something to diff against.
+Next.js 14 + TypeScript + Tailwind + Supabase, running at **http://localhost:3002**
+(`npm run dev`). No deployed environment.
+
+`npm run typecheck`, `npm run lint` and `npm run build` are all clean.
 
 ### Working end to end
 
-- **Auth** — Supabase magic link. `/login` → `/auth/callback` → session.
-- **Onboarding** — `create_house` / `join_house` SQL functions, invite codes.
-- **Recipes** — creation at `/recipes/new`; ingredients parsed one per line
-  (`500 g Penne pasta`) with a live preview of what was understood.
-- **Plan** — `addMealToPlan`, `leaveMeal`, `saveConstraints` are real writes.
-  Picking a recipe a housemate already chose **joins their meal** rather than
-  creating a second one. That overlap is the entire product; do not "fix" it.
-- **Optimiser** (`src/lib/optimiser.ts`) — scales recipes to actual diner count,
-  aggregates ingredients across meals, subtracts pantry stock, rounds up to whole
-  packs, attributes each line back to the people whose meals needed it.
-- **Tesco pricing** (`src/lib/tescoResolver.ts` + `src/lib/packParsing.ts`) —
-  resolves each ingredient to a real product via Tesco search. **Search is
-  unauthenticated**; only add-to-basket and checkout need a session.
-- **Split** — computed from real basket allocations, with the arithmetic printed
-  under every line.
+- **Auth** — Supabase magic link; profile auto-created on first sign-in.
+- **Onboarding** — `create_house` / `join_house`, invite codes.
+- **Recipes** — creation with one-ingredient-per-line parsing and a live preview.
+- **Plan** — real writes. Picking a recipe a housemate already chose *joins their
+  meal* rather than duplicating it. That overlap is the product; don't "fix" it.
+- **Optimiser** (`src/lib/optimiser.ts`) — scales to diner count, pools
+  ingredients across meals, subtracts pantry, rounds to whole packs, attributes
+  each line by participation. 17 numeric checks behind it.
+- **Tesco pricing** — `search` is **unauthenticated**; ingredients resolve to real
+  products with real prices, pack sizes and images, cached on `ingredients` with
+  a 7-day TTL.
+- **Slots** — delivery *and* Click & Collect, verified live (166 and 52 available).
+  Optional house preference suggests a best match; the collector always selects.
+  The fee becomes a split line divided equally, penny-exact.
+- **Split** — computed from real allocations, arithmetic printed under each line.
+- **Server actions** — basket, pantry, payment, reconciliation all persist.
+- **Realtime** — live house-wide updates.
 
 ### Not built
 
-- **Tesco add-to-basket and checkout.** `lib/tesco/` is vendored and has the code,
-  but nothing calls it. This is the biggest remaining gap.
-- **Local-state controls that never persist**: basket quantity steppers, own-brand
-  toggle, substitution accept/reject, "I've Paid", pantry used-up. They are
-  deliberately shaped so the setters become server actions.
-- **Recipe scraping** from a URL. The card on `/recipes` says so plainly.
-
----
-
-## Do this first
-
-The database is a **brand-new, empty Supabase project** (the previous one was
-deleted after being in the wrong region — see Performance below). All four
-migrations are applied and RLS is verified, but there are **no users and no data**.
-
-1. Confirm **Authentication → URL Configuration** in Supabase:
-   - Site URL `http://localhost:3002`
-   - Redirect URLs include `http://localhost:3002/auth/callback`
-   - This does not carry over between projects and silently breaks magic links.
-2. `npm run dev`, sign in at `/login`, create a house.
-3. Add 2–3 real recipes with **overlapping ingredients** (e.g. two pasta dishes).
-   The overlap is what makes the optimiser demonstrable.
-4. Plan meals on different days.
-5. `/basket` → **Build basket**.
-
-Step 5 has **never been run against a live database.** It is the first real test of
-the Tesco pricing path. Expect to debug it. Check specifically:
-
-- Do ingredients resolve to sensible products? (`ingredients.tesco_title`)
-- Are `pack_size` / `pack_price` written back? If not, the RLS `ingredients_update`
-  policy from migration `0004` is the first suspect — its absence was a real bug.
-- Does the reported overlap saving match hand arithmetic?
-
----
-
-## Then, in order
-
-1. **Convert the remaining local-state controls to server actions.** Same pattern as
-   `src/app/plan/actions.ts`. Basket steppers and "I've Paid" are the ones users
-   will notice losing.
-2. **Tesco add-to-basket + checkout.** Read `lib/tesco/providers/tesco/index.ts`
-   and `auth.ts` first. Auth is the hard part: Akamai blocks automated login, so the
-   working path is manual browser login → Cookie Editor export → `import-session`,
-   once a week by the collector. `checkout()` deliberately stops at the payment URL —
-   a human finishes 3-D Secure. **The app must never touch card details.**
-3. **Supabase Realtime** for live basket/payment updates.
-4. **Recipe scraping.**
-
----
-
-## Landmines
-
-Each of these cost real debugging time. They are not hypothetical.
-
-### `src/lib/supabase/database.types.ts`
-
-Hand-maintained. Break either rule and supabase-js types **every query result as
-`never[]`** with no error pointing anywhere near the cause:
-
-- Row types must be `type X = {…}`, **never** `interface X {…}`. TypeScript gives
-  type aliases an implicit index signature and withholds one from interfaces, so an
-  interface fails supabase-js's `Record<string, unknown>` constraint.
-- Empty groups must be `{ [_ in never]: never }`, **never** `Record<string, never>`.
-  The latter has a string index signature, so the query parser finds every table
-  name in `Views` and resolves it to `never`.
-
-Prefer regenerating: `npx supabase gen types typescript --project-id <ref>`.
-
-Also: keep `@supabase/ssr` **≥ 0.12**. Version 0.5.x passes generics to
-`SupabaseClient` in an order `supabase-js` ≥ 2.111 no longer uses — same `never`
-symptom, different cause.
+- `bookSlot()` reserving with Tesco is **coded but never executed** — nobody has
+  booked a real delivery. Everything else in the slot flow is verified.
+- Recipe scraping from a URL.
+- Anything beyond a dry-run checkout preview. `checkout()` stops at the payment
+  URL by design; a human finishes 3-D Secure. **The app never touches card details.**
 
 ### Migrations
 
-The Supabase SQL editor runs a whole file **in one transaction**, so one failing
-statement silently discards the entire file. You get no tables and no obvious error
-unless you scroll.
-
-The known offender is `create trigger … on auth.users` — managed projects do not
-grant ownership of `auth.users`. `0001` now wraps it in a `DO` block that catches
-the error. Profiles are created by `getCurrentUserOrNull()` on first sign-in instead,
-so the trigger is optional.
-
-`supabase/reset.sql` drops everything if a partial run needs clearing (dev only).
-
-### Do not
-
-- **Do not reintroduce fixtures.** `mockData.ts` was deleted deliberately. Every
-  screen reads real rows or renders an empty state. In a money app an invented
-  figure is worse than a blank panel — the whole product rests on housemates
-  trusting the split. If a number cannot be derived, say so.
-- **Do not edit `lib/tesco/`.** Vendored from a private fork; treat as a dependency.
-- **Do not remove the `cache()` wrappers** in `src/lib/queries.ts`. They dedupe
-  per-request round trips; without them a page made ~10 redundant auth calls.
-- **Do not run `npm run build` while the dev server is running.** They share `.next`
-  and every static asset 404s. Symptom: unstyled page. Fix: `rm -rf .next`, restart.
-
-### Environment quirks
-
-- `tailwind.config.ts` changes need a **dev server restart**; HMR misses them.
-- A `bg-*` utility on `<body>` beats any `@layer base` rule. The mint background is
-  `bg-surface-0` on the element in `layout.tsx` for this reason.
-- Stale dev servers squat on ports. If you see `EADDRINUSE`, kill the listener on
-  3002 rather than letting Next drift to another port — the Supabase redirect URL
-  is pinned to 3002.
+`0001`–`0010`. All applied except **`0010_slot_preferences.sql`** — run it.
+`supabase/reset.sql` is a destructive dev-only clean slate.
 
 ---
 
-## Performance
+## For Gemini: UI and brand identity — yes, with guardrails
 
-Do **not** reach for hosting as a performance fix. Two real causes were found and
-fixed; both were code and configuration, not infrastructure.
+Based on the previous batch of work, this is a good fit. Visual work is bounded,
+mistakes are self-evident on screen, and nothing here can silently corrupt money.
 
-1. **Query waterfall.** Every `getCurrentUser()` bottoms out in
-   `supabase.auth.getUser()`, which is a *network round trip*, not a local token
-   decode. Pages made ~10 of them. Fixed with React `cache()`, by dropping a
-   redundant `profiles` lookup from middleware, and by fetching `ingredients` once
-   per request instead of three times.
-2. **Supabase region.** The original project's origin round trip was ~210 ms. After
-   moving to a nearer region it is ~55 ms — roughly 4× on *every* query. Measure
-   with `curl -w "ttfb=%{time_starttransfer}"`; if `time_appconnect` is low but
-   TTFB is high, the edge is near and the origin is far.
+### Do
 
-There is still a genuinely sequential 7-hop chain in `getWeeklyPlan`
-(auth → profiles → houses → planned_meals → meal_participants → recipes →
-recipe_ingredients). Collapsing hops with PostgREST embedded selects
-(`profiles?select=*,houses(*)`) is the remaining win, worth ~2 hops.
+- Apply the new brand identity: colours, typography, spacing, iconography.
+- Update `tailwind.config.ts` tokens and the components under
+  `src/components/ui/`, `src/components/nav/`, `src/components/avatars/`.
+- Improve layout, responsiveness and empty states.
+- Keep to tokens (`text-on-surface-variant`, `bg-primary-container`) rather than
+  raw hex, so a future rebrand is one file.
+
+### Rules that will bite if ignored
+
+1. **Look at it in a browser.** Playwright MCP is configured in `.mcp.json`
+   (headless, 375×812). A wrong `<body>` background once survived every build and
+   typecheck and was only caught on screen. Green CI is not evidence a UI change
+   worked.
+2. **`tailwind.config.ts` changes need a dev server restart.** HMR misses them.
+3. **A `bg-*` utility on `<body>` beats any `@layer base` rule.** The mint
+   background is `bg-surface-0` on the element in `layout.tsx` for this reason.
+4. **Never run `npm run build` while the dev server is running** — they share
+   `.next` and every asset 404s. Symptom: unstyled page. Fix: `rm -rf .next`,
+   restart.
+5. **Run `npm run lint`.** It is configured with `no-unused-vars` as an *error*,
+   which catches the "component imported but never rendered" mistake that made a
+   whole feature invisible while the build stayed green.
+
+### Do not touch
+
+- `src/lib/optimiser.ts`, `money.ts`, `units.ts`, `packParsing.ts`,
+  `slotMatching.ts` — money and pack arithmetic, each with numeric tests.
+- `src/lib/queries.ts` — the `cache()` wrappers exist for a reason; removing them
+  restores a ~10-round-trip waterfall per page.
+- `supabase/migrations/**` — schema and RLS.
+- `lib/tesco/**` — vendored. If it must change, record it in
+  `lib/tesco/VENDOR-CHANGES.md` or re-vendoring silently discards the change.
+
+### Two habits worth adopting
+
+- **Don't report success from a failed operation.** A previous seeder logged an
+  RLS rejection and still returned "seeded successfully!". In an app about
+  splitting money, a false success is worse than an error.
+- **Verify against the live thing, not the code.** Two migrations were written
+  but never applied; the code wrote to columns that did not exist, the update
+  failed silently, and prices never appeared. One `curl` would have shown it.
 
 ---
 
-## Verification habits worth keeping
+## What to start on next (bigger calls — worth doing with review)
 
-- **Look at it in a browser.** Playwright MCP is configured in `.mcp.json`
-  (headless, isolated, 375×812). A wrong body background survived every build and
-  typecheck and was only visible on screen.
-- **Validate SQL before asking someone to run it.** `pg-query-emscripten` parses
-  with the real Postgres parser; `parsePlpgsql` also compiles `$$…$$` bodies, which
-  plain parsing skips.
-- **Test money arithmetic numerically.** `src/lib/optimiser.ts` has 17 checks behind
-  it covering pooling, pantry credit, unit merging and penny-exact attribution.
-  Anything touching pence deserves the same.
+1. **Book a real slot.** `chooseSlot()` saves the choice and calls `bookSlot()`.
+   Listing and pricing are verified; reserving is not. Do it once, deliberately.
+2. **Reconciliation against a real delivery.** The money rules are implemented
+   (unreceived refunds, partial quantities, substitutions charged at the
+   substitute's price) but have never met an actual Tesco order.
+3. **Decide on per-house product choice.** `ingredients` is a global catalogue,
+   so pack price and product are shared across houses. Fine while everyone wants
+   cheapest; the moment two houses want different products for "milk" it needs a
+   `house_ingredient_products` table. The trade-off is written into
+   `0004_tesco_product_cache.sql`.
+4. **Deploy.** Only after the weekly cycle works end to end — deploying earlier
+   hides bugs behind "it's the network".
+
+---
+
+## Performance notes
+
+Two real causes were found and fixed; neither was hosting.
+
+- **Query waterfall.** `getCurrentUser()` bottoms out in `auth.getUser()`, a
+  network round trip. Pages made ~10. Fixed with React `cache()`, dropping a
+  redundant middleware `profiles` lookup, and fetching `ingredients` once per
+  request instead of three times.
+- **Supabase region.** Origin round trip went from ~210 ms to ~55 ms after moving
+  region. Diagnose with `curl -w "ttfb=%{time_starttransfer}"`: low
+  `time_appconnect` with high TTFB means the edge is near and the origin is far.
+
+A genuinely sequential 7-hop chain remains in `getWeeklyPlan`. Collapsing hops
+with PostgREST embedded selects (`profiles?select=*,houses(*)`) is the remaining
+win, worth ~2 hops.

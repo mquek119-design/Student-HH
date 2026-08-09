@@ -10,6 +10,7 @@ import { WEEKDAY_LABELS } from '@/lib/types';
 import { FulfillmentSettingsPanel } from '@/components/settings/FulfillmentSettingsPanel';
 import { TescoSessionPanel } from '@/components/settings/TescoSessionPanel';
 import { SeedDemoButton } from '@/components/settings/SeedDemoButton';
+import { SlotPreferencePanel } from '@/components/settings/SlotPreferencePanel';
 
 export const metadata = { title: 'House Settings · HouseGrocer' };
 
@@ -71,6 +72,8 @@ export default async function SettingsPage() {
         <h2 className="font-title-md text-title-md">Tesco Fulfillment Options</h2>
         <FulfillmentSettingsPanel house={house} />
       </section>
+
+      <SlotPreferencePanel house={house} />
 
       <section className="flex flex-col gap-sm">
         <h2 className="font-title-md text-title-md">Delivery Routine</h2>

@@ -37,7 +37,14 @@ function keywords(text: string): string[] {
 /** "4 X 400G" → 1600 g. Multipacks first, since they contain a plain size too. */
 const MULTIPACK_RE = /(\d+)\s*[xX×]\s*(\d+(?:\.\d+)?)\s*(kg|g|ml|l|litre|liter)\b/i;
 const SINGLE_RE = /(\d+(?:\.\d+)?)\s*(kg|g|ml|l|litre|liter)\b/i;
-const COUNT_RE = /(\d+)\s*(pack|pk|s)\b/i;
+/**
+ * "6 Pack", "4pk", "Eggs x6" — a count of individual items.
+ *
+ * `\b(s)\b` was in the original alternation and matches a bare "s", so titles
+ * like "Tesco Eggs 6s" work — but it also makes the pattern fire on plurals.
+ * Anchoring on pack/pk/x keeps it to real pack counts.
+ */
+const COUNT_RE = /(?:(\d+)\s*(?:pack|pk)\b|[x×]\s*(\d+)\b)/i;
 
 const TO_BASE: Record<string, { unit: string; factor: number }> = {
   g: { unit: 'g', factor: 1 },
@@ -64,8 +71,14 @@ export function parsePackFromTitle(title: string): { size: number; unit: string 
     if (spec) return { size: Number(single[1]) * spec.factor, unit: spec.unit };
   }
 
+  // A "6 Pack" is six individual things, so record it as 6 `whole` rather than
+  // 1 `pack`. Recipes ask for "2 onions", never "0.33 packs" — expressing the
+  // pack in the same countable unit as the demand is what lets it be priced.
   const count = title.match(COUNT_RE);
-  if (count) return { size: Number(count[1]), unit: 'pack' };
+  if (count) {
+    const size = Number(count[1] ?? count[2]);
+    if (Number.isFinite(size) && size > 0) return { size, unit: 'whole' };
+  }
 
   return null;
 }

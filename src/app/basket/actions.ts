@@ -67,6 +67,11 @@ export async function buildBasket(): Promise<BasketActionState> {
     .filter((row) => {
       if (!usedIds.has(row.id)) return false;
       if (row.pack_price === null) return true;
+      // Re-resolve rows that predate a column. Ingredients priced before the
+      // image/product-id columns existed kept a valid pack_price, so a
+      // price-only staleness check skipped them forever and their pictures
+      // never appeared. Any missing piece means the cached row is incomplete.
+      if (!row.image_url || !row.tesco_product_id) return true;
       if (!row.tesco_synced_at) return true;
       return new Date(row.tesco_synced_at).getTime() < staleBefore;
     })
@@ -89,7 +94,23 @@ export async function buildBasket(): Promise<BasketActionState> {
           tesco_synced_at: new Date().toISOString(),
         })
         .eq('id', ingredientId);
-      if (!saved.error) resolvedCount += 1;
+
+      if (saved.error) {
+        // Do NOT swallow this. Every price in the basket, and therefore every
+        // figure in the split, depends on it landing. A silent failure here
+        // presents an empty basket as though Tesco simply had no matches.
+        //
+        // 42703 (undefined_column) means a migration has not been applied —
+        // this exact case hid a broken price path behind a "success" message.
+        const hint =
+          saved.error.code === '42703'
+            ? ' — a migration is missing. Run supabase/migrations/0006 and 0007.'
+            : saved.error.code === '42501'
+              ? ' — RLS denied the write. Check the ingredients_update policy in 0004.'
+              : '';
+        return fail(`Could not save the product found for "${product.title}": ${saved.error.message}${hint}`);
+      }
+      resolvedCount += 1;
     }
   }
 
@@ -188,7 +209,7 @@ export async function buildBasket(): Promise<BasketActionState> {
   const sessionCheck = await checkTescoSession();
   if (sessionCheck.authenticated) {
     await syncBasketToTesco(plan.id);
-    await startTescoCheckout(plan.id);
+    await startTescoCheckout();
   }
 
   const unpriced = result.needsPackData.length;

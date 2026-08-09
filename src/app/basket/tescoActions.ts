@@ -149,7 +149,15 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
 }
 
 /** Runs a checkout dry-run to retrieve actual slot pricing and total checkout cost. */
-export async function startTescoCheckout(planId: string): Promise<TescoActionState> {
+/**
+ * Fetches a checkout preview from Tesco.
+ *
+ * Deliberately takes no plan id: this previews whatever is in the collector's
+ * Tesco trolley server-side, which `syncBasketToTesco` has already populated.
+ * It previously accepted a `planId` it never read, which implied the preview
+ * was scoped to a plan when it is not.
+ */
+export async function startTescoCheckout(): Promise<TescoActionState> {
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 

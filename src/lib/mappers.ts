@@ -49,6 +49,13 @@ export function toHouse(row: HouseRow): House {
     collectorUserId: row.collector_user_id ?? '',
     sharedStaplesEnabled: row.shared_staples_enabled,
     fulfillmentMethod: row.fulfillment_method,
+    slotPreference: {
+      method: row.preferred_fulfillment_method,
+      day: row.preferred_day,
+      // Postgres `time` returns HH:MM:SS; the UI and matcher work in HH:MM.
+      windowStart: row.preferred_window_start ? row.preferred_window_start.slice(0, 5) : null,
+      windowEnd: row.preferred_window_end ? row.preferred_window_end.slice(0, 5) : null,
+    },
     deliveryPostcode: row.delivery_postcode,
     clickCollectStore: row.click_collect_store,
   };
@@ -123,6 +130,18 @@ export function toPlannedMeal(
 
 export function toWeeklyPlan(row: WeeklyPlanRow, meals: PlannedMeal[]): WeeklyPlan {
   return {
+    // A slot needs both an id and a charge to be usable: charge 0 is a real
+    // free collection slot, so only null means "not chosen".
+    slot:
+      row.slot_id && row.slot_charge !== null
+        ? {
+            id: row.slot_id,
+            method: row.slot_method ?? 'delivery',
+            startsAt: row.slot_starts_at,
+            endsAt: row.slot_ends_at,
+            charge: row.slot_charge,
+          }
+        : null,
     id: row.id,
     houseId: row.house_id,
     weekStartDate: row.week_start_date,

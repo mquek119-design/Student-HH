@@ -1,0 +1,563 @@
+<h2 class="sr-only">Grub brand identity with lighter colour usage, Gen Z brain-rotted voice, and full component system</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.bi{padding:1.5rem 0;font-family:var(--font-sans)}
+.sec{margin-bottom:2.5rem}
+.sl{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;font-weight:500}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.cd{border-radius:12px;border:0.5px solid var(--border);background:var(--surface-2);padding:1rem 1.25rem}
+.pill{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;margin:2px}
+.vx{font-size:13px;color:#1B4332;line-height:1.6;padding:10px 14px;border-radius:8px;margin-bottom:8px}
+.vl{font-size:10px;color:#8B7355;margin-bottom:2px;font-weight:500;letter-spacing:0.04em}
+</style>
+
+<div class="bi">
+
+<div class="sec">
+<div class="sl">Colour system — light-first</div>
+<div class="g2">
+<div class="cd">
+<div style="font-size:13px;font-weight:500;margin-bottom:10px;color:var(--text-secondary)">Surface hierarchy</div>
+<div style="display:flex;gap:6px;margin-bottom:6px">
+<div style="flex:1;text-align:center">
+<div style="height:56px;background:#FAFAF7;border:0.5px solid #E5E0DB;border-radius:8px"></div>
+<div style="font-size:10px;color:var(--text-muted);margin-top:4px">White #FAFAF7</div>
+<div style="font-size:10px;color:var(--text-muted)">Page background</div>
+</div>
+<div style="flex:1;text-align:center">
+<div style="height:56px;background:#F5F0EB;border-radius:8px"></div>
+<div style="font-size:10px;color:var(--text-muted);margin-top:4px">Oat #F5F0EB</div>
+<div style="font-size:10px;color:var(--text-muted)">Cards, sections</div>
+</div>
+<div style="flex:1;text-align:center">
+<div style="height:56px;background:#FFFFFF;border:0.5px solid #E5E0DB;border-radius:8px"></div>
+<div style="font-size:10px;color:var(--text-muted);margin-top:4px">Pure white</div>
+<div style="font-size:10px;color:var(--text-muted)">Elevated cards</div>
+</div>
+</div>
+<div style="font-size:12px;color:var(--text-secondary);margin-top:8px;line-height:1.5;padding:8px 10px;background:var(--surface-1);border-radius:var(--radius)">
+Forest green is for text, nav, and accents — never full-page background. The site breathes warm and light. Dark green appears only on the bottom nav bar and text headings.
+</div>
+</div>
+<div class="cd">
+<div style="font-size:13px;font-weight:500;margin-bottom:10px;color:var(--text-secondary)">Accent + semantic</div>
+<div style="display:flex;gap:6px;margin-bottom:8px">
+<div style="flex:1;text-align:center">
+<div style="height:48px;background:#1B4332;border-radius:8px"></div>
+<div style="font-size:10px;color:var(--text-muted);margin-top:4px">Forest #1B4332</div>
+<div style="font-size:10px;color:var(--text-muted)">Nav, headings, text</div>
+</div>
+<div style="flex:1;text-align:center">
+<div style="height:48px;background:#2D6A4F;border-radius:8px"></div>
+<div style="font-size:10px;color:var(--text-muted);margin-top:4px">Sage #2D6A4F</div>
+<div style="font-size:10px;color:var(--text-muted)">Secondary text</div>
+</div>
+<div style="flex:1;text-align:center">
+<div style="height:48px;background:#D4A574;border-radius:8px"></div>
+<div style="font-size:10px;color:var(--text-muted);margin-top:4px">Clay #D4A574</div>
+<div style="font-size:10px;color:var(--text-muted)">CTAs, highlights</div>
+</div>
+</div>
+<div style="display:flex;gap:6px">
+<div style="flex:1;text-align:center">
+<div style="height:36px;background:#52B788;border-radius:6px"></div>
+<div style="font-size:10px;color:var(--text-muted);margin-top:3px">Paid</div>
+</div>
+<div style="flex:1;text-align:center">
+<div style="height:36px;background:#E07A5F;border-radius:6px"></div>
+<div style="font-size:10px;color:var(--text-muted);margin-top:3px">Warning</div>
+</div>
+<div style="flex:1;text-align:center">
+<div style="height:36px;background:#C1121F;border-radius:6px"></div>
+<div style="font-size:10px;color:var(--text-muted);margin-top:3px">Error</div>
+</div>
+<div style="flex:1;text-align:center">
+<div style="height:36px;background:#D8F3DC;border-radius:6px"></div>
+<div style="font-size:10px;color:var(--text-muted);margin-top:3px">Mint tint</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="sec">
+<div class="sl">Light app chrome preview</div>
+<div style="display:flex;gap:20px;justify-content:center">
+<div style="width:180px;height:320px;border-radius:22px;border:2px solid #E5E0DB;background:#FAFAF7;overflow:hidden;position:relative">
+<div style="background:#1B4332;padding:10px 14px;display:flex;align-items:center;gap:8px">
+<i class="ti ti-soup" style="font-size:18px;color:#D4A574" aria-hidden="true"></i>
+<span style="font-family:Georgia,serif;font-size:16px;color:#D4A574">Grub</span>
+<i class="ti ti-bell" style="font-size:16px;color:#A3C4A8;margin-left:auto" aria-hidden="true"></i>
+</div>
+<div style="padding:10px">
+<div style="background:#F5F0EB;border-radius:10px;padding:10px;margin-bottom:8px">
+<div style="font-size:9px;color:#8B7355;font-weight:500">ORDER CUTOFF</div>
+<div style="font-size:24px;font-weight:500;color:#1B4332;text-align:center;padding:4px 0;letter-spacing:1px">04:22</div>
+<div style="font-size:9px;color:#2D6A4F;text-align:center">hours till ur food is cooked</div>
+</div>
+<div style="background:#fff;border:0.5px solid #E5E0DB;border-radius:10px;padding:8px 10px;margin-bottom:8px">
+<div style="font-size:9px;color:#8B7355;font-weight:500;margin-bottom:4px">THIS WEEK</div>
+<div style="font-size:11px;color:#1B4332;font-weight:500">14 shared meals</div>
+<div style="display:flex;align-items:center;gap:4px;margin-top:3px">
+<span style="background:#D8F3DC;color:#1B4332;font-size:9px;padding:2px 6px;border-radius:10px;font-weight:500">Saving £12.40</span>
+</div>
+</div>
+<div style="background:#fff;border:0.5px solid #E5E0DB;border-radius:10px;padding:8px 10px;margin-bottom:8px">
+<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px">
+<span style="color:#1B4332">Sarah</span><span style="color:#52B788;font-weight:500">Paid</span>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:10px">
+<span style="color:#1B4332">Mike</span><span style="color:#E07A5F;font-weight:500">Owes £8.50</span>
+</div>
+</div>
+<div style="background:#D4A574;color:#1B4332;padding:8px;border-radius:8px;text-align:center;font-size:11px;font-weight:500">What do you fancy</div>
+</div>
+<div style="position:absolute;bottom:0;left:0;right:0;height:44px;background:#1B4332;display:flex;align-items:center;justify-content:space-around">
+<i class="ti ti-home" style="font-size:18px;color:#D4A574" aria-hidden="true"></i>
+<i class="ti ti-calendar" style="font-size:18px;color:#A3C4A8" aria-hidden="true"></i>
+<i class="ti ti-shopping-cart" style="font-size:18px;color:#A3C4A8" aria-hidden="true"></i>
+<i class="ti ti-receipt" style="font-size:18px;color:#A3C4A8" aria-hidden="true"></i>
+</div>
+</div>
+<div style="flex:1;max-width:300px;padding-top:8px">
+<div style="font-size:13px;font-weight:500;color:#1B4332;margin-bottom:8px">Colour usage in practice</div>
+<div style="font-size:12px;color:var(--text-secondary);line-height:1.7">
+<span style="font-weight:500;color:#1B4332">Page bg</span> — warm off-white (#FAFAF7), never stark white, never dark green<br><br>
+<span style="font-weight:500;color:#1B4332">Cards</span> — oat (#F5F0EB) for info sections, pure white for interactive cards<br><br>
+<span style="font-weight:500;color:#1B4332">Nav bar</span> — only place forest green is a solid background<br><br>
+<span style="font-weight:500;color:#1B4332">Text</span> — forest green for headings, sage for body, never black<br><br>
+<span style="font-weight:500;color:#1B4332">CTAs</span> — clay buttons, forest text on them<br><br>
+<span style="font-weight:500;color:#1B4332">Savings</span> — mint tint badges with forest text
+</div>
+</div>
+</div>
+</div>
+
+<div class="sec">
+<div class="sl">Logo + icons</div>
+<div class="g2">
+<div class="g4">
+<div style="text-align:center">
+<div style="width:60px;height:60px;border-radius:15px;background:#1B4332;margin:0 auto 4px;display:flex;align-items:center;justify-content:center"><i class="ti ti-soup" style="font-size:26px;color:#D4A574" aria-hidden="true"></i></div>
+<div style="font-size:10px;color:var(--text-muted)">Default</div>
+</div>
+<div style="text-align:center">
+<div style="width:60px;height:60px;border-radius:15px;background:#D4A574;margin:0 auto 4px;display:flex;align-items:center;justify-content:center"><i class="ti ti-soup" style="font-size:26px;color:#1B4332" aria-hidden="true"></i></div>
+<div style="font-size:10px;color:var(--text-muted)">Inverted</div>
+</div>
+<div style="text-align:center">
+<div style="width:60px;height:60px;border-radius:15px;background:#1B4332;margin:0 auto 4px;display:flex;align-items:center;justify-content:center"><span style="font-family:Georgia,serif;font-size:24px;color:#D4A574">G</span></div>
+<div style="font-size:10px;color:var(--text-muted)">Letter</div>
+</div>
+<div style="text-align:center">
+<div style="width:60px;height:60px;border-radius:15px;background:#F5F0EB;border:0.5px solid #E5E0DB;margin:0 auto 4px;display:flex;align-items:center;justify-content:center"><i class="ti ti-soup" style="font-size:26px;color:#1B4332" aria-hidden="true"></i></div>
+<div style="font-size:10px;color:var(--text-muted)">Light</div>
+</div>
+</div>
+<div>
+<div style="background:#F5F0EB;border-radius:12px;padding:1.25rem;text-align:center;margin-bottom:8px">
+<div style="display:flex;align-items:center;justify-content:center;gap:10px">
+<i class="ti ti-soup" style="font-size:22px;color:#1B4332" aria-hidden="true"></i>
+<span style="font-family:Georgia,serif;font-size:22px;color:#1B4332;letter-spacing:-0.5px">Grub</span>
+</div>
+<div style="font-size:10px;color:#8B7355;margin-top:4px">On oat — primary lockup</div>
+</div>
+<div style="background:#1B4332;border-radius:12px;padding:1.25rem;text-align:center">
+<div style="display:flex;align-items:center;justify-content:center;gap:10px">
+<i class="ti ti-soup" style="font-size:22px;color:#D4A574" aria-hidden="true"></i>
+<span style="font-family:Georgia,serif;font-size:22px;color:#D4A574;letter-spacing:-0.5px">Grub</span>
+</div>
+<div style="font-size:10px;color:#A3C4A8;margin-top:4px">On forest — nav only</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="sec">
+<div class="sl">All taglines</div>
+<div class="g2" style="margin-bottom:10px">
+<div class="cd" style="text-align:center;padding:1.5rem;background:#F5F0EB">
+<div style="font-family:Georgia,serif;font-size:20px;color:#1B4332;margin-bottom:4px">Stop buying four bags of pasta.</div>
+<div style="font-size:11px;color:#8B7355">Hero — pain point</div>
+</div>
+<div class="cd" style="text-align:center;padding:1.5rem;background:#F5F0EB">
+<div style="font-family:Georgia,serif;font-size:20px;color:#1B4332;margin-bottom:4px">One house. One shop. Sorted.</div>
+<div style="font-size:11px;color:#8B7355">Hero — solution</div>
+</div>
+</div>
+<div class="g2">
+<div class="cd" style="text-align:center;padding:1.25rem;background:#F5F0EB">
+<div style="font-size:16px;color:#1B4332">Your house eats smarter</div>
+<div style="font-size:11px;color:#8B7355;margin-top:4px">Sub-headline</div>
+</div>
+<div class="cd" style="text-align:center;padding:1.25rem;background:#F5F0EB">
+<div style="font-size:16px;color:#1B4332">Meal plan together, shop once, split fair</div>
+<div style="font-size:11px;color:#8B7355;margin-top:4px">Explainer</div>
+</div>
+</div>
+</div>
+
+<div class="sec" style="border-top:0.5px solid var(--border);padding-top:2rem">
+<div class="sl">Voice guide — slightly unhinged, fully clear</div>
+
+<div style="padding:14px 18px;background:#F5F0EB;border-radius:12px;margin-bottom:16px;font-size:14px;color:#1B4332;line-height:1.6">
+Grub talks like your most organised housemate after two drinks. Lowkey chaotic energy but the message always lands. Self-aware about being a grocery app. Knows nobody's excited about a weekly shop — leans into it. The brain rot is seasoning, not the dish. Every line still has to be instantly understood by someone speed-reading at 11pm.
+</div>
+
+<div class="g2" style="margin-bottom:16px">
+<div>
+<div class="sl">Onboarding</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">WELCOME</div>
+"You're in. Now drag the rest of your house in here before they buy another four pints of milk."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">INVITE</div>
+"Drop this link in the group chat. Yes even the one who eats cereal for dinner. Especially them."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">HOUSE CREATED</div>
+"Flat 4B understood the assignment. First shop starts when everyone picks what they fancy."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">FIRST RECIPE</div>
+"First meal on the board. Three more and this thing starts saving you actual money."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">SECOND HOUSEMATE</div>
+"Two of you now. Every person who joins makes the shop cheaper. Peer pressure but make it useful."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">ALL JOINED</div>
+"Full house. The algorithm is rubbing its hands together. This is where it gets good."
+</div>
+</div>
+<div>
+<div class="sl">Empty states</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">NO RECIPES</div>
+"Absolutely nothing here. Paste a TikTok link or just search 'pasta' — be honest with yourself."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">NO PLAN</div>
+"Nobody's picked anything. You're all just going to wing it again aren't you."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">EMPTY PANTRY</div>
+"Your cupboard is giving nothing. Probably accurate."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">NO SAVED RECIPES</div>
+"Save the ones you actually make instead of scrolling past them for the 400th time."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">NO SAVINGS YET</div>
+"No receipts yet. Finish your first shop and we start counting."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">NO BALANCE HISTORY</div>
+"Clean slate. No one owes anyone anything. Enjoy it while it lasts."
+</div>
+</div>
+</div>
+
+<div class="g2" style="margin-bottom:16px">
+<div>
+<div class="sl">Nudges and chasing</div>
+<div class="vx" style="background:#FDECD0">
+<div class="vl">HASN'T PICKED — TO HOUSE</div>
+"Your shop locks in 6 hours and Alex is ghosting the app. Give them a poke."
+</div>
+<div class="vx" style="background:#FDECD0">
+<div class="vl">CUTOFF SOON</div>
+"3 hours left. If you don't pick you're eating whatever everyone else wanted. No sympathy."
+</div>
+<div class="vx" style="background:#FDECD0">
+<div class="vl">HASN'T PAID — TO HOUSE</div>
+"Mike still hasn't paid. We're all thinking it. Want to nudge?"
+</div>
+<div class="vx" style="background:#FDECD0">
+<div class="vl">HASN'T PAID — TO MIKE</div>
+"You owe Sarah £8.50 from Thursday's shop. She can see this and she's not happy about it."
+</div>
+<div class="vx" style="background:#FDECD0">
+<div class="vl">COLLECTOR HASN'T ORDERED</div>
+"Basket's been sat there since Sunday. Jordan. Bestie. Your move."
+</div>
+<div class="vx" style="background:#FDECD0">
+<div class="vl">SECOND NUDGE</div>
+"Still waiting on you. Delivery slots are disappearing. This is not a drill."
+</div>
+<div class="vx" style="background:#FDECD0">
+<div class="vl">FINAL WARNING</div>
+"Last slot is in 2 hours. After that you're all walking to Tesco Express in the rain. Again."
+</div>
+</div>
+<div>
+<div class="sl">Savings and wins</div>
+<div class="vx" style="background:#D8F3DC">
+<div class="vl">WEEKLY SAVINGS</div>
+"Saved £4.20 this week because one bag of rice did the work of three. We move."
+</div>
+<div class="vx" style="background:#D8F3DC">
+<div class="vl">OWN-BRAND SWAP</div>
+"Swapped Tesco Finest for Stockwell and Co. Saved £4.28. Literally no one noticed."
+</div>
+<div class="vx" style="background:#D8F3DC">
+<div class="vl">CUMULATIVE</div>
+"Flat 4B has saved £142 this term. That's 47 pints. You're welcome."
+</div>
+<div class="vx" style="background:#D8F3DC">
+<div class="vl">HOUSE COMPARISON</div>
+"£23 per person this week. Average student house: £34. The chokehold this app has on your budget."
+</div>
+<div class="vx" style="background:#D8F3DC">
+<div class="vl">OVERLAP WIN</div>
+"That one tin of chopped tomatoes showed up in four meals. Working overtime."
+</div>
+<div class="vx" style="background:#D8F3DC">
+<div class="vl">PERSONAL MILESTONE</div>
+"12 meals planned this month. Main character energy."
+</div>
+<div class="vx" style="background:#D8F3DC">
+<div class="vl">STREAK</div>
+"4 weeks straight. Consistency is lowkey the flex here."
+</div>
+</div>
+</div>
+
+<div class="g2" style="margin-bottom:16px">
+<div>
+<div class="sl">Basket and shopping</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">OVER BUDGET</div>
+"£7 over. Swap the Lurpak for own-brand and you're golden. Nobody's that attached to butter."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">UNDER MINIMUM</div>
+"£8 short of delivery minimum. Chuck in some snacks or do click-and-collect. Your call."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">BASKET READY</div>
+"23 items. £42.50. Everyone fed for the week. That's the whole point."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">ORDER PLACED</div>
+"Order's in. Thursday 6-8. Someone be home or it's giving abandoned groceries."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">PANTRY MATCH</div>
+"You've already got pasta and cheddar. This recipe only needs cream and garlic. Rent free in your cupboard."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">OWN-BRAND TOGGLE</div>
+"Own-brand mode: on. Same food, less drama on the bank statement."
+</div>
+</div>
+<div>
+<div class="sl">Errors and problems</div>
+<div class="vx" style="background:#FCDADA">
+<div class="vl">SESSION EXPIRED</div>
+"Tesco logged you out. Classic. Collector needs to sign back in — 30 seconds, tops."
+</div>
+<div class="vx" style="background:#FCDADA">
+<div class="vl">SLOT GONE</div>
+"Thursday 6-8 got taken. Next one's Friday 7-9. Swap?"
+</div>
+<div class="vx" style="background:#FCDADA">
+<div class="vl">OUT OF STOCK</div>
+"The good mozzarella's gone. Swapped in the next cheapest. Life goes on."
+</div>
+<div class="vx" style="background:#FCDADA">
+<div class="vl">SUBSTITUTION</div>
+"Tesco swapped your oat milk for almond. Accept it or reject it — either way the split changes."
+</div>
+<div class="vx" style="background:#FCDADA">
+<div class="vl">PAYMENT DISPUTED</div>
+"Sarah says she hasn't received your payment. Bit awkward. Sort it out."
+</div>
+<div class="vx" style="background:#FCDADA">
+<div class="vl">GENERIC ERROR</div>
+"Something broke. Not ideal. Try again in a sec."
+</div>
+</div>
+</div>
+
+<div class="g2" style="margin-bottom:16px">
+<div>
+<div class="sl">Split and money</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">SPLIT POSTED</div>
+"This week's damage: you owe Sarah £31.40."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">BREAKDOWN</div>
+"Here's the maths. Shared staples, three dinners, and whatever that snack situation was."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">DELIVERY FEE</div>
+"Delivery: £3.50 (88p each). Still cheaper than walking to Tesco Express in the rain."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">ALL SETTLED</div>
+"Everyone's paid up. Clean slate. The peace is temporary but we take the win."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">I'VE PAID CONFIRMATION</div>
+"Marked as paid. If you're lying the collector can dispute this and then it's between you and god."
+</div>
+</div>
+<div>
+<div class="sl">Recipes and cooking</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">RECIPE SCRAPED</div>
+"Pulled the ingredients from that TikTok pasta. £1.85 a portion. This slaps."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">COOK MODE</div>
+"Screen stays on. Your hands are covered in garlic. We know the drill."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">HOUSE FAVOURITE</div>
+"Cooked 6 times by your house. Hall of fame material."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">SURPRISE ME</div>
+"Here. Under a fiver, 20 minutes, uses what you've got. No thoughts, just cooking."
+</div>
+<div class="vx" style="background:#F5F0EB">
+<div class="vl">TRENDING</div>
+"Everyone on Grub is making this right now. Jump on it or be the last to know."
+</div>
+</div>
+</div>
+
+<div style="margin-bottom:16px">
+<div class="sl">Destructive actions</div>
+<div class="g3">
+<div class="vx" style="background:#FCDADA">
+<div class="vl">LEAVE HOUSE</div>
+"If you leave, your share of this week's shop stays. Outstanding debts follow you. Sure about this?"
+</div>
+<div class="vx" style="background:#FCDADA">
+<div class="vl">REMOVE HOUSEMATE</div>
+"Removing Alex from the house. Any unsettled balance needs sorting outside the app. Godspeed."
+</div>
+<div class="vx" style="background:#FCDADA">
+<div class="vl">DELETE ACCOUNT</div>
+"This deletes everything. Recipes, savings streak, your entire legacy. No going back."
+</div>
+</div>
+</div>
+</div>
+
+<div class="sec" style="border-top:0.5px solid var(--border);padding-top:2rem">
+<div class="sl">Voice principles — the rules underneath</div>
+<div class="g2">
+<div class="cd" style="border-left:3px solid #52B788;border-radius:0">
+<div style="font-size:12px;color:#2D6A4F;font-weight:500;margin-bottom:8px">DO</div>
+<div style="font-size:13px;color:var(--text-primary);line-height:1.9">
+<span style="font-weight:500;color:#2D6A4F">Be specific.</span> "Swap the Lurpak" not "consider alternatives." Real products, real numbers.<br><br>
+<span style="font-weight:500;color:#2D6A4F">Use pounds not feelings.</span> "£4.28 saved" not "save money." Students budget in numbers.<br><br>
+<span style="font-weight:500;color:#2D6A4F">Name people.</span> "Mike hasn't paid" not "1 outstanding." Social pressure is the feature.<br><br>
+<span style="font-weight:500;color:#2D6A4F">Translate savings.</span> "47 pints" lands harder than "£142." Speak their currency.<br><br>
+<span style="font-weight:500;color:#2D6A4F">Acknowledge the awkward.</span> Money between housemates is uncomfortable. Don't pretend it isn't.<br><br>
+<span style="font-weight:500;color:#2D6A4F">Brain rot is seasoning.</span> One per screen, max. "We move" after a savings stat. "This slaps" on a recipe. Never two in a row. Never on money screens.<br><br>
+<span style="font-weight:500;color:#2D6A4F">Stay instantly readable.</span> If someone speed-reading at 11pm can't get it in one pass, rewrite it.
+</div>
+</div>
+<div class="cd" style="border-left:3px solid #C1121F;border-radius:0">
+<div style="font-size:12px;color:#C1121F;font-weight:500;margin-bottom:8px">DON'T</div>
+<div style="font-size:13px;color:var(--text-primary);line-height:1.9">
+<span style="font-weight:500;color:#C1121F">No corporate.</span> "Optimise your grocery expenditure" is instant uninstall energy.<br><br>
+<span style="font-weight:500;color:#C1121F">No "please".</span> The app isn't asking a favour. "Submit your fancy" not "Please submit."<br><br>
+<span style="font-weight:500;color:#C1121F">No exclamation marks.</span> "Saved £12" not "You saved £12!" The number does the work.<br><br>
+<span style="font-weight:500;color:#C1121F">No "successfully".</span> "Order placed" not "Order successfully placed." We know.<br><br>
+<span style="font-weight:500;color:#C1121F">No try-hard slang.</span> Don't force it. "No cap this basket is fire fr fr" is cringe. One touch per screen. Let the structure be professional, let the language be human.<br><br>
+<span style="font-weight:500;color:#C1121F">No lecturing.</span> "You're over budget" is fine. "You should consider reducing your basket to align with your weekly target" is a uni admin email.<br><br>
+<span style="font-weight:500;color:#C1121F">No hedging.</span> "Something broke. Try again." Not "We're sorry, an unexpected error has occurred."
+</div>
+</div>
+</div>
+</div>
+
+<div class="sec">
+<div class="sl">Components</div>
+<div class="g3">
+<div class="cd" style="background:#F5F0EB">
+<div style="font-size:13px;font-weight:500;color:#1B4332;margin-bottom:8px">Buttons</div>
+<div style="background:#D4A574;color:#1B4332;padding:10px 20px;border-radius:8px;text-align:center;font-size:14px;font-weight:500;margin-bottom:8px">What do you fancy</div>
+<div style="background:#2D6A4F;color:#D8F3DC;padding:10px 20px;border-radius:8px;text-align:center;font-size:14px;font-weight:500;margin-bottom:8px">Change slot</div>
+<div style="background:#FAFAF7;color:#1B4332;padding:10px 20px;border-radius:8px;text-align:center;font-size:14px;border:1.5px solid #2D6A4F">View recipes</div>
+</div>
+<div class="cd" style="background:#F5F0EB">
+<div style="font-size:13px;font-weight:500;color:#1B4332;margin-bottom:8px">Badges</div>
+<div style="margin-bottom:6px"><span class="pill" style="background:#D8F3DC;color:#1B4332"><i class="ti ti-check" style="font-size:12px;margin-right:2px" aria-hidden="true"></i> Paid</span></div>
+<div style="margin-bottom:6px"><span class="pill" style="background:#FDECD0;color:#7C4A1E"><i class="ti ti-clock" style="font-size:12px;margin-right:2px" aria-hidden="true"></i> Pending</span></div>
+<div style="margin-bottom:6px"><span class="pill" style="background:#FCDADA;color:#7A1A1A"><i class="ti ti-alert-circle" style="font-size:12px;margin-right:2px" aria-hidden="true"></i> Overdue</span></div>
+<div style="margin-bottom:6px"><span class="pill" style="background:#D8F3DC;color:#1B4332"><i class="ti ti-leaf" style="font-size:12px;margin-right:2px" aria-hidden="true"></i> Shared</span></div>
+<div><span class="pill" style="background:#F5E6D3;color:#5C3D1E"><i class="ti ti-user" style="font-size:12px;margin-right:2px" aria-hidden="true"></i> Solo</span></div>
+</div>
+<div class="cd" style="background:#F5F0EB">
+<div style="font-size:13px;font-weight:500;color:#1B4332;margin-bottom:8px">Cards</div>
+<div style="background:#fff;border:0.5px solid #E5E0DB;border-radius:10px;padding:10px 12px;margin-bottom:8px">
+<div style="font-size:12px;font-weight:500;color:#1B4332">Creamy tomato pasta</div>
+<div style="font-size:11px;color:#8B7355;margin-top:2px">25 min <span style="color:#D4A574;font-weight:500">£1.85/p</span></div>
+</div>
+<div style="background:#fff;border:0.5px solid #E5E0DB;border-radius:10px;padding:10px 12px">
+<div style="display:flex;justify-content:space-between;font-size:12px">
+<span style="color:#1B4332;font-weight:500">Whole milk 2L</span>
+<span style="color:#8B7355">£1.65</span>
+</div>
+<div style="display:flex;gap:4px;margin-top:4px">
+<div style="width:18px;height:18px;border-radius:50%;background:#2D6A4F;font-size:8px;color:#D8F3DC;display:flex;align-items:center;justify-content:center">S</div>
+<div style="width:18px;height:18px;border-radius:50%;background:#D4A574;font-size:8px;color:#3D2B1F;display:flex;align-items:center;justify-content:center">M</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="sec">
+<div class="sl">Social + competitive</div>
+<div class="g2">
+<div class="cd" style="background:#1B4332;padding:1.5rem">
+<div style="font-size:11px;color:#A3C4A8;font-weight:500;margin-bottom:8px">INSTAGRAM / TIKTOK</div>
+<div style="font-family:Georgia,serif;font-size:16px;color:#D4A574;margin-bottom:6px">Grub</div>
+<div style="font-size:13px;color:#D8F3DC;line-height:1.6">Your house shops smarter.<br>Plan together. One Tesco order. Split fair.<br>Stop buying four bags of pasta.</div>
+<div style="margin-top:10px"><span class="pill" style="background:rgba(212,165,116,0.2);color:#D4A574">grub.app/join</span></div>
+</div>
+<div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+<div style="text-align:center;min-width:70px">
+<div style="height:38px;width:38px;border-radius:10px;background:#FF5A00;margin:0 auto 3px;display:flex;align-items:center;justify-content:center"><span style="color:white;font-size:12px;font-weight:500">J!</span></div>
+<div style="font-size:9px;color:var(--text-muted)">Just Eat</div>
+</div>
+<div style="text-align:center;min-width:70px">
+<div style="height:38px;width:38px;border-radius:10px;background:#00CCBC;margin:0 auto 3px;display:flex;align-items:center;justify-content:center"><span style="color:white;font-size:12px;font-weight:500">D</span></div>
+<div style="font-size:9px;color:var(--text-muted)">Deliveroo</div>
+</div>
+<div style="text-align:center;min-width:70px">
+<div style="height:38px;width:38px;border-radius:10px;background:#00539F;margin:0 auto 3px;display:flex;align-items:center;justify-content:center"><span style="color:white;font-size:12px;font-weight:500">T</span></div>
+<div style="font-size:9px;color:var(--text-muted)">Tesco</div>
+</div>
+<div style="text-align:center;min-width:70px">
+<div style="height:38px;width:38px;border-radius:10px;background:#14233C;margin:0 auto 3px;display:flex;align-items:center;justify-content:center"><span style="color:#FF8B67;font-size:12px;font-weight:500">M</span></div>
+<div style="font-size:9px;color:var(--text-muted)">Monzo</div>
+</div>
+<div style="text-align:center;min-width:70px;position:relative">
+<div style="position:absolute;top:-5px;right:2px;font-size:8px;background:#D4A574;color:#1B4332;padding:1px 5px;border-radius:8px;font-weight:500">You</div>
+<div style="height:38px;width:38px;border-radius:10px;background:#1B4332;margin:0 auto 3px;display:flex;align-items:center;justify-content:center"><i class="ti ti-soup" style="font-size:16px;color:#D4A574" aria-hidden="true"></i></div>
+<div style="font-size:9px;color:var(--text-muted)">Grub</div>
+</div>
+</div>
+<div style="margin-top:10px;font-size:12px;color:var(--text-secondary);line-height:1.6">
+Forest + clay: completely unoccupied on a student's phone. Every food app is red/teal/orange. Every fintech is blue/purple. Grub stands out at icon size without competing.
+</div>
+</div>
+</div>
+</div>
+
+</div>

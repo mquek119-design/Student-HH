@@ -1,6 +1,7 @@
 import { chromium, Page } from 'playwright';
 import * as fs from 'fs';
 import * as os from 'os';
+import { normaliseCookies } from './normalise-cookies';
 
 export interface CheckoutResult {
   order_id: string;
@@ -19,7 +20,9 @@ async function loadSession(page: Page): Promise<void> {
   }
   
   const session = JSON.parse(fs.readFileSync(sessionFile, 'utf-8'));
-  await page.context().addCookies(session.cookies);
+  // LOCAL CHANGE: Cookie Editor exports use sameSite spellings Playwright
+  // rejects. See lib/tesco/browser/normalise-cookies.ts
+  await page.context().addCookies(normaliseCookies(session.cookies));
 }
 
 /**

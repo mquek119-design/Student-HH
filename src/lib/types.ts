@@ -36,6 +36,16 @@ export interface House {
   fulfillmentMethod: 'collect' | 'delivery';
   deliveryPostcode: string | null;
   clickCollectStore: string;
+  /**
+   * Optional slot preference. Every field may be null — this only ever
+   * *suggests* a slot; the collector still selects one explicitly.
+   */
+  slotPreference: {
+    method: 'delivery' | 'collect' | null;
+    day: Weekday | null;
+    windowStart: string | null;
+    windowEnd: string | null;
+  };
 }
 
 export interface User {
@@ -122,6 +132,17 @@ export interface WeeklyPlan {
   meals: PlannedMeal[];
   conflicts: PlanConflict[];
   sharedSavings: Pence;
+  /**
+   * The booked delivery/collection slot, if one has been chosen.
+   * `charge` is integer pence; 0 is a real free slot, null means unchosen.
+   */
+  slot: {
+    id: string;
+    method: 'delivery' | 'collect';
+    startsAt: string | null;
+    endsAt: string | null;
+    charge: Pence;
+  } | null;
 }
 
 /** How one basket line is divided. Shares are relative weights, not fractions. */

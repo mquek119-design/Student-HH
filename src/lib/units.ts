@@ -33,13 +33,25 @@ const UNITS: Record<string, UnitSpec> = {
  * a pack — so each forms its own aggregation group, converting only to itself.
  */
 const COUNT_UNITS = new Set([
-  'whole', 'tin', 'tins', 'pack', 'packs', 'jar', 'jars', 'box', 'boxes',
+  'whole', 'each', 'piece', 'pieces', 'item', 'items',
+  'tin', 'tins', 'pack', 'packs', 'jar', 'jars', 'box', 'boxes',
   'clove', 'cloves', 'nest', 'nests', 'slice', 'slices', 'tub', 'tubs', 'bunch',
 ]);
 
-/** Singularises the countable units so "tin" and "tins" aggregate together. */
+/**
+ * Collapses countable units to one canonical spelling so they aggregate.
+ *
+ * "each", "piece" and "item" all mean a bare countable thing, so they fold into
+ * "whole". Without this a recipe saying `2 each Onion` and another saying
+ * `1 Onion` (which the parser records as `whole`) land in different groups and
+ * are never pooled — silently defeating the overlap the app exists for.
+ *
+ * Note "pack" deliberately stays distinct: a pack is a container, and how many
+ * items it holds is pack data, not a unit.
+ */
 function canonicalCount(unit: string): string {
   const map: Record<string, string> = {
+    each: 'whole', piece: 'whole', pieces: 'whole', item: 'whole', items: 'whole',
     tins: 'tin', packs: 'pack', jars: 'jar', boxes: 'box', cloves: 'clove',
     nests: 'nest', slices: 'slice', tubs: 'tub', pints: 'pint',
   };

@@ -128,23 +128,46 @@ export class TescoProvider implements GroceryProvider {
   // Delivery & Checkout (browser automation)
   // ─────────────────────────────────────────────────────────
 
-  async getDeliverySlots(): Promise<DeliverySlot[]> {
+  // LOCAL CHANGE (see lib/tesco/VENDOR-CHANGES.md): method selects van vs collection.
+  async getDeliverySlots(method: 'delivery' | 'collect' = 'delivery'): Promise<DeliverySlot[]> {
     // Use GraphQL API (preferred) — falls back to Playwright if API fails
     try {
       const today = new Date().toISOString().slice(0, 10);
       const twoWeeks = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-      const data = await this.api.getSlots(today, twoWeeks);
+      const data = await this.api.getSlots(
+        today,
+        twoWeeks,
+        method
+      );
 
       const rawSlots: any[] = Array.isArray(data?.delivery)
         ? data.delivery
         : data?.delivery || [];
 
+      // LOCAL CHANGE (see lib/tesco/VENDOR-CHANGES.md): format in Europe/London.
+      //
+      // This previously used toTimeString() (the machine's local zone) for the
+      // time but toISOString() (UTC) for the date — two different zones on the
+      // same slot. On a developer machine at UTC+7 a real 08:00 UK slot
+      // rendered as "14:00", and a late-evening slot landed on the wrong date.
+      // Booking from that display picks the wrong slot.
+      //
+      // `starts_at`/`ends_at` carry the unambiguous instant so callers can
+      // store it without re-deriving anything from the display strings.
+      const inLondon = (iso: string, opts: Intl.DateTimeFormatOptions) =>
+        new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', ...opts }).format(new Date(iso));
+
       return rawSlots.map((s: any) => ({
         slot_id: String(s.id || ''),
-        start_time: s.start ? new Date(s.start).toTimeString().slice(0, 5) : '',
-        end_time: s.end ? new Date(s.end).toTimeString().slice(0, 5) : '',
-        date: s.start ? new Date(s.start).toISOString().slice(0, 10) : '',
-        price: parseFloat(s.price?.afterDiscount || s.charge || 0),
+        start_time: s.start ? inLondon(s.start, { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
+        end_time: s.end ? inLondon(s.end, { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
+        // en-CA gives ISO-ordered YYYY-MM-DD.
+        date: s.start
+          ? new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date(s.start))
+          : '',
+        starts_at: s.start ?? null,
+        ends_at: s.end ?? null,
+        price: parseFloat(s.price?.afterDiscount ?? s.charge ?? 0),
         available: String(s.status || '').toLowerCase() === 'available',
       }));
 

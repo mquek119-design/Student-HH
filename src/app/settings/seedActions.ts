@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/queries';
 
@@ -8,6 +9,30 @@ export async function seedDemoData() {
   if (!me.houseId) return { status: 'error', message: 'Join a house first.' };
 
   const supabase = createClient();
+
+  // 1. Demo housemates.
+  //
+  // These go through seed_demo_housemates(), a SECURITY DEFINER function.
+  // Writing to `profiles` directly cannot work: the insert policy is
+  // `with check (id = auth.uid())`, so any row but your own is refused. An
+  // earlier version did exactly that, logged the rejection, and still reported
+  // success — hence going through the function and surfacing the error.
+  const seeded = await supabase.rpc('seed_demo_housemates', {
+    p_names: ['Alex', 'Maya', 'Sam'],
+  });
+
+  if (seeded.error) {
+    return {
+      status: 'error',
+      message: `Could not add demo housemates: ${seeded.error.message}${
+        seeded.error.code === 'PGRST202'
+          ? ' — run supabase/migrations/0008_demo_housemates.sql.'
+          : ''
+      }`,
+    };
+  }
+
+  const housematesAdded = seeded.data ?? 0;
 
   // 2. Seed 5 Asian and 5 Western Recipes
   const recipesToSeed = [
@@ -159,6 +184,8 @@ export async function seedDemoData() {
     },
   ];
 
+  let recipesAdded = 0;
+
   for (const r of recipesToSeed) {
     const { data: existingRec } = await supabase
       .from('recipes')
@@ -213,8 +240,39 @@ export async function seedDemoData() {
         unit: ing.unit,
       }));
       await supabase.from('recipe_ingredients').insert(links);
+      recipesAdded += 1;
     }
   }
 
-  return { status: 'success', message: 'Demo recipes seeded successfully! To test splits, copy the invite code from House Settings and log in with other email accounts in separate browser sessions.' };
+  revalidatePath('/recipes');
+  revalidatePath('/plan');
+  revalidatePath('/settings');
+
+  return {
+    status: 'success',
+    message:
+      `Seeded ${recipesAdded} recipe${recipesAdded === 1 ? '' : 's'} and ` +
+      `${housematesAdded} demo housemate${housematesAdded === 1 ? '' : 's'}. ` +
+      'Re-running adds only what is missing.',
+  };
+}
+
+/** Removes the demo housemates again, so the house can be handed to real people. */
+export async function removeDemoHousemates() {
+  const me = await getCurrentUser();
+  if (!me.houseId) return { status: 'error', message: 'Join a house first.' };
+
+  const supabase = createClient();
+  const removed = await supabase.rpc('remove_demo_housemates');
+
+  if (removed.error) {
+    return { status: 'error', message: removed.error.message };
+  }
+
+  revalidatePath('/settings');
+  revalidatePath('/split');
+  return {
+    status: 'success',
+    message: `Removed ${removed.data ?? 0} demo housemate${removed.data === 1 ? '' : 's'}.`,
+  };
 }

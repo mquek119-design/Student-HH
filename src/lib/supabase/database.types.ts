@@ -40,6 +40,12 @@ type HouseRow = {
   fulfillment_method: 'collect' | 'delivery';
   delivery_postcode: string | null;
   click_collect_store: string;
+  // Optional slot preferences (migration 0010). All nullable — a house that
+  // never sets these still gets a fully usable picker.
+  preferred_fulfillment_method: 'delivery' | 'collect' | null;
+  preferred_day: Weekday | null;
+  preferred_window_start: string | null;
+  preferred_window_end: string | null;
   created_at: string;
 }
 
@@ -107,6 +113,13 @@ type WeeklyPlanRow = {
   cutoff_at: string;
   shared_savings: number;
   created_at: string;
+  // Booked delivery/collection slot (migration 0009).
+  slot_id: string | null;
+  slot_method: 'delivery' | 'collect' | null;
+  slot_starts_at: string | null;
+  slot_ends_at: string | null;
+  /** Charge in integer pence. Null = no slot chosen; 0 = chosen and free. */
+  slot_charge: number | null;
 }
 
 type PlannedMealRow = {
@@ -214,12 +227,12 @@ export type Database = {
     Views: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
     Tables: {
-      houses: TableDef<HouseRow, Insertable<HouseRow, 'id' | 'invite_code' | 'created_at' | 'delivery_day' | 'delivery_time' | 'cutoff_day' | 'cutoff_time' | 'collector_user_id' | 'shared_staples_enabled' | 'fulfillment_method' | 'delivery_postcode' | 'click_collect_store'>>;
+      houses: TableDef<HouseRow, Insertable<HouseRow, 'id' | 'invite_code' | 'created_at' | 'delivery_day' | 'delivery_time' | 'cutoff_day' | 'cutoff_time' | 'collector_user_id' | 'shared_staples_enabled' | 'fulfillment_method' | 'delivery_postcode' | 'click_collect_store' | 'preferred_fulfillment_method' | 'preferred_day' | 'preferred_window_start' | 'preferred_window_end'>>;
       profiles: TableDef<ProfileRow, Insertable<ProfileRow, 'created_at' | 'house_id' | 'room' | 'avatar_url' | 'accent' | 'dietary_preferences' | 'payment_details_text' | 'is_admin'>>;
       ingredients: TableDef<IngredientRow, Insertable<IngredientRow, 'id' | 'default_unit' | 'category' | 'pack_size' | 'pack_unit' | 'pack_price' | 'original_price' | 'image_url' | 'tesco_product_id' | 'tesco_title' | 'tesco_synced_at'>>;
       recipes: TableDef<RecipeRow, Insertable<RecipeRow, 'id' | 'created_at' | 'house_id' | 'created_by' | 'source_url' | 'image_url' | 'cook_time_mins' | 'difficulty' | 'servings' | 'cost_per_portion' | 'tags' | 'instructions' | 'pro_tip'>>;
       recipe_ingredients: TableDef<RecipeIngredientRow, RecipeIngredientRow>;
-      weekly_plans: TableDef<WeeklyPlanRow, Insertable<WeeklyPlanRow, 'id' | 'created_at' | 'status' | 'shared_savings'>>;
+      weekly_plans: TableDef<WeeklyPlanRow, Insertable<WeeklyPlanRow, 'id' | 'created_at' | 'status' | 'shared_savings' | 'slot_id' | 'slot_method' | 'slot_starts_at' | 'slot_ends_at' | 'slot_charge'>>;
       planned_meals: TableDef<PlannedMealRow, Insertable<PlannedMealRow, 'id' | 'meal_type' | 'is_shared' | 'cooked_by_user_id'>>;
       meal_participants: TableDef<MealParticipantRow, Insertable<MealParticipantRow, 'opted_out'>>;
       basket_items: TableDef<BasketItemRow, Insertable<BasketItemRow, 'id' | 'created_at' | 'tesco_product_id' | 'subtitle' | 'image_url' | 'category' | 'quantity' | 'original_unit_price' | 'own_brand_available' | 'ingredient_id' | 'packs_if_separate' | 'packs_from_pantry'>>;
@@ -241,6 +254,8 @@ export type Database = {
         Returns: HouseRow;
       };
       current_house_id: { Args: Record<string, never>; Returns: string | null };
+      seed_demo_housemates: { Args: { p_names: string[] }; Returns: number };
+      remove_demo_housemates: { Args: Record<string, never>; Returns: number };
     };
     Enums: {
       weekday: Weekday;

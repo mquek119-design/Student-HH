@@ -299,10 +299,25 @@ export class TescoAPI {
   // Delivery Slots
   // ─────────────────────────────────────────────────────────
 
-  async getSlots(start: string, end: string) {
-    return this.gql('DeliverySlots', `
-      query DeliverySlots($start: String, $end: String, $type: FulfilmentTypeType) {
-        delivery(start: $start, end: $end) {
+  // LOCAL CHANGE (see lib/tesco/VENDOR-CHANGES.md).
+  //
+  // Slots live under two different ROOT FIELDS, not one field with a type
+  // argument: `delivery(start,end)` and `collection(start,end)`. `Query.delivery`
+  // rejects a `type` argument outright — an earlier attempt passed
+  // `type: 'COLLECTION'` to the `fulfilment(...)` sibling field, which only
+  // returns metadata, so it silently kept returning delivery vans.
+  //
+  // Both fields return the same shape, so the caller can treat them alike.
+  async getSlots(
+    start: string,
+    end: string,
+    method: 'delivery' | 'collect' = 'delivery'
+  ) {
+    const field = method === 'collect' ? 'collection' : 'delivery';
+
+    const data = await this.gql('FulfilmentSlots', `
+      query FulfilmentSlots($start: String, $end: String) {
+        ${field}(start: $start, end: $end) {
           id
           start
           end
@@ -315,13 +330,11 @@ export class TescoAPI {
           }
           locationUuid
         }
-        fulfilment(type: $type, range: { start: $start, end: $end }) {
-          metadata {
-            preBookedOrderDays
-          }
-        }
       }
-    `, { start, end, type: 'DELIVERY_VAN' });
+    `, { start, end });
+
+    // Normalise onto `delivery` so downstream mapping stays single-path.
+    return { delivery: data?.[field] ?? [] };
   }
 
   async bookSlot(slotId: string) {
