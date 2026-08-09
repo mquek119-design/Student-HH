@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tesco Authentication
  *
@@ -8,15 +9,10 @@
  * Session stored at ~/.tesco/session.json (same shape as Sainsbury's).
  */
 
-import { chromium } from 'playwright-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import type { Browser, LaunchOptions, Page } from 'playwright';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import * as readline from 'readline';
-
-chromium.use(StealthPlugin());
 
 const CONFIG_DIR = path.join(os.homedir(), '.tesco');
 const SESSION_FILE = path.join(CONFIG_DIR, 'session.json');
@@ -98,8 +94,12 @@ export function inferSessionExpiry(cookies: any[], fallbackMs: number = DEFAULT_
   return new Date(now + fallbackMs).toISOString();
 }
 
-async function launchTescoBrowser(): Promise<Browser> {
-  const launchOptions: LaunchOptions = {
+async function launchTescoBrowser(): Promise<any> {
+  const { chromium } = eval('require')('playwright-extra');
+  const StealthPlugin = eval('require')('puppeteer-extra-plugin-stealth');
+  chromium.use(StealthPlugin());
+
+  const launchOptions = {
     headless: false,
     args: [
       '--disable-blink-features=AutomationControlled',

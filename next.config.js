@@ -11,7 +11,12 @@ const nextConfig = {
     // Playwright + the vendored Tesco provider must never be bundled for the
     // client or the edge runtime. Keep them external to the server bundle.
     // (Renamed to `serverExternalPackages` in Next 15 — update on upgrade.)
-    serverComponentsExternalPackages: ['playwright', 'playwright-core'],
+    serverComponentsExternalPackages: [
+      'playwright',
+      'playwright-core',
+      'playwright-extra',
+      'puppeteer-extra-plugin-stealth',
+    ],
   },
 };
 

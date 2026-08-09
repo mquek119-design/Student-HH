@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useMemo, useState, useTransition, useEffect } from 'react';
 import { Avatar } from '@/components/avatars/Avatar';
 import { FoodImage } from '@/components/media/FoodImage';
 import { Icon } from '@/components/media/Icon';
@@ -10,6 +10,8 @@ import { formatPence } from '@/lib/money';
 import { basketLineTotal, basketSavings, basketTotal } from '@/lib/calc';
 import type { BasketItem, IngredientCategory, User } from '@/lib/types';
 import { updateBasketItemQuantity } from '@/app/basket/actions';
+import { checkTescoSession, syncBasketToTesco } from '@/app/basket/tescoActions';
+import { TescoSessionModal } from '@/components/basket/TescoSessionModal';
 
 /**
  * Basket review — the collector's screen before the order goes to Tesco.
@@ -34,9 +36,10 @@ interface BasketViewProps {
   /** Only the collector can place the order. */
   isCollector: boolean;
   collectorName: string;
+  planId?: string;
 }
 
-export function BasketView({ items, housemates, isCollector, collectorName }: BasketViewProps) {
+export function BasketView({ items, housemates, isCollector, collectorName, planId }: BasketViewProps) {
   const [quantities, setQuantities] = useState<Record<string, number>>(
     () => Object.fromEntries(items.map((item) => [item.id, item.quantity]))
   );
@@ -44,6 +47,18 @@ export function BasketView({ items, housemates, isCollector, collectorName }: Ba
   const [removed, setRemoved] = useState<Set<string>>(new Set());
 
   const [isPending, startTransition] = useTransition();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sessionAuth, setSessionAuth] = useState(false);
+  const [sessionExpiry, setSessionExpiry] = useState<string | undefined>();
+  const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    checkTescoSession().then((res) => {
+      setSessionAuth(Boolean(res.authenticated));
+      setSessionExpiry(res.expiresAt);
+    });
+  }, []);
 
   const byId = new Map(housemates.map((user) => [user.id, user]));
 
@@ -89,8 +104,60 @@ export function BasketView({ items, housemates, isCollector, collectorName }: Ba
     items: liveItems.filter((item) => item.category === category),
   })).filter((group) => group.items.length > 0);
 
+  async function handleCheckoutClick() {
+    if (!sessionAuth) {
+      setIsModalOpen(true);
+      return;
+    }
+    if (!planId) {
+      setSyncStatusMsg('No active weekly plan ID.');
+      return;
+    }
+
+    setIsSyncing(true);
+    setSyncStatusMsg('Pushing items to Tesco online basket...');
+    const res = await syncBasketToTesco(planId);
+    setIsSyncing(false);
+
+    if (res.status === 'error') {
+      setSyncStatusMsg(`Sync error: ${res.message}`);
+      if (res.message.toLowerCase().includes('session')) {
+        setIsModalOpen(true);
+      }
+    } else {
+      setSyncStatusMsg(res.message);
+      window.open('https://www.tesco.com/groceries/en-GB/trolley', '_blank');
+    }
+  }
+
   return (
     <>
+      <TescoSessionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSessionImported={() => {
+          checkTescoSession().then((res) => {
+            setSessionAuth(Boolean(res.authenticated));
+            setSessionExpiry(res.expiresAt);
+          });
+        }}
+        isAuthenticated={sessionAuth}
+        expiresAt={sessionExpiry}
+      />
+
+      {syncStatusMsg && (
+        <Card accent="primary" className="flex items-center justify-between gap-sm">
+          <p className="font-body-sm text-body-sm font-semibold">{syncStatusMsg}</p>
+          <button
+            type="button"
+            onClick={() => setSyncStatusMsg(null)}
+            className="text-on-surface-variant hover:text-on-surface text-xs font-bold"
+          >
+            Dismiss
+          </button>
+        </Card>
+      )}
+
       <Card className="flex flex-col gap-md">
         <div className="flex justify-between items-start gap-md">
           <div>
@@ -254,7 +321,8 @@ export function BasketView({ items, housemates, isCollector, collectorName }: Ba
           </div>
           <button
             type="button"
-            disabled={!isCollector || liveItems.length === 0}
+            disabled={!isCollector || liveItems.length === 0 || isSyncing}
+            onClick={handleCheckoutClick}
             title={
               isCollector
                 ? undefined
@@ -262,10 +330,15 @@ export function BasketView({ items, housemates, isCollector, collectorName }: Ba
             }
             className="bg-secondary-container hover:bg-secondary text-on-primary font-title-md text-title-md px-lg py-sm rounded-xl transition-colors flex-1 md:flex-none text-center disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isCollector ? 'Proceed to Checkout' : `${collectorName} checks out`}
+            {isSyncing
+              ? 'Syncing to Tesco...'
+              : isCollector
+                ? 'Proceed to Checkout'
+                : `${collectorName} checks out`}
           </button>
         </div>
       </div>
     </>
   );
 }
+
