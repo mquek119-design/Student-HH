@@ -26,7 +26,7 @@ export function SeedDemoButton() {
       <div className="flex flex-col">
         <h3 className="font-body-lg text-body-lg font-semibold">Seed Demo Data</h3>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Populate the database with 5 Asian recipes, 5 Western recipes, and 3 dummy housemates (Alex, Maya, Sam) to test basket and splits.
+          Populate the database with 5 Asian recipes and 5 Western recipes to test basket and splits.
         </p>
       </div>
 
@@ -37,7 +37,7 @@ export function SeedDemoButton() {
         className="w-full h-11 rounded-lg bg-secondary hover:opacity-90 text-on-secondary font-semibold flex items-center justify-center gap-xs transition-opacity disabled:opacity-50 mt-sm"
       >
         <Icon name={isPending ? 'progress_activity' : 'database'} />
-        {isPending ? 'Seeding...' : 'Seed Asian/Western Recipes & Housemates'}
+        {isPending ? 'Seeding...' : 'Seed Asian & Western Recipes'}
       </button>
 
       {status && (

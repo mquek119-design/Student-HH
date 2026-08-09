@@ -9,51 +9,6 @@ export async function seedDemoData() {
 
   const supabase = createClient();
 
-  // 1. Create dummy housemates if they don't exist
-  const dummies = [
-    { email: 'alex_dummy@housegrocer.local', name: 'Alex' },
-    { email: 'maya_dummy@housegrocer.local', name: 'Maya' },
-    { email: 'sam_dummy@housegrocer.local', name: 'Sam' },
-  ];
-
-  for (const dummy of dummies) {
-    const { data: existingProf } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', dummy.email)
-      .maybeSingle();
-
-    if (existingProf) {
-      await supabase
-        .from('profiles')
-        .update({ house_id: me.houseId })
-        .eq('id', existingProf.id);
-      continue;
-    }
-
-    const { data: authData, error: signUpError } = await supabase.auth.signUp({
-      email: dummy.email,
-      password: 'password123',
-      options: {
-        data: {
-          name: dummy.name,
-        },
-      },
-    });
-
-    if (signUpError) {
-      console.error('Error signing up dummy user:', signUpError.message);
-      continue;
-    }
-
-    if (authData.user) {
-      await supabase
-        .from('profiles')
-        .update({ house_id: me.houseId, name: dummy.name })
-        .eq('id', authData.user.id);
-    }
-  }
-
   // 2. Seed 5 Asian and 5 Western Recipes
   const recipesToSeed = [
     // Asian Recipes
@@ -261,5 +216,5 @@ export async function seedDemoData() {
     }
   }
 
-  return { status: 'success', message: 'Demo recipes and dummy housemates seeded successfully!' };
+  return { status: 'success', message: 'Demo recipes seeded successfully! To test splits, copy the invite code from House Settings and log in with other email accounts in separate browser sessions.' };
 }
