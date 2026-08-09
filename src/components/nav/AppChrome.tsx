@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
 import { BottomNav } from './BottomNav';
 import { TopAppBar } from './TopAppBar';
+import { RealtimeListener } from '../realtime/RealtimeListener';
 
 /** Routes that render bare — no tab bar, no app bar. */
 const BARE_PREFIXES = ['/onboarding', '/login', '/auth', '/setup'];
@@ -34,6 +35,7 @@ export function AppChrome({
 
   return (
     <>
+      <RealtimeListener houseId={currentUser.houseId} />
       <TopAppBar currentUser={currentUser} />
       {/* Top padding clears the fixed app bar; bottom clears the tab bar. */}
       <div className="pt-[72px] pb-[96px] md:pb-xl">{children}</div>
