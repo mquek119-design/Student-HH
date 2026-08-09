@@ -126,7 +126,7 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
       }
     } else {
       setSyncStatusMsg(res.message);
-      window.open('https://www.tesco.com/groceries/en-GB/trolley', '_blank');
+      window.location.href = 'https://www.tesco.com/groceries/en-GB/trolley';
     }
   }
 
