@@ -9,6 +9,7 @@ import { getCollector, getHouse, getHousemates } from '@/lib/queries';
 import { WEEKDAY_LABELS } from '@/lib/types';
 import { FulfillmentSettingsPanel } from '@/components/settings/FulfillmentSettingsPanel';
 import { TescoSessionPanel } from '@/components/settings/TescoSessionPanel';
+import { SeedDemoButton } from '@/components/settings/SeedDemoButton';
 
 export const metadata = { title: 'House Settings · HouseGrocer' };
 
@@ -99,6 +100,11 @@ export default async function SettingsPage() {
           The collector rotates weekly. Only their Tesco account is used to place the order — the
           app never sees card details.
         </p>
+      </section>
+
+      <section className="flex flex-col gap-sm">
+        <h2 className="font-title-md text-title-md">Testing & Development</h2>
+        <SeedDemoButton />
       </section>
 
       <section className="flex flex-col gap-sm">

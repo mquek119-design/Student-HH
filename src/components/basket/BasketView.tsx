@@ -269,10 +269,11 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
                     className="bg-surface-container-lowest rounded-xl shadow-ambient-card border border-surface-container-highest p-sm flex items-center gap-md"
                   >
                     <FoodImage
+                      src={item.imageUrl}
                       seed={item.tescoProductId}
                       alt={item.name}
                       icon="grocery"
-                      className="w-16 h-16 rounded-lg shrink-0 text-[28px]"
+                      className="w-16 h-16 rounded-lg shrink-0 text-[28px] object-contain"
                     />
 
                     <div className="flex-1 flex flex-col min-w-0">

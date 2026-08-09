@@ -7,6 +7,7 @@ import { resolveIngredients } from '@/lib/tescoResolver';
 import { parsePounds } from '@/lib/money';
 import { createClient } from '@/lib/supabase/server';
 import { TescoProvider } from '../../../lib/tesco/providers/tesco/index';
+import { checkTescoSession, syncBasketToTesco, startTescoCheckout } from './tescoActions';
 
 export interface BasketActionState {
   status: 'idle' | 'error' | 'built';
@@ -81,6 +82,8 @@ export async function buildBasket(): Promise<BasketActionState> {
           pack_size: product.packSize,
           pack_unit: product.packUnit,
           pack_price: product.packPrice,
+          original_price: product.originalPrice,
+          image_url: product.imageUrl,
           tesco_product_id: product.tescoProductId,
           tesco_title: product.title,
           tesco_synced_at: new Date().toISOString(),
@@ -102,10 +105,15 @@ export async function buildBasket(): Promise<BasketActionState> {
     packSize: row.pack_size === null ? null : Number(row.pack_size),
     packUnit: row.pack_unit,
     packPrice: row.pack_price,
+    originalPrice: row.original_price,
   }));
 
   const productIdByIngredient = new Map(
     refreshed.data.map((row) => [row.id, row.tesco_product_id])
+  );
+
+  const imageUrlByIngredient = new Map(
+    refreshed.data.map((row) => [row.id, row.image_url])
   );
 
   const result = optimiseBasket(plan.meals, recipes, pantry, packs);
@@ -139,6 +147,9 @@ export async function buildBasket(): Promise<BasketActionState> {
         quantity: line.packs ?? 1,
         // Unpriced lines store 0 and are shown as "price not set", never as £0.00.
         unit_price: line.unitPrice ?? 0,
+        original_unit_price: line.originalUnitPrice,
+        own_brand_available: line.originalUnitPrice !== null && line.originalUnitPrice > (line.unitPrice ?? 0),
+        image_url: line.ingredientId ? imageUrlByIngredient.get(line.ingredientId) ?? null : null,
         packs_if_separate: line.packsIfSeparate,
         packs_from_pantry: line.packsFromPantry,
       })
@@ -172,6 +183,13 @@ export async function buildBasket(): Promise<BasketActionState> {
   revalidatePath('/split');
   revalidatePath('/plan');
   revalidatePath('/');
+
+  // Auto-sync with Tesco in the background if session is authenticated
+  const sessionCheck = await checkTescoSession();
+  if (sessionCheck.authenticated) {
+    await syncBasketToTesco(plan.id);
+    await startTescoCheckout(plan.id);
+  }
 
   const unpriced = result.needsPackData.length;
   return {
@@ -252,6 +270,7 @@ export async function searchTescoProducts(query: string): Promise<any[]> {
       name: p.name,
       price: Math.round(p.retail_price.price * 100),
       size: p.size || p.unit_price?.measure || 'each',
+      imageUrl: p.image_url || null,
     }));
   } catch (err) {
     console.error('Tesco search error:', err);
@@ -265,7 +284,8 @@ export async function updateIngredientProductMapping(
   productUid: string,
   name: string,
   subtitle: string,
-  unitPrice: number
+  unitPrice: number,
+  imageUrl: string | null
 ): Promise<BasketActionState> {
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
@@ -279,6 +299,7 @@ export async function updateIngredientProductMapping(
       name,
       subtitle,
       unit_price: unitPrice,
+      image_url: imageUrl,
     })
     .eq('id', basketItemId);
 
@@ -301,6 +322,7 @@ export async function updateIngredientProductMapping(
         pack_size: packSize,
         pack_unit: packUnit,
         pack_price: unitPrice,
+        image_url: imageUrl,
         tesco_synced_at: new Date().toISOString(),
       })
       .eq('id', ingredientId);

@@ -29,6 +29,7 @@ export interface IngredientPack {
   packSize: number | null;
   packUnit: string | null;
   packPrice: Pence | null;
+  originalPrice: Pence | null;
 }
 
 /** One meal's claim on an ingredient, kept so the line can be attributed back. */
@@ -53,6 +54,7 @@ export interface BasketLine {
   packSize: number | null;
   packUnit: string | null;
   unitPrice: Pence | null;
+  originalUnitPrice: Pence | null;
   lineTotal: Pence | null;
   /** Packs each meal would have bought shopping separately. */
   packsIfSeparate: number | null;
@@ -158,7 +160,7 @@ export function optimiseBasket(
       .filter(([, share]) => share > 0)
       .map(([userId, share]) => ({ userId, share }));
 
-    const base: Omit<BasketLine, 'packs' | 'unitPrice' | 'lineTotal' | 'packsIfSeparate' | 'packsFromPantry' | 'blocked'> = {
+    const base: Omit<BasketLine, 'packs' | 'unitPrice' | 'originalUnitPrice' | 'lineTotal' | 'packsIfSeparate' | 'packsFromPantry' | 'blocked'> = {
       ingredientId: entry.ingredientId,
       name: pack?.name ?? 'Unknown ingredient',
       category: pack?.category ?? 'cupboard',
@@ -177,6 +179,7 @@ export function optimiseBasket(
         ...base,
         packs: null,
         unitPrice: null,
+        originalUnitPrice: null,
         lineTotal: null,
         packsIfSeparate: null,
         packsFromPantry: null,
@@ -192,6 +195,7 @@ export function optimiseBasket(
         ...base,
         packs: null,
         unitPrice: null,
+        originalUnitPrice: null,
         lineTotal: null,
         packsIfSeparate: null,
         packsFromPantry: null,
@@ -228,6 +232,7 @@ export function optimiseBasket(
       ...base,
       packs,
       unitPrice,
+      originalUnitPrice: pack.originalPrice,
       lineTotal,
       packsIfSeparate,
       packsFromPantry,

@@ -44,7 +44,8 @@ export function BrandSwapModal({ isOpen, onClose, basketItemId, ingredientId, it
         product.product_uid,
         product.name,
         product.size,
-        product.price
+        product.price,
+        product.imageUrl
       );
       if (res.status === 'error') {
         setErrorMsg(res.message);

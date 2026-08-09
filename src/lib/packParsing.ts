@@ -20,6 +20,8 @@ export interface ResolvedProduct {
   /** Total quantity in one purchase, e.g. 1600 for "4 X 400G". */
   packSize: number;
   packUnit: string;
+  originalPrice: Pence | null;
+  imageUrl: string | null;
 }
 
 const STOPWORDS = new Set(['a', 'an', 'the', 'of', 'and', 'or', 'with', 'in', 'for', 'to', 'at', 'some', 'fresh']);
@@ -83,7 +85,7 @@ function priceInPence(product: { price?: { actual?: number | string } }): Pence 
  * own sync service made the same call.
  */
 export function pickBestProduct(
-  products: { id?: string; title?: string; price?: { actual?: number | string } }[],
+  products: { id?: string; title?: string; price?: { actual?: number | string }; defaultImageUrl?: string }[],
   ingredientName: string
 ): ResolvedProduct | null {
   const words = keywords(ingredientName);
@@ -109,6 +111,8 @@ export function pickBestProduct(
 
   relevant.sort((a, b) => a.price - b.price);
   const winner = relevant[0];
+  const mostExpensive = relevant[relevant.length - 1];
+  const originalPrice = mostExpensive.price > winner.price ? mostExpensive.price : null;
 
   return {
     tescoProductId: String(winner.product.id),
@@ -116,6 +120,8 @@ export function pickBestProduct(
     packPrice: winner.price,
     packSize: winner.pack.size,
     packUnit: winner.pack.unit,
+    originalPrice,
+    imageUrl: winner.product.defaultImageUrl || null,
   };
 }
 
