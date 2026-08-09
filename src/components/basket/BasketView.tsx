@@ -114,6 +114,14 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
       return;
     }
 
+    // Open a blank tab synchronously during user click gesture to bypass popup blockers
+    const newTab = window.open('', '_blank');
+    if (newTab) {
+      newTab.document.write(
+        '<p style="font-family:sans-serif;text-align:center;margin-top:20%;color:#006b3f;font-weight:bold;">Syncing your HouseGrocer basket to Tesco... Please wait.</p>'
+      );
+    }
+
     setIsSyncing(true);
     setSyncStatusMsg('Pushing items to Tesco online basket...');
     const res = await syncBasketToTesco(planId);
@@ -121,12 +129,17 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
 
     if (res.status === 'error') {
       setSyncStatusMsg(`Sync error: ${res.message}`);
+      if (newTab) newTab.close();
       if (res.message.toLowerCase().includes('session')) {
         setIsModalOpen(true);
       }
     } else {
       setSyncStatusMsg(res.message);
-      window.location.href = 'https://www.tesco.com/groceries/en-GB/trolley';
+      if (newTab) {
+        newTab.location.href = 'https://www.tesco.com/groceries/en-GB/trolley';
+      } else {
+        window.open('https://www.tesco.com/groceries/en-GB/trolley', '_blank');
+      }
     }
   }
 
