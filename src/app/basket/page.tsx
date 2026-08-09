@@ -90,6 +90,7 @@ export default async function BasketPage() {
           housemates={housemates}
           isCollector={collector?.id === currentUser.id}
           collectorName={collector?.name ?? 'The collector'}
+          planId={plan?.id}
         />
       )}
     </PageShell>
