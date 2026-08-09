@@ -173,9 +173,9 @@ export class TescoProvider implements GroceryProvider {
     }
   }
 
-  async checkout(dryRun: boolean = false): Promise<Order> {
+  async checkout(dryRun: boolean = false, options?: any): Promise<Order> {
     const { tescoCheckout } = await import('../../browser/tesco-checkout');
-    const result = await tescoCheckout(dryRun);
+    const result = await tescoCheckout(dryRun, options);
     return {
       order_id: result.order_id,
       status: result.status,

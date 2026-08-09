@@ -81,7 +81,7 @@ export interface GroceryProvider {
   // Delivery & checkout
   getDeliverySlots(): Promise<DeliverySlot[]>;
   bookSlot(slotId: string): Promise<void>;
-  checkout(dryRun?: boolean): Promise<Order>;
+  checkout(dryRun?: boolean, options?: any): Promise<Order>;
   
   // Orders
   getOrders(): Promise<Order[]>;

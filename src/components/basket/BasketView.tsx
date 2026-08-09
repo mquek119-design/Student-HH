@@ -45,6 +45,9 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
   );
   const [ownBrand, setOwnBrand] = useState(true);
   const [removed, setRemoved] = useState<Set<string>>(new Set());
+  const [fulfillmentMethod, setFulfillmentMethod] = useState<'collect' | 'delivery'>('collect');
+  const [postcode, setPostcode] = useState('');
+  const [collectStore, setCollectStore] = useState('coventry cannon park rear car park 1');
   const [actualTotalCost, setActualTotalCost] = useState<number | null>(null);
 
   const [isPending, startTransition] = useTransition();
@@ -142,9 +145,13 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
         window.open('https://www.tesco.com/groceries/en-GB/trolley', '_blank');
       }
 
-      // Fetch actual checkout cost dynamically
+      // Fetch actual checkout cost dynamically with selected fulfillment settings
       setSyncStatusMsg('Fetching actual Tesco checkout cost...');
-      const checkoutRes = await startTescoCheckout(planId);
+      const checkoutRes = await startTescoCheckout(planId, {
+        fulfillmentMethod,
+        postcode,
+        collectStore,
+      });
       if (checkoutRes.status === 'success' && checkoutRes.totalCost !== undefined) {
         setActualTotalCost(checkoutRes.totalCost);
         setSyncStatusMsg(`Synced successfully! Actual Tesco Total: ${formatPence(checkoutRes.totalCost)}.`);
@@ -224,6 +231,72 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
           </label>
         </div>
       </Card>
+
+      {isCollector && (
+        <Card className="flex flex-col gap-md">
+          <div className="flex flex-col">
+            <h2 className="font-title-md text-title-md text-on-surface">Tesco Delivery & Collection Settings</h2>
+            <p className="font-body-sm text-body-sm text-on-surface-variant mt-xs">
+              Configure how you want to receive this order. This determines the checkout pricing slot/delivery calculation.
+            </p>
+          </div>
+
+          <div className="flex gap-md mt-sm">
+            <label className="flex-1 flex items-center gap-xs cursor-pointer bg-surface-container hover:bg-surface-container-highest p-sm rounded-lg transition-colors border border-transparent has-[:checked]:border-primary">
+              <input
+                type="radio"
+                name="fulfillment"
+                value="collect"
+                checked={fulfillmentMethod === 'collect'}
+                onChange={() => setFulfillmentMethod('collect')}
+                className="text-primary focus:ring-primary"
+              />
+              <span className="font-body-md text-body-md font-semibold ml-xs">Click + Collect</span>
+            </label>
+            <label className="flex-1 flex items-center gap-xs cursor-pointer bg-surface-container hover:bg-surface-container-highest p-sm rounded-lg transition-colors border border-transparent has-[:checked]:border-primary">
+              <input
+                type="radio"
+                name="fulfillment"
+                value="delivery"
+                checked={fulfillmentMethod === 'delivery'}
+                onChange={() => setFulfillmentMethod('delivery')}
+                className="text-primary focus:ring-primary"
+              />
+              <span className="font-body-md text-body-md font-semibold ml-xs">Home Delivery</span>
+            </label>
+          </div>
+
+          {fulfillmentMethod === 'collect' ? (
+            <div className="flex flex-col gap-xs mt-sm">
+              <label htmlFor="collect-store-input" className="font-label-caps text-label-caps text-on-surface-variant">
+                Collection Location
+              </label>
+              <input
+                id="collect-store-input"
+                type="text"
+                value={collectStore}
+                onChange={(e) => setCollectStore(e.target.value)}
+                placeholder="Enter store name or postcode"
+                className="h-11 px-sm rounded-lg bg-surface-container border border-surface-container-highest text-on-surface font-body-md focus:outline-none focus:border-primary transition-colors"
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-xs mt-sm">
+              <label htmlFor="postcode-input" className="font-label-caps text-label-caps text-on-surface-variant">
+                Delivery Postcode
+              </label>
+              <input
+                id="postcode-input"
+                type="text"
+                value={postcode}
+                onChange={(e) => setPostcode(e.target.value)}
+                placeholder="e.g. CV4 7AL"
+                className="h-11 px-sm rounded-lg bg-surface-container border border-surface-container-highest text-on-surface font-body-md focus:outline-none focus:border-primary transition-colors"
+              />
+            </div>
+          )}
+        </Card>
+      )}
 
       {grouped.map(({ category, items: categoryItems }) => {
         const meta = CATEGORY_META[category];

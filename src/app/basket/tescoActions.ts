@@ -149,7 +149,10 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
 }
 
 /** Runs a checkout dry-run to retrieve actual slot pricing and total checkout cost. */
-export async function startTescoCheckout(planId: string): Promise<TescoActionState> {
+export async function startTescoCheckout(
+  planId: string,
+  options?: { fulfillmentMethod?: 'delivery' | 'collect'; postcode?: string; collectStore?: string }
+): Promise<TescoActionState> {
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
@@ -160,8 +163,8 @@ export async function startTescoCheckout(planId: string): Promise<TescoActionSta
 
   try {
     const provider = new TescoProvider();
-    // Run dry-run checkout to fetch slot and actual totals
-    const orderResult = await provider.checkout(true);
+    // Run dry-run checkout with fulfillment options to fetch slot and actual totals
+    const orderResult = await provider.checkout(true, options);
 
     return {
       status: 'success',

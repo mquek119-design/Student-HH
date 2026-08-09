@@ -38,7 +38,10 @@ async function loadSession(page: Page): Promise<void> {
  *
  * IMPORTANT: Payment is NEVER completed automatically.
  */
-export async function tescoCheckout(dryRun: boolean = true): Promise<TescoCheckoutResult> {
+export async function tescoCheckout(
+  dryRun: boolean = true,
+  options?: { fulfillmentMethod?: 'delivery' | 'collect'; postcode?: string; collectStore?: string }
+): Promise<TescoCheckoutResult> {
   const browser = await chromium.launch({
     headless: false, // Always show browser — transparency for financial actions
     args: ['--disable-blink-features=AutomationControlled'],
@@ -75,7 +78,7 @@ export async function tescoCheckout(dryRun: boolean = true): Promise<TescoChecko
 
     console.log(`💰 Trolley total: £${total}`);
 
-    if (dryRun) {
+    if (dryRun && !options?.fulfillmentMethod) {
       console.log('\n🔍 DRY RUN MODE');
       console.log('└─ Trolley preview only — no slot booked, no payment requested');
       await page.screenshot({ path: '/tmp/tesco-checkout-preview.png', fullPage: true });
@@ -89,7 +92,7 @@ export async function tescoCheckout(dryRun: boolean = true): Promise<TescoChecko
       };
     }
 
-    // Real checkout flow
+    // Proceed to checkout to configure fulfillment/slots
     console.log('\n💳 Step 2: Proceeding to Tesco checkout...');
 
     const checkoutButton = await page.$(
@@ -104,6 +107,33 @@ export async function tescoCheckout(dryRun: boolean = true): Promise<TescoChecko
     await page.waitForTimeout(5000);
 
     console.log('📍 Current URL:', page.url());
+
+    // Configure delivery or Click+Collect store if requested
+    await handleTescoFulfillment(page, options);
+
+    if (dryRun) {
+      console.log('\n🔍 DRY RUN MODE (with fulfillment)');
+      await page.waitForTimeout(4000);
+      
+      const dryPageText = await page.textContent('body');
+      
+      // Try to find delivery/collection slot cost
+      const deliveryCostMatch = dryPageText?.match(/(?:delivery|collection)[:\s]*£(\d+\.?\d*)/i);
+      const deliveryCost = deliveryCostMatch ? parseFloat(deliveryCostMatch[1]) : 0;
+      
+      const finalTotalMatch = dryPageText?.match(/(?:order total|total)[:\s]*£(\d+\.?\d*)/i);
+      const finalTotal = finalTotalMatch ? parseFloat(finalTotalMatch[1]) : total + deliveryCost;
+
+      await page.screenshot({ path: '/tmp/tesco-checkout-preview-fulfillment.png', fullPage: true });
+
+      return {
+        order_id: 'DRY_RUN',
+        total: finalTotal,
+        delivery_cost: deliveryCost,
+        items_count: 0,
+        status: 'preview',
+      };
+    }
 
     // If redirected to slot selection
     const currentUrl = page.url();
@@ -186,5 +216,75 @@ export async function tescoCheckout(dryRun: boolean = true): Promise<TescoChecko
 
   } finally {
     await browser.close();
+  }
+}
+
+async function handleTescoFulfillment(
+  page: any,
+  options?: { fulfillmentMethod?: 'delivery' | 'collect'; postcode?: string; collectStore?: string }
+): Promise<void> {
+  if (!options || !options.fulfillmentMethod) return;
+
+  const method = options.fulfillmentMethod;
+  console.log(`Fulfilment configuration requested: ${method}`);
+
+  try {
+    if (method === 'collect') {
+      // Find Click+Collect button/tab
+      const collectBtn = await page.$(
+        'button:has-text("Click+Collect"), button:has-text("Click & Collect"), a:has-text("Click & Collect"), a:has-text("Click+Collect")'
+      );
+      if (collectBtn) {
+        await collectBtn.click();
+        await page.waitForTimeout(3000);
+      }
+
+      // Look for postcode/store search input
+      const searchInput = await page.$(
+        'input[placeholder*="postcode" i], input[placeholder*="town" i], input[name="search" i], input[type="text"]'
+      );
+      if (searchInput) {
+        const query = options.collectStore || "Coventry Cannon Park";
+        await searchInput.fill(query);
+        await page.waitForTimeout(1000);
+        await searchInput.press('Enter');
+        await page.waitForTimeout(4000);
+
+        // Click first matching store or one containing "Cannon Park"
+        const storeBtn = await page.$(
+          'button:has-text("Cannon Park"), button:has-text("Coventry"), button:has-text("Select store"), button:has-text("Select")'
+        );
+        if (storeBtn) {
+          await storeBtn.click();
+          await page.waitForTimeout(4000);
+        }
+      }
+    } else if (method === 'delivery') {
+      // Find Delivery button/tab
+      const deliveryBtn = await page.$('button:has-text("Delivery"), a:has-text("Delivery")');
+      if (deliveryBtn) {
+        await deliveryBtn.click();
+        await page.waitForTimeout(3000);
+      }
+
+      // Enter postcode
+      const postcodeInput = await page.$('input[placeholder*="postcode" i]');
+      if (postcodeInput && options.postcode) {
+        await postcodeInput.fill(options.postcode);
+        await page.waitForTimeout(1000);
+        await postcodeInput.press('Enter');
+        await page.waitForTimeout(4000);
+
+        // Click select address
+        const selectBtn = await page.$('button:has-text("Select"), button:has-text("Use this address")');
+        if (selectBtn) {
+          await selectBtn.click();
+          await page.waitForTimeout(4000);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to automate fulfillment selection:', err);
+    await page.screenshot({ path: '/tmp/tesco-fulfillment-error.png' });
   }
 }
