@@ -48,6 +48,9 @@ export function toHouse(row: HouseRow): House {
     cutoffTime: row.cutoff_time.slice(0, 5),
     collectorUserId: row.collector_user_id ?? '',
     sharedStaplesEnabled: row.shared_staples_enabled,
+    fulfillmentMethod: row.fulfillment_method,
+    deliveryPostcode: row.delivery_postcode,
+    clickCollectStore: row.click_collect_store,
   };
 }
 

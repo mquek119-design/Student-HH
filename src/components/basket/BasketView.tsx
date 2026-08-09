@@ -11,7 +11,7 @@ import { basketLineTotal, basketSavings, basketTotal } from '@/lib/calc';
 import type { BasketItem, IngredientCategory, User } from '@/lib/types';
 import { updateBasketItemQuantity } from '@/app/basket/actions';
 import { checkTescoSession, syncBasketToTesco, startTescoCheckout } from '@/app/basket/tescoActions';
-import { TescoSessionModal } from '@/components/basket/TescoSessionModal';
+import { BrandSwapModal } from '@/components/basket/BrandSwapModal';
 
 /**
  * Basket review — the collector's screen before the order goes to Tesco.
@@ -45,14 +45,16 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
   );
   const [ownBrand, setOwnBrand] = useState(true);
   const [removed, setRemoved] = useState<Set<string>>(new Set());
-  const [fulfillmentMethod, setFulfillmentMethod] = useState<'collect' | 'delivery'>('collect');
-  const [postcode, setPostcode] = useState('');
-  const [collectStore, setCollectStore] = useState('coventry cannon park rear car park 1');
   const [actualTotalCost, setActualTotalCost] = useState<number | null>(null);
+  const [selectedSwapItem, setSelectedSwapItem] = useState<{
+    id: string;
+    ingredientId: string | null;
+    name: string;
+  } | null>(null);
+  const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
 
   const [isPending, startTransition] = useTransition();
   const [isSyncing, setIsSyncing] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [sessionAuth, setSessionAuth] = useState(false);
   const [sessionExpiry, setSessionExpiry] = useState<string | undefined>();
   const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>(null);
@@ -110,7 +112,7 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
 
   async function handleCheckoutClick() {
     if (!sessionAuth) {
-      setIsModalOpen(true);
+      setSyncStatusMsg('Tesco session required. Please set up your Tesco session cookies in House Settings.');
       return;
     }
     if (!planId) {
@@ -134,60 +136,70 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
     if (res.status === 'error') {
       setSyncStatusMsg(`Sync error: ${res.message}`);
       if (newTab) newTab.close();
-      if (res.message.toLowerCase().includes('session')) {
-        setIsModalOpen(true);
-      }
     } else {
-      setSyncStatusMsg(res.message);
       if (newTab) {
         newTab.location.href = 'https://www.tesco.com/groceries/en-GB/trolley';
       } else {
         window.open('https://www.tesco.com/groceries/en-GB/trolley', '_blank');
       }
 
-      // Fetch actual checkout cost dynamically with selected fulfillment settings
+      // Fetch actual checkout cost dynamically
       setSyncStatusMsg('Fetching actual Tesco checkout cost...');
-      const checkoutRes = await startTescoCheckout(planId, {
-        fulfillmentMethod,
-        postcode,
-        collectStore,
-      });
+      const checkoutRes = await startTescoCheckout(planId);
       if (checkoutRes.status === 'success' && checkoutRes.totalCost !== undefined) {
         setActualTotalCost(checkoutRes.totalCost);
-        setSyncStatusMsg(`Synced successfully! Actual Tesco Total: ${formatPence(checkoutRes.totalCost)}.`);
+        setSyncStatusMsg(null); // Clear success message - keep it silent as requested
       } else {
-        setSyncStatusMsg(`Synced successfully, but could not fetch actual checkout total: ${checkoutRes.message}`);
+        setSyncStatusMsg(`Synced successfully, but could not fetch checkout total: ${checkoutRes.message}`);
       }
     }
   }
 
   return (
     <>
-      <TescoSessionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSessionImported={() => {
-          checkTescoSession().then((res) => {
-            setSessionAuth(Boolean(res.authenticated));
-            setSessionExpiry(res.expiresAt);
-          });
+    {selectedSwapItem && (
+      <BrandSwapModal
+        isOpen={isSwapModalOpen}
+        onClose={() => {
+          setIsSwapModalOpen(false);
+          setSelectedSwapItem(null);
         }}
-        isAuthenticated={sessionAuth}
-        expiresAt={sessionExpiry}
+        basketItemId={selectedSwapItem.id}
+        ingredientId={selectedSwapItem.ingredientId}
+        itemName={selectedSwapItem.name}
       />
+    )}
 
-      {syncStatusMsg && (
-        <Card accent="primary" className="flex items-center justify-between gap-sm">
+    {syncStatusMsg && (
+      <Card
+        accent={
+          syncStatusMsg.toLowerCase().includes('error') || syncStatusMsg.toLowerCase().includes('required')
+            ? 'error'
+            : 'primary'
+        }
+        className="flex flex-col gap-sm"
+      >
+        <div className="flex items-center justify-between gap-sm">
           <p className="font-body-sm text-body-sm font-semibold">{syncStatusMsg}</p>
           <button
             type="button"
             onClick={() => setSyncStatusMsg(null)}
-            className="text-on-surface-variant hover:text-on-surface text-xs font-bold"
+            className="text-on-surface-variant hover:text-on-surface text-xs font-bold shrink-0"
           >
             Dismiss
           </button>
-        </Card>
-      )}
+        </div>
+        {syncStatusMsg.toLowerCase().includes('session') && (
+          <a
+            href="/settings"
+            className="mt-xs inline-flex items-center justify-center gap-xs px-sm h-9 bg-primary text-on-primary rounded-lg font-semibold text-xs self-start hover:opacity-90 transition-opacity"
+          >
+            <Icon name="settings" className="text-sm" />
+            Go to House Settings
+          </a>
+        )}
+      </Card>
+    )}
 
       <Card className="flex flex-col gap-md">
         <div className="flex justify-between items-start gap-md">
@@ -232,71 +244,7 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
         </div>
       </Card>
 
-      {isCollector && (
-        <Card className="flex flex-col gap-md">
-          <div className="flex flex-col">
-            <h2 className="font-title-md text-title-md text-on-surface">Tesco Delivery & Collection Settings</h2>
-            <p className="font-body-sm text-body-sm text-on-surface-variant mt-xs">
-              Configure how you want to receive this order. This determines the checkout pricing slot/delivery calculation.
-            </p>
-          </div>
 
-          <div className="flex gap-md mt-sm">
-            <label className="flex-1 flex items-center gap-xs cursor-pointer bg-surface-container hover:bg-surface-container-highest p-sm rounded-lg transition-colors border border-transparent has-[:checked]:border-primary">
-              <input
-                type="radio"
-                name="fulfillment"
-                value="collect"
-                checked={fulfillmentMethod === 'collect'}
-                onChange={() => setFulfillmentMethod('collect')}
-                className="text-primary focus:ring-primary"
-              />
-              <span className="font-body-md text-body-md font-semibold ml-xs">Click + Collect</span>
-            </label>
-            <label className="flex-1 flex items-center gap-xs cursor-pointer bg-surface-container hover:bg-surface-container-highest p-sm rounded-lg transition-colors border border-transparent has-[:checked]:border-primary">
-              <input
-                type="radio"
-                name="fulfillment"
-                value="delivery"
-                checked={fulfillmentMethod === 'delivery'}
-                onChange={() => setFulfillmentMethod('delivery')}
-                className="text-primary focus:ring-primary"
-              />
-              <span className="font-body-md text-body-md font-semibold ml-xs">Home Delivery</span>
-            </label>
-          </div>
-
-          {fulfillmentMethod === 'collect' ? (
-            <div className="flex flex-col gap-xs mt-sm">
-              <label htmlFor="collect-store-input" className="font-label-caps text-label-caps text-on-surface-variant">
-                Collection Location
-              </label>
-              <input
-                id="collect-store-input"
-                type="text"
-                value={collectStore}
-                onChange={(e) => setCollectStore(e.target.value)}
-                placeholder="Enter store name or postcode"
-                className="h-11 px-sm rounded-lg bg-surface-container border border-surface-container-highest text-on-surface font-body-md focus:outline-none focus:border-primary transition-colors"
-              />
-            </div>
-          ) : (
-            <div className="flex flex-col gap-xs mt-sm">
-              <label htmlFor="postcode-input" className="font-label-caps text-label-caps text-on-surface-variant">
-                Delivery Postcode
-              </label>
-              <input
-                id="postcode-input"
-                type="text"
-                value={postcode}
-                onChange={(e) => setPostcode(e.target.value)}
-                placeholder="e.g. CV4 7AL"
-                className="h-11 px-sm rounded-lg bg-surface-container border border-surface-container-highest text-on-surface font-body-md focus:outline-none focus:border-primary transition-colors"
-              />
-            </div>
-          )}
-        </Card>
-      )}
 
       {grouped.map(({ category, items: categoryItems }) => {
         const meta = CATEGORY_META[category];
@@ -348,6 +296,23 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
                               </span>
                             </span>
                           ))
+                        )}
+                        {isCollector && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedSwapItem({
+                                id: item.id,
+                                ingredientId: item.ingredientId,
+                                name: item.name,
+                              });
+                              setIsSwapModalOpen(true);
+                            }}
+                            className="text-primary hover:underline text-[10px] font-bold uppercase tracking-wider ml-sm flex items-center gap-xs"
+                          >
+                            <Icon name="swap_horiz" className="text-xs" />
+                            Swap Brand
+                          </button>
                         )}
                       </div>
                     </div>

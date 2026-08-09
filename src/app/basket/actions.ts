@@ -6,6 +6,7 @@ import { optimiseBasket, type IngredientPack } from '@/lib/optimiser';
 import { resolveIngredients } from '@/lib/tescoResolver';
 import { parsePounds } from '@/lib/money';
 import { createClient } from '@/lib/supabase/server';
+import { TescoProvider } from '../../../lib/tesco/providers/tesco/index';
 
 export interface BasketActionState {
   status: 'idle' | 'error' | 'built';
@@ -240,5 +241,77 @@ export async function updateBasketItemQuantity(
   revalidatePath('/');
 
   return { status: 'built', message: 'Basket updated.' };
+}
+
+export async function searchTescoProducts(query: string): Promise<any[]> {
+  try {
+    const provider = new TescoProvider();
+    const results = await provider.search(query, { limit: 8 });
+    return results.map((p) => ({
+      product_uid: p.product_uid,
+      name: p.name,
+      price: Math.round(p.retail_price.price * 100),
+      size: p.size || p.unit_price?.measure || 'each',
+    }));
+  } catch (err) {
+    console.error('Tesco search error:', err);
+    return [];
+  }
+}
+
+export async function updateIngredientProductMapping(
+  basketItemId: string,
+  ingredientId: string | null,
+  productUid: string,
+  name: string,
+  subtitle: string,
+  unitPrice: number
+): Promise<BasketActionState> {
+  const me = await getCurrentUser();
+  if (!me.houseId) return fail('Join a house first.');
+
+  const supabase = createClient();
+
+  const basketUpdate = await supabase
+    .from('basket_items')
+    .update({
+      tesco_product_id: productUid,
+      name,
+      subtitle,
+      unit_price: unitPrice,
+    })
+    .eq('id', basketItemId);
+
+  if (basketUpdate.error) return fail(basketUpdate.error.message);
+
+  if (ingredientId) {
+    let packSize = 1;
+    let packUnit = 'each';
+    const match = subtitle.match(/([\d.]+)\s*(\w+)/);
+    if (match) {
+      packSize = parseFloat(match[1]);
+      packUnit = match[2];
+    }
+
+    const ingredientUpdate = await supabase
+      .from('ingredients')
+      .update({
+        tesco_product_id: productUid,
+        tesco_title: name,
+        pack_size: packSize,
+        pack_unit: packUnit,
+        pack_price: unitPrice,
+        tesco_synced_at: new Date().toISOString(),
+      })
+      .eq('id', ingredientId);
+
+    if (ingredientUpdate.error) return fail(ingredientUpdate.error.message);
+  }
+
+  revalidatePath('/basket');
+  revalidatePath('/split');
+  revalidatePath('/');
+
+  return { status: 'built', message: 'Brand successfully swapped!' };
 }
 

@@ -37,6 +37,9 @@ type HouseRow = {
   cutoff_time: string;
   collector_user_id: string | null;
   shared_staples_enabled: boolean;
+  fulfillment_method: 'collect' | 'delivery';
+  delivery_postcode: string | null;
+  click_collect_store: string;
   created_at: string;
 }
 
@@ -209,7 +212,7 @@ export type Database = {
     Views: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
     Tables: {
-      houses: TableDef<HouseRow, Insertable<HouseRow, 'id' | 'invite_code' | 'created_at' | 'delivery_day' | 'delivery_time' | 'cutoff_day' | 'cutoff_time' | 'collector_user_id' | 'shared_staples_enabled'>>;
+      houses: TableDef<HouseRow, Insertable<HouseRow, 'id' | 'invite_code' | 'created_at' | 'delivery_day' | 'delivery_time' | 'cutoff_day' | 'cutoff_time' | 'collector_user_id' | 'shared_staples_enabled' | 'fulfillment_method' | 'delivery_postcode' | 'click_collect_store'>>;
       profiles: TableDef<ProfileRow, Insertable<ProfileRow, 'created_at' | 'house_id' | 'room' | 'avatar_url' | 'accent' | 'dietary_preferences' | 'payment_details_text' | 'is_admin'>>;
       ingredients: TableDef<IngredientRow, Insertable<IngredientRow, 'id' | 'default_unit' | 'category' | 'pack_size' | 'pack_unit' | 'pack_price' | 'tesco_product_id' | 'tesco_title' | 'tesco_synced_at'>>;
       recipes: TableDef<RecipeRow, Insertable<RecipeRow, 'id' | 'created_at' | 'house_id' | 'created_by' | 'source_url' | 'image_url' | 'cook_time_mins' | 'difficulty' | 'servings' | 'cost_per_portion' | 'tags' | 'instructions' | 'pro_tip'>>;

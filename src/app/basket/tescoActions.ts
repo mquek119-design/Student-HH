@@ -149,22 +149,35 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
 }
 
 /** Runs a checkout dry-run to retrieve actual slot pricing and total checkout cost. */
-export async function startTescoCheckout(
-  planId: string,
-  options?: { fulfillmentMethod?: 'delivery' | 'collect'; postcode?: string; collectStore?: string }
-): Promise<TescoActionState> {
+export async function startTescoCheckout(planId: string): Promise<TescoActionState> {
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
+  const supabase = createClient();
+  const houseResp = await supabase
+    .from('houses')
+    .select('fulfillment_method, delivery_postcode, click_collect_store')
+    .eq('id', me.houseId)
+    .single();
+
+  if (houseResp.error) {
+    return fail(`Failed to load house settings: ${houseResp.error.message}`);
+  }
+  const house = houseResp.data;
+
   const sessionCheck = await checkTescoSession();
   if (!sessionCheck.authenticated) {
-    return fail('Tesco session required. Please import cookies under My Account or Basket settings.');
+    return fail('Tesco session required. Please import cookies under My Account settings.');
   }
 
   try {
     const provider = new TescoProvider();
-    // Run dry-run checkout with fulfillment options to fetch slot and actual totals
-    const orderResult = await provider.checkout(true, options);
+    // Run dry-run checkout with fulfillment options from database
+    const orderResult = await provider.checkout(true, {
+      fulfillmentMethod: house.fulfillment_method,
+      postcode: house.delivery_postcode || undefined,
+      collectStore: house.click_collect_store,
+    });
 
     return {
       status: 'success',

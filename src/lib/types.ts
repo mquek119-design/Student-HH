@@ -33,6 +33,9 @@ export interface House {
   cutoffTime: string;
   collectorUserId: string;
   sharedStaplesEnabled: boolean;
+  fulfillmentMethod: 'collect' | 'delivery';
+  deliveryPostcode: string | null;
+  clickCollectStore: string;
 }
 
 export interface User {
