@@ -1,0 +1,294 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>HouseGrocer - Split &amp; Settle</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1a1c1e",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e2e2e5",
+                        "surface-container-high": "#e8e8ea",
+                        "on-secondary-container": "#592600",
+                        "on-secondary-fixed": "#321200",
+                        "outline-variant": "#bdcabe",
+                        "on-surface-variant": "#3e4a41",
+                        "on-surface": "#1a1c1e",
+                        "surface-dim": "#dadadc",
+                        "on-secondary-fixed-variant": "#753400",
+                        "surface-container": "#eeeef0",
+                        "on-tertiary-fixed-variant": "#404945",
+                        "inverse-primary": "#70db9d",
+                        "tertiary-fixed": "#dce5e0",
+                        "primary-fixed-dim": "#70db9d",
+                        "surface-container-low": "#f3f3f6",
+                        "secondary-fixed": "#ffdbc8",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2f3133",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#006d40",
+                        "on-tertiary-fixed": "#151d1b",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f0f0f3",
+                        "outline": "#6e7a70",
+                        "on-tertiary-container": "#ffffff",
+                        "tertiary-container": "#6f7874",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#00522f",
+                        "on-primary-container": "#fdfff9",
+                        "secondary-fixed-dim": "#ffb68b",
+                        "primary-container": "#008751",
+                        "on-primary-fixed": "#002110",
+                        "secondary": "#994700",
+                        "on-error-container": "#93000a",
+                        "primary": "#006b3f",
+                        "tertiary": "#565f5c",
+                        "background": "#f9f9fc",
+                        "primary-fixed": "#8df8b7",
+                        "tertiary-fixed-dim": "#bfc9c4",
+                        "surface-variant": "#e2e2e5",
+                        "surface-bright": "#f9f9fc",
+                        "surface": "#f9f9fc",
+                        "secondary-container": "#fb7800",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "margin-desktop": "48px",
+                        "sm": "8px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "base": "4px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-caps": ["JetBrains Mono"],
+                        "numeric-data": ["JetBrains Mono"],
+                        "title-md": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "numeric-data": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Subtle tactile shadows based on design system */
+        .card-shadow {
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Custom scrollbar for horizontal grids */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-lg text-body-lg flex flex-col pt-[72px] pb-[88px] md:pb-[24px]">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-margin-mobile py-sm w-full fixed top-0 z-50 bg-surface shadow-sm h-[72px]">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">person</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary tracking-tight">HouseGrocer</h1>
+</div>
+<!-- Desktop Nav (Hidden on Mobile) -->
+<nav class="hidden md:flex items-center gap-lg h-full">
+<a class="flex items-center gap-2 text-on-surface-variant hover:opacity-80 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">home</span>
+<span class="font-title-md text-title-md">Feed</span>
+</a>
+<a class="flex items-center gap-2 text-on-surface-variant hover:opacity-80 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+<span class="font-title-md text-title-md">Plan</span>
+</a>
+<a class="flex items-center gap-2 text-on-surface-variant hover:opacity-80 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">restaurant</span>
+<span class="font-title-md text-title-md">Fancy?</span>
+</a>
+<a class="flex items-center gap-2 text-on-surface-variant hover:opacity-80 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">shopping_basket</span>
+<span class="font-title-md text-title-md">Basket</span>
+</a>
+<a class="flex items-center gap-2 text-primary font-bold hover:opacity-80 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-weight="fill">payments</span>
+<span class="font-title-md text-title-md">Split</span>
+</a>
+</nav>
+<button class="text-on-surface-variant hover:opacity-80 transition-all duration-200 active:scale-95 md:hidden">
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-lg flex flex-col gap-xl">
+<!-- Header & Summary -->
+<section class="flex flex-col items-center justify-center text-center py-lg animate-fade-in-up">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider mb-xs">Week 42 Settlement</p>
+<h2 class="font-display-lg text-display-lg text-primary mb-sm">Total You Owe</h2>
+<div class="text-[56px] leading-[64px] font-bold text-on-background font-numeric-data mb-lg">
+                £31.40
+            </div>
+<p class="font-body-lg text-body-lg text-tertiary max-w-md mx-auto">
+                Settle up with <span class="font-bold text-on-background">Sarah</span> for this week's groceries and shared supplies.
+            </p>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
+<!-- Left Column: Breakdown -->
+<div class="lg:col-span-7 flex flex-col gap-md">
+<h3 class="font-title-md text-title-md text-on-background mb-sm">Cost Breakdown</h3>
+<!-- Shared Staples -->
+<div class="bg-surface-container-lowest rounded-lg border border-surface-container-highest card-shadow overflow-hidden group hover:border-outline-variant transition-colors">
+<div class="flex items-center gap-md p-md border-b border-surface-container-highest bg-surface-bright">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">inventory_2</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-title-md text-title-md text-on-background">Shared Staples</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Toilet paper, olive oil, dish soap</p>
+</div>
+<div class="text-right">
+<span class="font-numeric-data text-numeric-data text-on-background font-bold">£8.50</span>
+</div>
+</div>
+<!-- Transparency Math (Revealed/Static) -->
+<div class="p-md bg-surface-container-lowest">
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant mb-xs">
+<span class="">Total Staples Cost</span>
+<span class="font-numeric-data">£34.00</span>
+</div>
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant">
+<span class="">Your Share (1/4)</span>
+<span class="font-numeric-data">£34.00 ÷ 4 = <strong class="text-on-background">£8.50</strong></span>
+</div>
+</div>
+</div>
+<!-- Recipe Portions -->
+<div class="bg-surface-container-lowest rounded-lg border border-surface-container-highest card-shadow overflow-hidden group hover:border-outline-variant transition-colors border-l-4 border-l-primary">
+<div class="flex items-center gap-md p-md">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary-container shrink-0">
+<span class="material-symbols-outlined">restaurant_menu</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-title-md text-title-md text-on-background">Shared Dinners</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Taco Tuesday &amp; Sunday Roast</p>
+</div>
+<div class="text-right">
+<span class="font-numeric-data text-numeric-data text-on-background font-bold">£18.40</span>
+</div>
+</div>
+<!-- Transparency Math (Revealed/Static) -->
+<div class="px-md pb-md pt-0 bg-surface-container-lowest">
+<div class="flex flex-col gap-xs pt-sm border-t border-surface-container-highest border-dashed">
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant">
+<span class="">Tacos (2 portions @ £3.20)</span>
+<span class="font-numeric-data">£6.40</span>
+</div>
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant">
+<span class="">Roast (1 portion)</span>
+<span class="font-numeric-data">£12.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Personal One-offs -->
+<div class="bg-surface-container-lowest rounded-lg border border-surface-container-highest card-shadow overflow-hidden group hover:border-outline-variant transition-colors">
+<div class="flex items-center gap-md p-md">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-title-md text-title-md text-on-background">Personal Items</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Almond milk x2</p>
+</div>
+<div class="text-right">
+<span class="font-numeric-data text-numeric-data text-on-background font-bold">£4.50</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Payment Details -->
+<div class="lg:col-span-5 flex flex-col gap-md">
+<div class="bg-surface-container-lowest rounded-xl border border-surface-container-highest card-shadow p-lg flex flex-col gap-lg relative overflow-hidden">
+<!-- Decorative background element -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-fixed/20 rounded-full blur-2xl pointer-events-none"></div>
+<h3 class="font-title-md text-title-md text-on-background">Pay Sarah</h3>
+<!-- QR Placeholder -->
+<div class="w-full aspect-square max-w-[200px] mx-auto bg-surface-variant rounded-lg flex flex-col items-center justify-center text-on-surface-variant border border-outline-variant border-dashed">
+<span class="material-symbols-outlined text-[48px] mb-2 opacity-50">qr_code_2</span>
+<span class="font-label-caps text-label-caps">Scan to Pay</span>
+</div>
+<!-- Bank Details -->
+<div class="bg-surface-bright rounded-lg p-md border border-surface-container-highest flex flex-col gap-sm">
+<div class="flex justify-between items-center">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">Sort Code</p>
+<p class="font-numeric-data text-numeric-data text-on-background tracking-wider">04-00-04</p>
+</div>
+<button aria-label="Copy Sort Code" class="p-2 text-primary hover:bg-primary-container/20 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+<div class="h-px bg-surface-container-highest w-full"></div>
+<div class="flex justify-between items-center">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">Account Number</p>
+<p class="font-numeric-data text-numeric-data text-on-background tracking-wider">12345678</p>
+</div>
+<button aria-label="Copy Account Number" class="p-2 text-primary hover:bg-primary-container/20 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Action -->
+<div class="flex flex-col gap-md w-full"><button class="w-full bg-secondary-container hover:bg-secondary-container/90 text-on-secondary h-12 rounded-lg font-title-md text-title-md flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 mt-sm shadow-md"><span class="material-symbols-outlined">notifications</span>Notify Collector</button><div class="hidden flex flex-col gap-2 text-center animate-fade-in-up"><p class="text-body-sm text-primary font-bold">Payment Notification Sent.</p><p class="text-body-sm text-tertiary">Waiting for Sarah to confirm.</p><a class="text-label-caps text-error underline mt-2" href="#">Dispute?</a></div></div>
+</div>
+<p class="text-center font-body-sm text-body-sm text-tertiary">
+                    Payments are handled outside the app. Marking as paid will notify Sarah to confirm.
+                </p>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-2 py-2 pb-safe bg-surface border-t border-surface-container-highest rounded-t-xl shadow-lg"><a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 p-2 rounded-lg" href="#"><span class="material-symbols-outlined">home</span><span class="font-label-caps text-label-caps mt-1">Feed</span></a><a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 p-2 rounded-lg" href="#"><span class="material-symbols-outlined">calendar_today</span><span class="font-label-caps text-label-caps mt-1">Plan</span></a><a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 p-2 rounded-lg" href="#"><span class="material-symbols-outlined">shopping_basket</span><span class="font-label-caps text-label-caps mt-1">Basket</span></a><a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 hover:bg-surface-container-low transition-transform duration-200 active:scale-90" href="#"><span class="material-symbols-outlined" data-weight="fill">payments</span><span class="font-label-caps text-label-caps mt-1 font-bold">Split</span></a></nav>
+</body></html>

@@ -1,0 +1,19 @@
+node_modules/
+.next/
+out/
+build/
+.env
+.env.local
+.env*.local
+next-env.d.ts
+*.tsbuildinfo
+.vercel
+.DS_Store
+.tesco/
+
+# Playwright MCP screenshots, traces and session output
+.playwright-mcp/
+
+# Vendored Tesco fork — treat as a dependency, do not edit
+# (kept in the repo per CLAUDE.md, but its node_modules never are)
+lib/tesco/node_modules/

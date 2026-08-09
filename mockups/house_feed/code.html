@@ -1,0 +1,325 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>HouseGrocer - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-background": "#1a1c1e",
+                      "error": "#ba1a1a",
+                      "surface-container-highest": "#e2e2e5",
+                      "surface-container-high": "#e8e8ea",
+                      "on-secondary-container": "#592600",
+                      "on-secondary-fixed": "#321200",
+                      "outline-variant": "#bdcabe",
+                      "on-surface-variant": "#3e4a41",
+                      "on-surface": "#1a1c1e",
+                      "surface-dim": "#dadadc",
+                      "on-secondary-fixed-variant": "#753400",
+                      "surface-container": "#eeeef0",
+                      "on-tertiary-fixed-variant": "#404945",
+                      "inverse-primary": "#70db9d",
+                      "tertiary-fixed": "#dce5e0",
+                      "primary-fixed-dim": "#70db9d",
+                      "surface-container-low": "#f3f3f6",
+                      "secondary-fixed": "#ffdbc8",
+                      "on-secondary": "#ffffff",
+                      "inverse-surface": "#2f3133",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-tint": "#006d40",
+                      "on-tertiary-fixed": "#151d1b",
+                      "error-container": "#ffdad6",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#f0f0f3",
+                      "outline": "#6e7a70",
+                      "on-tertiary-container": "#ffffff",
+                      "tertiary-container": "#6f7874",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed-variant": "#00522f",
+                      "on-primary-container": "#fdfff9",
+                      "secondary-fixed-dim": "#ffb68b",
+                      "primary-container": "#008751",
+                      "on-primary-fixed": "#002110",
+                      "secondary": "#994700",
+                      "on-error-container": "#93000a",
+                      "primary": "#006b3f",
+                      "tertiary": "#565f5c",
+                      "background": "#f9f9fc",
+                      "primary-fixed": "#8df8b7",
+                      "tertiary-fixed-dim": "#bfc9c4",
+                      "surface-variant": "#e2e2e5",
+                      "surface-bright": "#f9f9fc",
+                      "surface": "#f9f9fc",
+                      "secondary-container": "#fb7800",
+                      "on-tertiary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "xl": "32px",
+                      "md": "16px",
+                      "margin-desktop": "48px",
+                      "sm": "8px",
+                      "gutter": "16px",
+                      "xs": "4px",
+                      "base": "4px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Plus Jakarta Sans"],
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "headline-lg-mobile": ["Plus Jakarta Sans"],
+                      "label-caps": ["JetBrains Mono"],
+                      "numeric-data": ["JetBrains Mono"],
+                      "title-md": ["Plus Jakarta Sans"],
+                      "body-sm": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "numeric-data": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                      "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Custom utilities for soft ambient shadows as per brand guidelines */
+        .shadow-ambient-card {
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        .shadow-ambient-modal {
+            box-shadow: 0px 12px 32px rgba(0, 0, 0, 0.12);
+        }
+        /* Custom cutoff bar utility */
+        .cutoff-track {
+            height: 8px;
+            border-radius: 4px;
+        }
+        body {
+            background-color: #F0F9F4; /* Surface Level 0 */
+        }
+    </style>
+</head>
+<body class="text-on-background font-body-sm pt-[72px] pb-[96px] md:pt-[88px] min-h-screen min-h-screen">
+<!-- TopAppBar (Web & Mobile) -->
+<header class="bg-surface dark:bg-on-background text-primary dark:text-primary-fixed docked full-width top-0 shadow-sm flex justify-between items-center px-margin-mobile py-sm w-full fixed z-50 transition-all duration-200 active:scale-95">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A small, circular avatar portrait of an energetic young professional smiling warmly in a bright, modern light-mode setting with soft natural light, maintaining a clean and dependable aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7OT7CJDgA2wDIb227gw3W7l3praQNQmBL_u0I-zurPx3Tx3H9GPCt9XiTJVdQhZIyvygdY2Ie6SxAXJCQOfjn5FTnGh84Ea1HwhkXjszXKp12uwvDjuNV7jjswhztKs60ddmBQEMH88FL2LLi-H2LNHg_-PHnr8zCfueCY5-H9rLsFJL1upwHkbgJLKkLAHA-VxSuGKVMAQBlP9gpGZjBx6AA9eD94lEJO97RIZIcXfAocNjJYMA">
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold tracking-tight">HouseGrocer</h1>
+</div>
+<!-- Web Navigation (Hidden on Mobile) -->
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-primary font-bold hover:opacity-80" href="#">Feed</a>
+<a class="text-on-surface-variant hover:opacity-80" href="#">Plan</a>
+<a class="text-on-surface-variant hover:opacity-80" href="#">Fancy?</a>
+<a class="text-on-surface-variant hover:opacity-80" href="#">Basket</a>
+<a class="text-on-surface-variant hover:opacity-80" href="#">Split</a>
+</nav>
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-low transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">schedule</span>
+</button><button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-low transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-12 gap-xl md:gap-lg">
+<!-- Left Column / Top Section Mobile -->
+<div class="md:col-span-8 flex flex-col gap-md">
+<!-- Hero Action Area (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Countdown Timer Card -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-ambient-card border border-surface-container-highest flex flex-col justify-between">
+<div>
+<h2 class="font-title-md text-title-md text-on-surface mb-xs">Order Cutoff</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md">Locking in tonight's delivery.</p>
+</div>
+<div class="flex flex-col items-center justify-center py-sm">
+<div class="font-display-lg text-display-lg text-secondary-container mb-2">04:22</div>
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-wider">Hours Until Lock</span>
+</div>
+<div class="w-full bg-surface-container-highest cutoff-track mt-sm overflow-hidden relative">
+<!-- Progress bar (simulating close to cutoff - turns orange) -->
+<div class="absolute left-0 top-0 h-full bg-secondary-container w-3/4 rounded-r-full transition-all duration-1000"></div>
+</div>
+</section>
+<!-- Primary Action Card -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-ambient-card border border-surface-container-highest flex flex-col justify-between relative overflow-hidden">
+<!-- Decorative background pattern (subtle) -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle at 1px 1px, #006b3f 1px, transparent 0); background-size: 20px 20px;"></div>
+<div class="relative z-10">
+<h2 class="font-title-md text-title-md text-on-surface mb-xs">Your Input Required</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md">You haven't added your personal items for this week's run yet.</p>
+</div>
+<button class="relative z-10 w-full bg-secondary-container text-on-primary font-title-md text-title-md py-3 rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-auto">
+<span class="material-symbols-outlined">restaurant</span>
+                        Submit Your Fancy?
+                     </button>
+</section>
+</div>
+<!-- Weekly Plan Summary -->
+<section class="bg-surface-container-lowest rounded-xl p-0 shadow-ambient-card border border-surface-container-highest overflow-hidden">
+<div class="p-md flex items-center justify-between border-b border-surface-container-highest">
+<h2 class="font-title-md text-title-md text-on-surface">This Week's Plan</h2>
+<span class="bg-primary-container text-on-primary-container font-numeric-data text-numeric-data px-2 py-1 rounded-md">14 Shared Meals</span>
+</div>
+<!-- Horizontal scrolling grid for mobile -->
+<div class="overflow-x-auto pb-4 hide-scrollbar">
+<div class="flex md:grid md:grid-cols-7 gap-sm p-md min-w-[max-content] md:min-w-0">
+<!-- Days -->
+<div class="flex flex-col items-center gap-xs w-16 md:w-auto">
+<span class="font-label-caps text-label-caps text-on-surface-variant">MON</span>
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-outline">done</span></div>
+</div>
+<div class="flex flex-col items-center gap-xs w-16 md:w-auto">
+<span class="font-label-caps text-label-caps text-on-surface-variant">TUE</span>
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-outline">done</span></div>
+</div>
+<div class="flex flex-col items-center gap-xs w-16 md:w-auto bg-surface-container-low rounded-lg py-1 border border-primary-container/30">
+<span class="font-label-caps text-label-caps text-primary font-bold">WED</span>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-lowest bg-surface-container-high overflow-hidden"><img class="w-full h-full object-cover" data-alt="Small round portrait of a young man with glasses in a bright clean setting, looking dependable." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3Ep57K-0tcRpmoNtITkMcbfULCHiUsP7K0jo3OUb60D7VUoZLCIHNV49ZcRPf9m_4fJTg4afthl1sM1qKq4QMLqms4btdR8VRb93uK_qZJrFOsMDDBliv7RjiBzHq389-vXkTcYZ2no9ncwB28oD8O073TWYk6P0EnfJJegcux889-FgxkBbLhpRV9B1V4h1Ig8kyAKuxv2dAUH8PQ1FpNgAulDVStQktyQcgQKF36gmHFozUvE8"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-lowest bg-surface-container-high overflow-hidden"><img class="w-full h-full object-cover" data-alt="Small round portrait of a young woman smiling in a bright clean setting, looking energetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATT4jmVlWfOq-rdI7oOsEqhDEIqI2jLjt4-IUmMWE3jsW7_3UXHL8ls2GSpAq7uSP4BkGty-H1lIMFoxeGgTyb_ctCabK8IfX263--DQqrNwP8N1I6aXDk8FlMyHZw01eKxkjM6y9DCWL2ou-bJ1lI3Di5P5MctCXqm8iXFqaRWhZcZqxIL-5V3aigomggGKsaRucxVK0jFZUDcmJu2s50c6g5mFYxyj-MLEIQTandyjYr_aMkIGs"></div>
+</div>
+</div>
+<div class="flex flex-col items-center gap-xs w-16 md:w-auto">
+<span class="font-label-caps text-label-caps text-on-surface-variant">THU</span>
+<div class="flex -space-x-2 opacity-50">
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-lowest bg-surface-container-high overflow-hidden"><img class="w-full h-full object-cover" data-alt="Small round portrait of a person in a bright clean setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzflt-h6z74617licj1WnF_l0t21rRD6Lt5NbZD4XGRsh8zxGI7icH0k7hql2Mg1_gzY4CgyfY-yhCZmakOxYcqY6FmPigCj1aSUB1WaKN-wOf5dQl1QvC0vpYGTKi8GZkAcjOO8RFEGrE2uFBTdyVePXXi0q1O2EoJ68ceLQvtBHMariOSrGPny6iRCnIxeQ28wt14cIw-NFkBNu4pAbLs6mpT29J6VEMd7xe4tJ9vH43NKKVn6w"></div>
+</div>
+</div>
+<div class="flex flex-col items-center gap-xs w-16 md:w-auto">
+<span class="font-label-caps text-label-caps text-on-surface-variant">FRI</span>
+<div class="w-10 h-10 rounded-full border border-dashed border-outline-variant flex items-center justify-center text-outline-variant"><span class="material-symbols-outlined text-sm">add</span></div>
+</div>
+<div class="flex flex-col items-center gap-xs w-16 md:w-auto">
+<span class="font-label-caps text-label-caps text-on-surface-variant">SAT</span>
+<div class="w-10 h-10 rounded-full border border-dashed border-outline-variant flex items-center justify-center text-outline-variant"><span class="material-symbols-outlined text-sm">add</span></div>
+</div>
+<div class="flex flex-col items-center gap-xs w-16 md:w-auto">
+<span class="font-label-caps text-label-caps text-on-surface-variant">SUN</span>
+<div class="w-10 h-10 rounded-full border border-dashed border-outline-variant flex items-center justify-center text-outline-variant"><span class="material-symbols-outlined text-sm">add</span></div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column / Bottom Section Mobile -->
+<div class="md:col-span-4 flex flex-col gap-md">
+<!-- House Staples Notification (Left Border Accent) -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-ambient-card border border-surface-container-highest border-l-4 border-l-primary flex items-start gap-sm">
+<span class="material-symbols-outlined text-primary mt-1" style="font-variation-settings: 'FILL' 1;">info</span>
+<div>
+<h3 class="font-numeric-data text-numeric-data text-on-surface mb-1">House Staples</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Running low on <strong>Oat Milk</strong> and <strong>Olive Oil</strong>. Added to shared basket.</p>
+</div>
+</section>
+<!-- Payment Status List -->
+<section class="bg-surface-container-lowest rounded-xl shadow-ambient-card border border-surface-container-highest overflow-hidden">
+<div class="p-md border-b border-surface-container-highest bg-surface-container-low/50">
+<h2 class="font-title-md text-title-md text-on-surface">Payment Status</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Last week's groceries</p>
+</div>
+<div class="divide-y divide-surface-container-highest">
+<!-- Housemate Item (Paid) -->
+<div class="p-md flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Portrait of a young woman, energetic and smiling, bright lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAI6XLCP55LKse4b8rzES2bKXwp96g6CjqI3WA2IMsXjvYHljuJNvtI8tr00L47RFXuOKZifsCFbxE3QKdLTAv3U_C_8gRpkTZogwO6OUXmzfNBEYGY6wKcTB53ZjMbbEDmQ-cwWmaYmxKUvcH8t5CuQ-FqUOn-bF4nNmg1APAWlD6rBXpWxemw_x1PoTxxfk1feVXBB6IWWnIuvvZ5wFBBDwmqHwMPh1Fke8NByvTHXCmvlbDRYfU">
+</div>
+<span class="font-numeric-data text-numeric-data text-on-surface">Sarah</span>
+</div>
+<span class="bg-primary/10 text-primary font-label-caps text-label-caps px-2 py-1 rounded border border-primary/20 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Paid
+                        </span>
+</div>
+<!-- Housemate Item (Unpaid) -->
+<div class="p-md flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Portrait of a young man, dependable look, bright lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHZe9O_1YXt5fsJqU50rRSOseDnHF9SeiLJ7f7lzgHaF3K2Y2HY8EPg0bkbtWgqMl2Zqwzsxh32m955A1UNhKwKsxWvl-ONhAO0Xw4B13twik62zKlL4J-QynrCYWKqQHIDt8NxT9OUXsDpGCc5oOSY2FhczZw7a_jRV_1bFf4TQzOL9LeTidbYf705KvvEDrYNlJy2do-VQxZGMeORsn7cFPnmQobIVMqT_5icLOC_GoxRj9ZGvA">
+</div>
+<span class="font-numeric-data text-numeric-data text-on-surface">Mike</span>
+</div>
+<span class="bg-secondary-container/10 text-secondary-container font-label-caps text-label-caps px-2 py-1 rounded border border-secondary-container/20 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">pending</span> Unpaid
+                        </span>
+</div>
+<!-- Housemate Item (Self) -->
+<div class="p-md flex items-center justify-between bg-surface-container-low/30">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex-shrink-0 border-2 border-primary">
+<img class="w-full h-full object-cover" data-alt="A small, circular avatar portrait of an energetic young professional smiling warmly in a bright, modern light-mode setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp5V0qt2MKsds-S8FTb9sPdzB7K1tgm2lUNSk5xuXVmKkCVHWNUt83BGxAck-IDWmNXvXq3DbWtkH01dwVdWScVsDMt4re3HAp0a6-XF7BroD0gdR-6Hq0mMxDi3SUIREVywc_j0_JNbLfjyvYddGZT2B6GcRGe5aqUDRK3MQNVfJ7fxhj_kml8NQdPMIUrGpE9NZCvuJ8lSnhxtqG_FHnVJLsQFSjfyr-82tFB--3bpllQsCbVwY">
+</div>
+<span class="font-numeric-data text-numeric-data text-on-surface">You</span>
+</div>
+<span class="bg-primary/10 text-primary font-label-caps text-label-caps px-2 py-1 rounded border border-primary/20 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Paid
+                        </span>
+</div>
+</div>
+<div class="p-sm bg-surface-container-lowest border-t border-surface-container-highest">
+<button class="w-full text-center py-2 text-primary font-title-md text-title-md hover:bg-surface-container-low rounded transition-colors">Nudge Unpaid</button>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface dark:bg-on-background text-primary dark:text-primary-fixed font-label-caps text-label-caps font-display-lg text-display-lg docked full-width bottom-0 rounded-t-xl border-t border-surface-container-highest shadow-lg hover:bg-surface-container-low transition-transform duration-200 active:scale-90 fixed w-full z-50 flex justify-around items-center px-2 py-2 pb-safe"><!-- Feed (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-3 py-1" href="#">
+  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+  <span class="mt-1 font-label-caps text-[10px]">Feed</span>
+</a>
+<!-- Plan (Includes Pantry) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-2 py-1" href="#">
+  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">grid_view</span>
+  <span class="mt-1 font-label-caps text-[10px]">Plan</span>
+</a>
+<!-- Recipes (New) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-2 py-1" href="#">
+  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu_book</span>
+  <span class="mt-1 font-label-caps text-[10px]">Recipes</span>
+</a>
+<!-- Fancy? -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-2 py-1" href="#">
+  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">restaurant</span>
+  <span class="mt-1 font-label-caps text-[10px]">Fancy?</span>
+</a>
+<!-- Basket -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-2 py-1 relative" href="#">
+  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">shopping_basket</span>
+  <span class="absolute top-0 right-1 w-2 h-2 bg-secondary-container rounded-full border border-surface"></span>
+  <span class="mt-1 font-label-caps text-[10px]">Basket</span>
+</a>
+<!-- Split -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-2 py-1" href="#">
+  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">payments</span>
+  <span class="mt-1 font-label-caps text-[10px]">Split</span>
+</a></nav>
+
+
+
+
+
+
+</body></html>

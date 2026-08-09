@@ -1,0 +1,321 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Reconciliation - HouseGrocer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#008751",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#bfc9c4",
+                        "secondary-container": "#fb7800",
+                        "surface-tint": "#006d40",
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#f9f9fc",
+                        "surface": "#f9f9fc",
+                        "on-tertiary-container": "#ffffff",
+                        "on-error": "#ffffff",
+                        "secondary-fixed-dim": "#ffb68b",
+                        "primary-fixed": "#8df8b7",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#2f3133",
+                        "secondary": "#994700",
+                        "primary-fixed-dim": "#70db9d",
+                        "on-primary-fixed-variant": "#00522f",
+                        "on-secondary-fixed-variant": "#753400",
+                        "outline-variant": "#bdcabe",
+                        "on-surface": "#1a1c1e",
+                        "tertiary-fixed": "#dce5e0",
+                        "primary": "#006b3f",
+                        "outline": "#6e7a70",
+                        "background": "#f9f9fc",
+                        "inverse-on-surface": "#f0f0f3",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#002110",
+                        "surface-container-high": "#e8e8ea",
+                        "on-primary-container": "#fdfff9",
+                        "surface-dim": "#dadadc",
+                        "tertiary": "#565f5c",
+                        "inverse-primary": "#70db9d",
+                        "on-tertiary-fixed": "#151d1b",
+                        "on-surface-variant": "#3e4a41",
+                        "surface-container-highest": "#e2e2e5",
+                        "tertiary-container": "#6f7874",
+                        "error": "#ba1a1a",
+                        "surface-container": "#eeeef0",
+                        "on-background": "#1a1c1e",
+                        "secondary-fixed": "#ffdbc8",
+                        "on-secondary-fixed": "#321200",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#404945",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e2e2e5",
+                        "on-secondary-container": "#592600",
+                        "surface-container-low": "#f3f3f6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "xl": "32px",
+                        "margin-desktop": "48px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "title-md": ["Plus Jakarta Sans"],
+                        "numeric-data": ["JetBrains Mono"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-caps": ["JetBrains Mono"],
+                        "body-sm": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "numeric-data": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .custom-checkbox {
+            appearance: none;
+            background-color: transparent;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #bdcabe; /* outline-variant */
+            border-radius: 4px;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .custom-checkbox::before {
+            content: "";
+            width: 14px;
+            height: 14px;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+            transform: scale(0);
+            transform-origin: bottom left;
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em white;
+            background-color: white;
+        }
+
+        .custom-checkbox:checked {
+            background-color: #006b3f; /* primary */
+            border-color: #006b3f;
+        }
+
+        .custom-checkbox:checked::before {
+            transform: scale(1);
+        }
+        
+        .soft-shadow {
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-lg min-h-screen pb-[100px] pt-16">
+<!-- TopAppBar from JSON -->
+<header class="fixed top-0 w-full z-50 bg-surface shadow-sm flex justify-between items-center h-16 px-margin-mobile w-full">
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 transition-transform duration-200 rounded-full p-2 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">HouseGrocer</h1>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 transition-transform duration-200 rounded-full p-2 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="max-w-4xl mx-auto px-margin-mobile py-lg md:px-margin-desktop md:py-xl">
+<!-- Page Header -->
+<div class="mb-xl">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg mb-sm">Order Reconciliation</h2>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm">
+<span class="material-symbols-outlined text-primary-container" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="">Delivered Thursday, 18:45 via Whole Foods</span>
+</div>
+<p class="mt-2 font-body-sm text-tertiary">Adjust totals manually for missing or damaged items that weren't captured by the store's reconciliation.</p>
+</div>
+<!-- Bento Grid Layout for Reconcilation -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+<!-- Main Content Area: Items list -->
+<div class="md:col-span-8 flex flex-col gap-lg">
+<!-- Confirmed Items Card -->
+<section class="bg-surface-container-lowest rounded-xl soft-shadow border border-surface-container p-md">
+<div class="flex justify-between items-center mb-md pb-sm border-b border-surface-container-high">
+<h3 class="font-title-md text-title-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="inventory_2">inventory_2</span>
+                            Received Items
+                        </h3>
+<span class="font-numeric-data text-numeric-data text-on-surface-variant">12 / 14 Items</span>
+</div>
+<div class="space-y-sm">
+<!-- Item Row 1 -->
+<div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-lg transition-colors">
+<div class="flex items-center gap-md">
+<input checked="" class="custom-checkbox" id="item1" type="checkbox">
+<div class="w-12 h-12 bg-surface-container rounded-md overflow-hidden flex-shrink-0">
+<img alt="Almond Milk" class="w-full h-full object-cover" data-alt="A small box of organic almond milk on a minimalist white background. Soft studio lighting, realistic grocery product photography style, high quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9hekj76up2zngLdL5cnAA26KxMgIVpNdLhbrZsBOb_lyuFQtil0jCSCjfYljkj8vsR8X1-frNBHALHfUYPPv6Wa3ia_9PJfTrgJhqklAFmMjD2Sqmxt9fDg8IMtkva9OZIAtSXLGN-dN6-rY51vq-mGwVThn2go0Wzqy5L1hbRNkCt-wswy7Ojln69-weIHExdYc0-9nwv7205vtrQHmivYBT31kPNWOzT8KGlL6Vf2sc29qu9jo">
+</div>
+<label class="cursor-pointer" for="item1">
+<div class="font-body-lg text-on-surface font-medium">Organic Almond Milk</div>
+<div class="font-body-sm text-on-surface-variant">2x 1L • Shared</div>
+</label>
+</div>
+<div class="font-numeric-data text-numeric-data">£8.50</div>
+</div>
+<!-- Item Row 2 -->
+<div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-lg transition-colors">
+<div class="flex items-center gap-md">
+<input checked="" class="custom-checkbox" id="item2" type="checkbox">
+<div class="w-12 h-12 bg-surface-container rounded-md overflow-hidden flex-shrink-0">
+<img alt="Bananas" class="w-full h-full object-cover" data-alt="A bunch of fresh organic bananas on a minimalist white background. Soft studio lighting, realistic grocery product photography style, high quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDC72XzoTCi9Yt14qLnmOdKmshdRNvEVdTvGOgxtZES9DEocoaJt15PEfOn_uyibjragSOgkV0GixKsxdGLq4erT9us-XqlOz-ghE5t5BPllezyBUL5ZJ6XEgBW4FXOMFGtLfhcbYgUAMORfCGFdZW1LQnsQdFBgOOMHupiypgYpxoXq3fY1G8lBReCKm28pxD5cCOO-fftePw_l88Ek0DK_1d_HPvi1mRFRkIHNK29pYAAgqYaQfo">
+</div>
+<label class="cursor-pointer" for="item2">
+<div class="font-body-lg text-on-surface font-medium">Fairtrade Bananas</div>
+<div class="font-body-sm text-on-surface-variant">1 Bunch • Maya</div>
+</label>
+</div>
+<div class="font-numeric-data text-numeric-data">£3.20</div>
+</div>
+</div>
+<button class="mt-md w-full py-2 text-center text-primary font-body-sm font-medium hover:bg-surface-container-low rounded-lg transition-colors">Show All Received Items</button>
+</section>
+<!-- Substitutions Card -->
+<section class="bg-surface-container-lowest rounded-xl soft-shadow border border-surface-container p-md relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary-container"></div>
+<div class="flex justify-between items-center mb-md pb-sm border-b border-surface-container-high">
+<h3 class="font-title-md text-title-md flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-container" data-icon="swap_horiz">swap_horiz</span>
+                            Substitutions
+                        </h3>
+</div>
+<div class="bg-surface-container-low rounded-lg p-md">
+<div class="flex items-start justify-between">
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-variant px-2 py-0.5 rounded">ORIGINAL</span>
+<span class="font-body-sm text-on-surface-variant line-through">Oatly Barista Milk</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps text-secondary-container bg-secondary-container/10 px-2 py-0.5 rounded">REPLACEMENT</span>
+<span class="font-body-lg font-medium">Minor Figures Oat Milk</span>
+</div>
+</div>
+<div class="text-right flex flex-col items-end">
+<span class="font-numeric-data text-numeric-data text-on-surface-variant line-through">£5.50</span>
+<span class="font-numeric-data text-numeric-data font-bold text-primary-container">£4.80</span>
+<span class="font-body-sm text-primary-container mt-1">-£0.70</span>
+</div>
+</div>
+<div class="mt-md flex gap-sm">
+<button class="flex-1 py-2 bg-white border border-outline-variant text-on-surface rounded-lg font-body-sm font-medium hover:bg-surface-container-high transition-colors">Accept</button>
+<button class="flex-1 py-2 bg-white border border-error text-error rounded-lg font-body-sm font-medium hover:bg-error-container hover:border-error-container transition-colors">Reject &amp; Refund</button>
+</div>
+</div>
+</section>
+<!-- Missing / Damaged Card -->
+<section class="bg-surface-container-lowest rounded-xl soft-shadow border border-surface-container p-md">
+<h3 class="font-title-md text-title-md flex items-center gap-2 mb-md pb-sm border-b border-surface-container-high"><span class="material-symbols-outlined text-error" data-icon="report_problem">report_problem</span>Manual Adjustments</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md"><button class="col-span-full flex items-center justify-center gap-2 p-lg rounded-lg border-2 border-dashed border-outline-variant hover:border-primary hover:bg-surface-container-low transition-colors group w-full"><span class="material-symbols-outlined text-outline group-hover:text-primary" data-icon="add_circle">add_circle</span><span class="font-body-lg font-medium text-on-surface">Add Manual Adjustment</span></button></div>
+</section>
+</div>
+<!-- Sidebar / Split Area -->
+<div class="md:col-span-4 flex flex-col gap-lg">
+<!-- Corrected Split Card -->
+<section class="bg-surface-container-lowest rounded-xl soft-shadow border border-surface-container p-md sticky top-24">
+<h3 class="font-title-md text-title-md mb-md">Corrected Split</h3>
+<div class="space-y-md mb-lg">
+<!-- Housemate 1 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-sm">
+                                    J
+                                </div>
+<span class="font-body-lg">Jordan (You)</span>
+</div>
+<div class="text-right">
+<div class="font-numeric-data text-numeric-data font-bold">£34.50</div>
+<div class="font-body-sm text-primary-container text-xs">-£0.35 (Sub)</div>
+</div>
+</div>
+<!-- Housemate 2 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary flex items-center justify-center font-bold text-sm">
+                                    M
+                                </div>
+<span class="font-body-lg">Maya</span>
+</div>
+<div class="text-right">
+<div class="font-numeric-data text-numeric-data font-bold">£22.10</div>
+<div class="font-body-sm text-on-surface-variant text-xs">No change</div>
+</div>
+</div>
+<!-- Housemate 3 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-sm">
+                                    A
+                                </div>
+<span class="font-body-lg">Alex</span>
+</div>
+<div class="text-right">
+<div class="font-numeric-data text-numeric-data font-bold">£18.40</div>
+<div class="font-body-sm text-primary-container text-xs">-£0.35 (Sub)</div>
+</div>
+</div>
+</div>
+<div class="pt-md border-t border-surface-container-high mb-lg">
+<div class="flex justify-between items-center mb-1">
+<span class="font-body-lg text-on-surface-variant">Original Total</span>
+<span class="font-numeric-data text-numeric-data text-on-surface-variant line-through">£75.70</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-title-md text-title-md font-bold">New Total</span>
+<span class="font-numeric-data text-numeric-data font-bold text-xl">£75.00</span>
+</div>
+</div>
+<button class="w-full bg-[#FF7A00] hover:bg-[#E66E00] text-white font-title-md text-title-md py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        Finalize Order
+                        <span class="material-symbols-outlined" data-icon="check">check</span>
+</button>
+<p class="text-center font-body-sm text-on-surface-variant mt-2 text-xs">This will update balances for all housemates.</p>
+</section>
+</div>
+</div>
+</main>
+<!-- BottomNavBar from JSON -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface border-t border-outline-variant shadow-[0_-4px_20px_rgba(0,0,0,0.05)] flex justify-around items-center h-20 pb-safe w-full px-xs"><a class="flex flex-col items-center justify-center text-on-surface-variant px-2 py-1 hover:bg-surface-container transition-all active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined" data-icon="home_storage">home_storage</span><span class="font-label-caps text-label-caps mt-1">Feed</span></a><a class="flex flex-col items-center justify-center text-on-surface-variant px-2 py-1 hover:bg-surface-container transition-all active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span><span class="font-label-caps text-label-caps mt-1">Plan</span></a><a class="flex flex-col items-center justify-center text-on-surface-variant px-2 py-1 hover:bg-surface-container transition-all active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined" data-icon="menu_book">menu_book</span><span class="font-label-caps text-label-caps mt-1">Recipes</span></a><a class="flex flex-col items-center justify-center text-on-surface-variant px-2 py-1 hover:bg-surface-container transition-all active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span><span class="font-label-caps text-label-caps mt-1">Fancy?</span></a><a class="flex flex-col items-center justify-center text-on-surface-variant px-2 py-1 hover:bg-surface-container transition-all active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined" data-icon="shopping_basket">shopping_basket</span><span class="font-label-caps text-label-caps mt-1">Basket</span></a><a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 hover:bg-surface-container transition-all active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined" data-icon="payments" style="font-variation-settings: 'FILL' 1;">payments</span><span class="font-label-caps text-label-caps mt-1">Split</span></a></nav>
+
+
+</body></html>

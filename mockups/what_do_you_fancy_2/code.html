@@ -1,0 +1,362 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+<title>Plan - HouseGrocer</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1a1c1e",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e2e2e5",
+                        "surface-container-high": "#e8e8ea",
+                        "on-secondary-container": "#592600",
+                        "on-secondary-fixed": "#321200",
+                        "outline-variant": "#bdcabe",
+                        "on-surface-variant": "#3e4a41",
+                        "on-surface": "#1a1c1e",
+                        "surface-dim": "#dadadc",
+                        "on-secondary-fixed-variant": "#753400",
+                        "surface-container": "#eeeef0",
+                        "on-tertiary-fixed-variant": "#404945",
+                        "inverse-primary": "#70db9d",
+                        "tertiary-fixed": "#dce5e0",
+                        "primary-fixed-dim": "#70db9d",
+                        "surface-container-low": "#f3f3f6",
+                        "secondary-fixed": "#ffdbc8",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2f3133",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#006d40",
+                        "on-tertiary-fixed": "#151d1b",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f0f0f3",
+                        "outline": "#6e7a70",
+                        "on-tertiary-container": "#ffffff",
+                        "tertiary-container": "#6f7874",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#00522f",
+                        "on-primary-container": "#fdfff9",
+                        "secondary-fixed-dim": "#ffb68b",
+                        "primary-container": "#008751",
+                        "on-primary-fixed": "#002110",
+                        "secondary": "#994700",
+                        "on-error-container": "#93000a",
+                        "primary": "#006b3f",
+                        "tertiary": "#565f5c",
+                        "background": "#f9f9fc",
+                        "primary-fixed": "#8df8b7",
+                        "tertiary-fixed-dim": "#bfc9c4",
+                        "surface-variant": "#e2e2e5",
+                        "surface-bright": "#f9f9fc",
+                        "surface": "#f9f9fc",
+                        "secondary-container": "#fb7800",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "margin-desktop": "48px",
+                        "sm": "8px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "base": "4px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-caps": ["JetBrains Mono"],
+                        "numeric-data": ["JetBrains Mono"],
+                        "title-md": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "numeric-data": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Custom Checkbox styles */
+        .custom-checkbox input:checked + div {
+            background-color: theme('colors.primary');
+            border-color: theme('colors.primary');
+        }
+        
+        /* pb-safe for mobile nav */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        }
+        
+        /* Hide scrollbar for horizontal scrolling */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-lg text-body-lg antialiased selection:bg-primary selection:text-on-primary pb-[100px] pt-[72px]">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-margin-mobile py-sm w-full fixed top-0 z-50 bg-surface dark:bg-on-background shadow-sm transition-all duration-200">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant shrink-0 cursor-pointer hover:opacity-80 transition-all duration-200 active:scale-95">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close up, well-lit avatar portrait of a modern, stylish young adult student or professional. The lighting is soft and flattering, typical of a professional profile photo. The background is a clean, neutral gradient. The person has an energetic and friendly expression, fitting a community-focused app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaYDtyHwL72rXXzcgcQG5W4HOu7_hNv_aOhD4YeWlSYtq9SCXyaMevnKaugTP4veQOVtkVV7emO1u5BsQYAO8w04syJ1QtOFI_eZPFfqhdAdTlEoZT5AYALEngG3Xf_YGaUyutAvFCTgs6nhWP82jCDFcTjaEN97o9R6i6_eeqHtTKBrIrIfwk4_067hisffmZ-aL2GoB8FDLO5gU59Vph0E2ZL-pKQag2rt2vWOfQfybrWrI2ChM">
+</div>
+<h1 class="font-display-lg text-[24px] leading-8 font-bold text-primary dark:text-primary-fixed tracking-tight">HouseGrocer</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center text-primary dark:text-primary-fixed hover:bg-surface-container-low rounded-full transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined">schedule</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="w-full max-w-4xl mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-xl flex flex-col gap-xl">
+<!-- Header Section -->
+<section class="flex flex-col gap-xs">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-background">Your Week</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Update your meal plans and constraints by 5 PM Sunday.</p>
+<!-- Progress / Cutoff Bar -->
+<div class="mt-sm flex flex-col gap-base">
+<div class="flex justify-between items-center font-label-caps text-label-caps">
+<span class="text-secondary font-bold">Cutoff approaching</span>
+<span class="text-on-surface-variant font-numeric-data">04:22:10</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-3/4 rounded-full transition-all duration-500"></div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Layout for Input Sections -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-md md:gap-lg">
+<!-- Left Column (Meal Opt-in & Constraints) -->
+<div class="md:col-span-7 flex flex-col gap-md md:gap-lg">
+<!-- Quick Meal Opt-In Card -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-container p-md md:p-lg flex flex-col gap-md">
+<div class="flex justify-between items-center">
+<h3 class="font-title-md text-title-md text-on-background">Meal Roster</h3>
+<span class="font-label-caps text-label-caps text-primary bg-primary-container/20 px-2 py-1 rounded">THIS WEEK</span>
+</div>
+<div class="flex flex-col gap-xs">
+<!-- Monday -->
+<div class="flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-sm">
+<label class="custom-checkbox relative flex items-center cursor-pointer">
+<input checked="" class="sr-only" type="checkbox">
+<div class="w-6 h-6 border-2 border-outline rounded flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-white text-[16px] leading-none select-none" style="font-weight: 600;">check</span>
+</div>
+</label>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-on-background">Monday Dinner</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cooked by Alex</span>
+</div>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded">IN</span>
+</div>
+<!-- Tuesday -->
+<div class="flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-sm">
+<label class="custom-checkbox relative flex items-center cursor-pointer">
+<input class="sr-only" type="checkbox">
+<div class="w-6 h-6 border-2 border-outline rounded flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-white text-[16px] leading-none select-none opacity-0" style="font-weight: 600;">check</span>
+</div>
+</label>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-on-background">Tuesday Dinner</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Leftovers / DIY</span>
+</div>
+</div>
+<span class="font-label-caps text-label-caps text-outline bg-surface-container px-2 py-1 rounded">OUT</span>
+</div>
+<!-- Wednesday -->
+<div class="flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-sm">
+<label class="custom-checkbox relative flex items-center cursor-pointer">
+<input checked="" class="sr-only" type="checkbox">
+<div class="w-6 h-6 border-2 border-outline rounded flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-white text-[16px] leading-none select-none" style="font-weight: 600;">check</span>
+</div>
+</label>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-on-background">Wednesday Dinner</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cooked by You</span>
+</div>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded">IN</span>
+</div>
+</div>
+</section>
+<!-- Constraints Selector Card -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-container p-md md:p-lg flex flex-col gap-md">
+<div class="flex justify-between items-center">
+<h3 class="font-title-md text-title-md text-on-background">My Constraints</h3>
+<span class="material-symbols-outlined text-on-surface-variant">info</span>
+</div>
+<div class="flex flex-wrap gap-sm">
+<!-- Active Tag -->
+<button class="px-md py-sm rounded-full border border-primary bg-primary/10 text-primary font-title-md text-[14px] leading-tight flex items-center gap-xs hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[18px]">eco</span>
+                            Vegetarian
+                        </button>
+<!-- Inactive Tags -->
+<button class="px-md py-sm rounded-full border border-outline-variant bg-surface text-on-surface-variant font-title-md text-[14px] leading-tight flex items-center gap-xs hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">work</span>
+                            Working Late (Tue)
+                        </button>
+<button class="px-md py-sm rounded-full border border-outline-variant bg-surface text-on-surface-variant font-title-md text-[14px] leading-tight flex items-center gap-xs hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">restaurant</span>
+                            Eating Out (Fri)
+                        </button>
+<button class="px-md py-sm rounded-full border border-outline-variant bg-surface text-on-surface-variant font-title-md text-[14px] leading-tight flex items-center gap-xs hover:bg-surface-container transition-colors border-dashed">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                            Add Tag
+                        </button>
+</div>
+</section>
+</div>
+<!-- Right Column (Quick Add & Text Area) -->
+<div class="md:col-span-5 flex flex-col gap-md md:gap-lg">
+<!-- Quick Add Recipes Card -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-container p-md md:p-lg flex flex-col gap-md relative overflow-hidden">
+<!-- Subtle border accent -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<h3 class="font-title-md text-title-md text-on-background pl-xs">Quick Add</h3>
+<div class="relative w-full h-12">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full h-full pl-10 pr-4 rounded-lg bg-surface-container-low border-none focus:ring-2 focus:ring-primary text-body-lg text-on-background placeholder:text-outline" placeholder="Search recipes..." type="text">
+</div>
+<div class="flex gap-sm overflow-x-auto hide-scrollbar pb-xs">
+<button class="shrink-0 w-24 flex flex-col gap-xs items-center group">
+<div class="w-16 h-16 rounded-lg overflow-hidden border border-surface-container relative">
+<img alt="Pasta" class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="A top-down view of a colorful, fresh pasta dish in a modern ceramic bowl. The scene is brightly lit with a light-mode aesthetic, featuring clean white surfaces and subtle green accents in the background. The food looks appetizing and quick to make." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOcd-Ubxj4yEdywICaJr7y7exU-hlAbjZ1Zl9B2gS0WRwJfw7r1R5jlp2OWBjITCaYZjGSZHozGQAlsgL_prbAeMgMKq2x6T_UPyNG7xsEp5IAuza0ZSHlynJMUB3s3851JVzaRFLmGBSI6yFFeZBPhskDBQye8jyyidR8WQSQIbswTSB4rGgY1WaadKdBWTgefG8y2RL2-tcapSWBM-nOFwFByLvZ7albPchEGUtzB_Vn9FUiAWQ">
+<div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+<div class="absolute bottom-1 right-1 bg-white/90 rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-primary">add</span>
+</div>
+</div>
+<span class="font-body-sm text-body-sm text-center line-clamp-1">Pesto Pasta</span>
+</button>
+<button class="shrink-0 w-24 flex flex-col gap-xs items-center group">
+<div class="w-16 h-16 rounded-lg overflow-hidden border border-surface-container relative">
+<img alt="Burgers" class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="A high-contrast, appetizing photo of a modern black bean burger on a brioche bun. Served on a minimalist white plate with a clean, light-mode background. Vibrant orange and green colors pop from the fresh ingredients." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUktyEr1Esle5g-H_2laQOP1flivlG7U-kf44bsyKr9FVEeeCjhcmPM1EmmuMaVC3FVp-Tuy1CwZM1cBIGcgzELiJBmpNaaGeBASC06KhDFKxUxcgmSbNeK4sD1jS1O337R-WoKKNp6efks8_3wiFXnthQ0kQvP1dTLY_fO0Q3OB0nRxHlS-a4EkC0foRSwzYbdvML-nfJF906HhxAKUl2wPa-OU7i8fewQP9YX3OnIaSXyZUCVY0">
+<div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+<div class="absolute bottom-1 right-1 bg-white/90 rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-primary">add</span>
+</div>
+</div>
+<span class="font-body-sm text-body-sm text-center line-clamp-1">Veggie Burgers</span>
+</button>
+<button class="shrink-0 w-24 flex flex-col gap-xs items-center group">
+<div class="w-16 h-16 rounded-lg overflow-hidden border border-surface-container flex items-center justify-center bg-surface-container-low group-hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-outline">more_horiz</span>
+</div>
+<span class="font-body-sm text-body-sm text-center text-on-surface-variant">View All</span>
+</button>
+</div>
+</section>
+<!-- One-Off Items Text Area -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-container p-md md:p-lg flex flex-col gap-sm">
+<h3 class="font-title-md text-title-md text-on-background">One-off Items</h3>
+<textarea class="w-full p-sm rounded-lg bg-surface-container-low border-none focus:ring-2 focus:ring-primary text-body-lg text-on-background placeholder:text-outline resize-none" placeholder="e.g., 'Need some snacks for Friday' or 'We are out of oat milk!'" rows="3"></textarea>
+</section>
+</div>
+</div>
+<!-- Action Button -->
+<div class="flex justify-end pt-sm pb-xl md:pb-0">
+<button class="w-full md:w-auto min-w-[200px] h-12 bg-secondary text-on-secondary font-title-md rounded-lg shadow-[0px_4px_20px_rgba(255,122,0,0.2)] hover:bg-secondary-container transition-all active:scale-95 flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined">check_circle</span>
+                Done Planning
+            </button>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface dark:bg-on-background border-t border-surface-container-highest shadow-lg docked full-width bottom-0 rounded-t-xl fixed w-full z-50 flex justify-around items-center px-2 py-2 pb-safe"><!-- Feed (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 w-16 py-1 rounded-lg" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-label-caps mt-1">Feed</span>
+</a>
+<!-- Plan (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 w-16 py-1 rounded-lg" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-caps text-label-caps mt-1">Plan</span>
+</a>
+<!-- Recipes (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 w-16 py-1 rounded-lg" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-caps text-label-caps mt-1">Recipes</span>
+</a>
+<!-- Fancy? (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined fill">restaurant</span>
+<span class="font-label-caps text-label-caps mt-1">Fancy?</span>
+</a>
+<!-- Basket (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 w-16 py-1 rounded-lg" href="#">
+<span class="material-symbols-outlined">shopping_basket</span>
+<span class="font-label-caps text-label-caps mt-1">Basket</span>
+</a>
+<!-- Split (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 w-16 py-1 rounded-lg" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-caps text-label-caps mt-1">Split</span>
+</a></nav>
+<script>
+        // Simple interactions for checkboxes (visual only)
+        document.querySelectorAll('.custom-checkbox input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const icon = e.target.nextElementSibling.querySelector('.material-symbols-outlined');
+                if (e.target.checked) {
+                    icon.classList.remove('opacity-0');
+                    e.target.closest('.flex.justify-between').querySelector('.bg-surface-container').textContent = 'IN';
+                } else {
+                    icon.classList.add('opacity-0');
+                    e.target.closest('.flex.justify-between').querySelector('.bg-surface-container').textContent = 'OUT';
+                }
+            });
+        });
+    </script>
+
+
+
+
+</body></html>

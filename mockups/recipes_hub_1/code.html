@@ -1,0 +1,253 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>HouseGrocer - Recipes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#6e7a70",
+                        "on-surface-variant": "#3e4a41",
+                        "surface-container-high": "#e8e8ea",
+                        "background": "#f9f9fc",
+                        "on-tertiary-fixed-variant": "#404945",
+                        "on-primary-container": "#fdfff9",
+                        "surface-dim": "#dadadc",
+                        "primary-container": "#008751",
+                        "surface-container-low": "#f3f3f6",
+                        "error": "#ba1a1a",
+                        "surface": "#f9f9fc",
+                        "secondary-fixed": "#ffdbc8",
+                        "tertiary-fixed": "#dce5e0",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#2f3133",
+                        "on-background": "#1a1c1e",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#70db9d",
+                        "secondary": "#994700",
+                        "on-secondary-fixed-variant": "#753400",
+                        "surface-bright": "#f9f9fc",
+                        "tertiary": "#565f5c",
+                        "on-surface": "#1a1c1e",
+                        "tertiary-container": "#6f7874",
+                        "secondary-fixed-dim": "#ffb68b",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#00522f",
+                        "on-secondary-fixed": "#321200",
+                        "inverse-primary": "#70db9d",
+                        "on-tertiary-container": "#ffffff",
+                        "on-secondary-container": "#592600",
+                        "surface-container-highest": "#e2e2e5",
+                        "primary-fixed": "#8df8b7",
+                        "on-primary-fixed": "#002110",
+                        "secondary-container": "#fb7800",
+                        "surface-variant": "#e2e2e5",
+                        "inverse-on-surface": "#f0f0f3",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#006d40",
+                        "outline-variant": "#bdcabe",
+                        "on-tertiary-fixed": "#151d1b",
+                        "tertiary-fixed-dim": "#bfc9c4",
+                        "surface-container": "#eeeef0",
+                        "on-error": "#ffffff",
+                        "primary": "#006b3f",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "margin-desktop": "48px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "margin-mobile": "16px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-caps": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "title-md": ["Plus Jakarta Sans"],
+                        "numeric-data": ["JetBrains Mono"],
+                        "body-sm": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "numeric-data": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-lg antialiased pb-24 md:pb-8">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-50 bg-background dark:bg-on-background shadow-sm">
+<div class="flex justify-between items-center px-margin-mobile py-sm w-full h-[64px]">
+<button class="text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity active:scale-95 duration-100 flex items-center justify-center w-12 h-12">
+<span class="material-symbols-outlined" data-icon="home_work">home_work</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary dark:text-primary-fixed-dim tracking-tight">HouseGrocer</h1>
+<button class="text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity active:scale-95 duration-100 flex items-center justify-center w-12 h-12">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-lg space-y-xl">
+<!-- Search & Filter -->
+<section class="w-full flex gap-sm">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full h-12 pl-12 pr-4 rounded-lg bg-surface-container-highest border-none text-on-surface focus:ring-2 focus:ring-primary font-body-lg placeholder:text-on-surface-variant" placeholder="Search recipes, ingredients..." type="text">
+</div>
+<button class="h-12 w-12 bg-primary-container text-on-primary-container rounded-lg flex items-center justify-center hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+</button>
+</section>
+<!-- Categories / Tags -->
+<section class="w-full overflow-x-auto no-scrollbar -mx-margin-mobile px-margin-mobile md:mx-0 md:px-0">
+<div class="flex gap-sm w-max pb-2">
+<button class="px-4 py-2 rounded-full bg-primary-container text-on-primary-container font-label-caps text-label-caps whitespace-nowrap">All Recipes</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-variant transition-colors border border-outline-variant">15-min meals</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-variant transition-colors border border-outline-variant">Vegan</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-variant transition-colors border border-outline-variant">Budget</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-variant transition-colors border border-outline-variant">One-Pot</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-variant transition-colors border border-outline-variant">High Protein</button>
+</div>
+</section>
+<!-- Pantry Match Bento -->
+<section class="space-y-md">
+<div class="flex items-center justify-between">
+<h2 class="font-title-md text-title-md text-on-background flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="kitchen">kitchen</span>
+                    Pantry Match
+                </h2>
+<a class="text-primary font-body-sm text-body-sm hover:underline" href="#">View all</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Recipe Card 1 -->
+<article class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-variant overflow-hidden flex flex-col group relative">
+<div class="absolute top-4 left-4 z-10 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full border border-primary-container/30 flex items-center gap-1 shadow-sm">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<span class="font-numeric-data text-numeric-data text-primary">4/5 Ingredients</span>
+</div>
+<div class="absolute top-4 right-4 z-10">
+<button class="w-8 h-8 rounded-full bg-surface-container-lowest/80 backdrop-blur text-on-surface hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="bookmark_border">bookmark_border</span>
+</button>
+</div>
+<div class="h-48 w-full bg-surface-variant relative overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A bright, overhead shot of a vibrant creamy tomato pasta dish in a modern ceramic bowl, garnished with fresh basil leaves. The lighting is natural and soft, highlighting the rich red and orange tones of the sauce against a light oak wooden table setting. The mood is warm, inviting, and appetizing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUyrV3d0utpUbuV8OGzvYfRRDboSmbNEn6Xvbk-VnBfeuvqZuYAU1OPV77kFEXv9C7nbRbw-yYyYyRNOVI7HWa77ZXtBNRqnt4GoTs4jAepfa0LzHKgAYP-G3Wdm0axaJnYI5liESF7EdO6WgOuD7TXvEeeE78mXxZL4iMuRkPQWE0IZVkwY62t19PvYjf88lMqwtnYjpphSbAqmu4bVOk9k6ZoLQ0nUdBRO8hPoiVF-3f04rxR5M">
+</div>
+<div class="p-4 flex-1 flex flex-col">
+<h3 class="font-title-md text-title-md mb-2 line-clamp-1">Creamy Tomato Pasta</h3>
+<div class="flex items-center gap-4 text-on-surface-variant font-body-sm text-body-sm mb-4">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> 20 mins</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">bar_chart</span> Easy</span>
+</div>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-variant">
+<div class="font-numeric-data text-numeric-data text-on-background">£1.50 / portion</div>
+<button class="bg-secondary-container text-on-primary font-body-sm text-body-sm px-4 py-2 rounded-lg hover:opacity-90 active:scale-95 transition-all font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span> Plan
+                            </button>
+</div>
+</div>
+</article>
+<!-- Recipe Card 2 -->
+<article class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-variant overflow-hidden flex flex-col group relative">
+<div class="absolute top-4 left-4 z-10 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full border border-secondary-container/30 flex items-center gap-1 shadow-sm">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+<span class="font-numeric-data text-numeric-data text-secondary">3/6 Ingredients</span>
+</div>
+<div class="absolute top-4 right-4 z-10">
+<button class="w-8 h-8 rounded-full bg-surface-container-lowest/80 backdrop-blur text-on-surface hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="bookmark_border">bookmark_border</span>
+</button>
+</div>
+<div class="h-48 w-full bg-surface-variant relative overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A rustic, hearty lentil and vegetable stew served in a cast iron pot on a light marble countertop. Steam is gently rising from the dish. The lighting is bright and clean, emphasizing the earthy greens, browns, and vibrant orange carrots. The aesthetic is healthy, wholesome, and modern." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtGZHxjltIDAKgOXlU96EbJ1EP6CBV5INsg6LEhm1h6y2rIn0dHzJN9RhT4V6R1EBBNHWvsJisSQ4aSQ200w4wdXeBudjGPPG1SJmvsVH5uIgVW0IDY_z1-bYYy2g1Rk_gpmh-x_hUGX4vvfa_s_KljE7c4SBIFNiMHnwVbqySZ5mzGrBEfH5s3UFuIvTwPEdA4oUpURpVMOP1Vz7ZdGLewim3XzzHP3Xnl4XXtK3y3TOkMrrQ_RI">
+</div>
+<div class="p-4 flex-1 flex flex-col">
+<h3 class="font-title-md text-title-md mb-2 line-clamp-1">Hearty Lentil Stew</h3>
+<div class="flex items-center gap-4 text-on-surface-variant font-body-sm text-body-sm mb-4">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> 45 mins</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">bar_chart</span> Medium</span>
+</div>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-variant">
+<div class="font-numeric-data text-numeric-data text-on-background">£0.95 / portion</div>
+<button class="bg-secondary-container text-on-primary font-body-sm text-body-sm px-4 py-2 rounded-lg hover:opacity-90 active:scale-95 transition-all font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span> Plan
+                            </button>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface-container-lowest dark:bg-inverse-surface shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] md:hidden">
+<div class="flex justify-around items-center w-full px-2 pb-safe pt-2 h-[72px]"><!-- Feed -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-2 py-1 hover:bg-surface-container-high dark:hover:bg-on-tertiary-fixed-variant active:scale-90 transition-transform duration-200 rounded-xl">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-caps text-label-caps">Feed</span>
+</button>
+<!-- Plan -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-2 py-1 hover:bg-surface-container-high dark:hover:bg-on-tertiary-fixed-variant active:scale-90 transition-transform duration-200 rounded-xl">
+<span class="material-symbols-outlined mb-1">grid_view</span>
+<span class="font-label-caps text-label-caps">Plan</span>
+</button>
+<!-- Fancy? -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-2 py-1 hover:bg-surface-container-high dark:hover:bg-on-tertiary-fixed-variant active:scale-90 transition-transform duration-200 rounded-xl">
+<span class="material-symbols-outlined mb-1">auto_awesome</span>
+<span class="font-label-caps text-label-caps">Fancy?</span>
+</button>
+<!-- Recipes (ACTIVE) -->
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-2 py-1 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined mb-1">restaurant</span>
+<span class="font-label-caps text-label-caps">Recipes</span>
+</button>
+<!-- Basket -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-2 py-1 hover:bg-surface-container-high dark:hover:bg-on-tertiary-fixed-variant active:scale-90 transition-transform duration-200 rounded-xl">
+<span class="material-symbols-outlined mb-1">shopping_basket</span>
+<span class="font-label-caps text-label-caps">Basket</span>
+</button>
+<!-- Split -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-2 py-1 hover:bg-surface-container-high dark:hover:bg-on-tertiary-fixed-variant active:scale-90 transition-transform duration-200 rounded-xl">
+<span class="material-symbols-outlined mb-1">payments</span>
+<span class="font-label-caps text-label-caps">Split</span>
+</button></div>
+</nav>
+
+
+</body></html>

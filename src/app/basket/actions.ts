@@ -1,0 +1,214 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+import { getCurrentUser, getPantryItems, getRecipes, getWeeklyPlan } from '@/lib/queries';
+import { optimiseBasket, type IngredientPack } from '@/lib/optimiser';
+import { resolveIngredients } from '@/lib/tescoResolver';
+import { parsePounds } from '@/lib/money';
+import { createClient } from '@/lib/supabase/server';
+
+export interface BasketActionState {
+  status: 'idle' | 'error' | 'built';
+  message: string;
+}
+
+const fail = (message: string): BasketActionState => ({ status: 'error', message });
+
+/**
+ * How long a cached Tesco price stays trustworthy. Seven days lines up with
+ * the weekly shop, so each cycle re-prices itself once and no more.
+ */
+const PRICE_TTL_DAYS = 7;
+
+/**
+ * Runs the optimiser over this week's plan and replaces the basket with the
+ * result.
+ *
+ * Deliberately destructive: the basket is a *derived* view of the plan, so
+ * regenerating must not merge with a previous run or quantities would drift
+ * every time someone changes a meal. Any manual edits are lost, which is why
+ * the button warns before rebuilding.
+ */
+export async function buildBasket(): Promise<BasketActionState> {
+  const me = await getCurrentUser();
+  if (!me.houseId) return fail('Join a house first.');
+
+  const [plan, recipes, pantry] = await Promise.all([
+    getWeeklyPlan(),
+    getRecipes(),
+    getPantryItems(),
+  ]);
+
+  if (!plan?.id) return fail('No plan for this week yet.');
+  if (plan.meals.length === 0) return fail('Plan some meals before building the basket.');
+
+  const supabase = createClient();
+
+  const ingredientRows = await supabase.from('ingredients').select('*');
+  if (ingredientRows.error) return fail(ingredientRows.error.message);
+
+  // Only the ingredients this week's meals actually use need a product.
+  const usedIds = new Set(
+    plan.meals.flatMap((meal) => {
+      const recipe = recipes.find((r) => r.id === meal.recipeId);
+      return recipe ? recipe.ingredients.map((i) => i.ingredientId) : [];
+    })
+  );
+
+  // Re-resolve anything uncached or stale. A price cached months ago is not a
+  // price, and the split is only as honest as the numbers behind it. Search is
+  // unauthenticated, so this works without the collector's Tesco session —
+  // that is only needed to place the order.
+  const staleBefore = Date.now() - PRICE_TTL_DAYS * 86_400_000;
+
+  const unresolved = ingredientRows.data
+    .filter((row) => {
+      if (!usedIds.has(row.id)) return false;
+      if (row.pack_price === null) return true;
+      if (!row.tesco_synced_at) return true;
+      return new Date(row.tesco_synced_at).getTime() < staleBefore;
+    })
+    .map((row) => ({ ingredientId: row.id, name: row.name }));
+
+  let resolvedCount = 0;
+  if (unresolved.length > 0) {
+    const resolved = await resolveIngredients(unresolved);
+    for (const [ingredientId, product] of resolved) {
+      const saved = await supabase
+        .from('ingredients')
+        .update({
+          pack_size: product.packSize,
+          pack_unit: product.packUnit,
+          pack_price: product.packPrice,
+          tesco_product_id: product.tescoProductId,
+          tesco_title: product.title,
+          tesco_synced_at: new Date().toISOString(),
+        })
+        .eq('id', ingredientId);
+      if (!saved.error) resolvedCount += 1;
+    }
+  }
+
+  // Re-read so newly resolved products are included in this run.
+  const refreshed =
+    resolvedCount > 0 ? await supabase.from('ingredients').select('*') : ingredientRows;
+  if (refreshed.error) return fail(refreshed.error.message);
+
+  const packs: IngredientPack[] = refreshed.data.map((row) => ({
+    ingredientId: row.id,
+    name: row.tesco_title ?? row.name,
+    category: row.category,
+    packSize: row.pack_size === null ? null : Number(row.pack_size),
+    packUnit: row.pack_unit,
+    packPrice: row.pack_price,
+  }));
+
+  const productIdByIngredient = new Map(
+    refreshed.data.map((row) => [row.id, row.tesco_product_id])
+  );
+
+  const result = optimiseBasket(plan.meals, recipes, pantry, packs);
+  if (result.lines.length === 0) {
+    return fail('Those meals have no ingredients recorded.');
+  }
+
+  // Replace wholesale. basket_allocations cascades on delete.
+  const cleared = await supabase.from('basket_items').delete().eq('plan_id', plan.id);
+  if (cleared.error) return fail(cleared.error.message);
+
+  // Lines with nothing left to buy (pantry covered them) are not basket items,
+  // but they still counted toward pantry savings above.
+  const buyable = result.lines.filter((line) => line.packs === null || line.packs > 0);
+
+  for (const line of buyable) {
+    const packDescription =
+      line.packSize !== null && line.packUnit !== null
+        ? `${line.packSize}${line.packUnit} pack`
+        : `${line.neededQuantity}${line.unitLabel} needed`;
+
+    const inserted = await supabase
+      .from('basket_items')
+      .insert({
+        plan_id: plan.id,
+        ingredient_id: line.ingredientId,
+        tesco_product_id: productIdByIngredient.get(line.ingredientId) ?? null,
+        name: line.name,
+        subtitle: packDescription,
+        category: line.category,
+        quantity: line.packs ?? 1,
+        // Unpriced lines store 0 and are shown as "price not set", never as £0.00.
+        unit_price: line.unitPrice ?? 0,
+        packs_if_separate: line.packsIfSeparate,
+        packs_from_pantry: line.packsFromPantry,
+      })
+      .select('id')
+      .single();
+
+    if (inserted.error || !inserted.data) {
+      return fail(inserted.error?.message ?? `Could not save ${line.name}.`);
+    }
+
+    if (line.allocations.length > 0) {
+      const allocations = line.allocations.map((allocation) => ({
+        basket_item_id: inserted.data.id,
+        user_id: allocation.userId,
+        // numeric(10,4) in Postgres — round to fit rather than let it reject.
+        share: Math.round(allocation.share * 10000) / 10000,
+      }));
+      const linked = await supabase.from('basket_allocations').insert(allocations);
+      if (linked.error) return fail(linked.error.message);
+    }
+  }
+
+  // Savings are recomputed from the same run, so the banner can never drift
+  // away from the basket it describes.
+  await supabase
+    .from('weekly_plans')
+    .update({ shared_savings: result.overlapSavings + result.pantrySavings })
+    .eq('id', plan.id);
+
+  revalidatePath('/basket');
+  revalidatePath('/split');
+  revalidatePath('/plan');
+  revalidatePath('/');
+
+  const unpriced = result.needsPackData.length;
+  return {
+    status: 'built',
+    message:
+      unpriced === 0
+        ? `Basket built: ${buyable.length} items.`
+        : `Basket built: ${buyable.length} items. ${unpriced} need pack size and price before they can be split.`,
+  };
+}
+
+/** Records pack size/unit/price for one ingredient, then rebuilds the basket. */
+export async function saveIngredientPack(
+  _prev: BasketActionState,
+  formData: FormData
+): Promise<BasketActionState> {
+  const me = await getCurrentUser();
+  if (!me.houseId) return fail('Join a house first.');
+
+  const ingredientId = String(formData.get('ingredientId') ?? '');
+  if (!ingredientId) return fail('Missing ingredient.');
+
+  const size = Number.parseFloat(String(formData.get('packSize') ?? ''));
+  const unit = String(formData.get('packUnit') ?? '').trim();
+  const price = parsePounds(String(formData.get('packPrice') ?? ''));
+
+  if (!Number.isFinite(size) || size <= 0) return fail('Pack size must be a positive number.');
+  if (!unit) return fail('Give the pack a unit, e.g. g, ml, tin.');
+  if (price === null || price < 0) return fail('Enter the pack price, e.g. 1.20.');
+
+  const supabase = createClient();
+  const result = await supabase
+    .from('ingredients')
+    .update({ pack_size: size, pack_unit: unit, pack_price: price })
+    .eq('id', ingredientId);
+
+  if (result.error) return fail(result.error.message);
+
+  // Re-run so the basket reflects the new price immediately.
+  return buildBasket();
+}

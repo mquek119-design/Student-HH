@@ -1,0 +1,252 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Kitchen &amp; Pantry - HouseGrocer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#008751",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#bfc9c4",
+                    "secondary-container": "#fb7800",
+                    "surface-tint": "#006d40",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#f9f9fc",
+                    "surface": "#f9f9fc",
+                    "on-tertiary-container": "#ffffff",
+                    "on-error": "#ffffff",
+                    "secondary-fixed-dim": "#ffb68b",
+                    "primary-fixed": "#8df8b7",
+                    "on-primary": "#ffffff",
+                    "inverse-surface": "#2f3133",
+                    "secondary": "#994700",
+                    "primary-fixed-dim": "#70db9d",
+                    "on-primary-fixed-variant": "#00522f",
+                    "on-secondary-fixed-variant": "#753400",
+                    "outline-variant": "#bdcabe",
+                    "on-surface": "#1a1c1e",
+                    "tertiary-fixed": "#dce5e0",
+                    "primary": "#006b3f",
+                    "outline": "#6e7a70",
+                    "background": "#f9f9fc",
+                    "inverse-on-surface": "#f0f0f3",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#002110",
+                    "surface-container-high": "#e8e8ea",
+                    "on-primary-container": "#fdfff9",
+                    "surface-dim": "#dadadc",
+                    "tertiary": "#565f5c",
+                    "inverse-primary": "#70db9d",
+                    "on-tertiary-fixed": "#151d1b",
+                    "on-surface-variant": "#3e4a41",
+                    "surface-container-highest": "#e2e2e5",
+                    "tertiary-container": "#6f7874",
+                    "error": "#ba1a1a",
+                    "surface-container": "#eeeef0",
+                    "on-background": "#1a1c1e",
+                    "secondary-fixed": "#ffdbc8",
+                    "on-secondary-fixed": "#321200",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-fixed-variant": "#404945",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#e2e2e5",
+                    "on-secondary-container": "#592600",
+                    "surface-container-low": "#f3f3f6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "base": "4px",
+                    "xl": "32px",
+                    "margin-desktop": "48px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "title-md": ["Plus Jakarta Sans"],
+                    "numeric-data": ["JetBrains Mono"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "label-caps": ["JetBrains Mono"],
+                    "body-sm": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "numeric-data": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: #F0F9F4;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="text-on-background font-body-lg antialiased pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-surface-dim shadow-sm flex justify-between items-center h-16 px-margin-mobile"><button aria-label="Menu" class="text-primary dark:text-primary-fixed hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors active:scale-95 transition-transform duration-200 p-2 rounded-full">
+<span class="material-symbols-outlined" data-weight="fill">restaurant</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary dark:text-primary-fixed">HouseGrocer</h1>
+<div class="flex gap-2">
+<button aria-label="Notifications" class="text-primary dark:text-primary-fixed hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors active:scale-95 transition-transform duration-200 p-2 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button aria-label="Settings" class="text-primary dark:text-primary-fixed hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors active:scale-95 transition-transform duration-200 p-2 rounded-full">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div></header>
+<main class="pt-24 px-margin-mobile md:px-margin-desktop max-w-4xl mx-auto space-y-xl">
+<!-- Search & Filter Area -->
+<section class="space-y-md">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full h-12 pl-12 pr-4 bg-surface rounded-lg border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary shadow-[0_4px_20px_rgba(0,0,0,0.05)] text-body-lg" placeholder="Search pantry, fridge..." type="text">
+</div>
+<!-- Segmented Control for Shared/Personal -->
+<div class="flex bg-surface-container-high p-1 rounded-lg w-full max-w-xs mx-auto md:mx-0">
+<button class="flex-1 py-2 bg-surface rounded shadow-[0_2px_8px_rgba(0,0,0,0.08)] font-title-md text-title-md text-primary text-center">Shared</button>
+<button class="flex-1 py-2 text-on-surface-variant font-body-sm text-body-sm text-center hover:bg-surface-container-highest rounded transition-colors">Personal</button>
+</div>
+</section>
+<!-- Recent Additions Horizontal Scroll (Bento style) -->
+<section>
+<h2 class="font-title-md text-title-md text-on-surface mb-md">Recent Additions</h2>
+<div class="flex overflow-x-auto gap-md pb-4 hide-scrollbar snap-x">
+<div class="snap-start shrink-0 w-48 bg-surface rounded-lg p-md shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant">
+<div class="w-full h-24 rounded bg-surface-variant mb-sm bg-cover bg-center" data-alt="A close up shot of a small bunch of fresh green bananas on a clean white kitchen counter. The lighting is bright and airy, typical of a modern light-mode interface. Soft shadows give a realistic, appetizing feel. The colors are predominantly white and vibrant fresh green." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCEWzmaJnLTOvLw1d1bSQa3oXeUHLtg4iP_fXECe1UiBda1s6FyYjVXqhMwoi5B627fk19X4VN_BMlFmmVwpa4fAFse9_gUjBoMtI-XDH4mlJk0i4Y2iyfQccj85j8U52g5YBUa9RyyWd0cPDQOlv9Vh7Mlh1KVAObAVcmuCwWu3kPC8bhq4pzPDnsxBBa9xmoh8bMQB85vX88q0uqcH-FuayGUw1qbp-WY08eCwYZksUxb_Kxcpyk')"></div>
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold truncate">Bananas</h3>
+<p class="font-body-sm text-body-sm text-outline">Qty: 6</p>
+</div>
+<div class="snap-start shrink-0 w-48 bg-surface rounded-lg p-md shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant">
+<div class="w-full h-24 rounded bg-surface-variant mb-sm bg-cover bg-center" data-alt="A single carton of oat milk sitting on a light wooden table. The lighting is soft, morning sunlight, creating a warm, fresh atmosphere suitable for a modern light-mode app. The background is slightly blurred out to focus on the minimalist carton packaging." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAkMuVdOEjOK8yEY0nH8qPGqTjG7Ibxwa5QgSrqusT98vVm0mchumUP2PXces_bWNplYaNcxo0XijS1Xr2Z7hMlB8nIy0aARQx5axoR8ByfTYNPtiJSXbGERob6VHi-2zNGf4TxhOVdyVWqTGnjuVXiwzlMA04WpTRmJPTHbNGPNEHud4KpzWwyzNB0lt67cef1FSqyOFOfHEqELsOIA2uRJFcsQBOPu8ad9DHgelz4O8ghpkqT3uo')"></div>
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold truncate">Oat Milk</h3>
+<p class="font-body-sm text-body-sm text-outline">Qty: 2L</p>
+</div>
+</div>
+</section>
+<!-- Categorized Inventory -->
+<section class="space-y-lg">
+<!-- Fridge/Fresh -->
+<div>
+<h2 class="font-title-md text-title-md text-on-surface mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">kitchen</span> Fridge / Fresh
+                </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Item Card (Low Stock) -->
+<div class="bg-surface rounded-lg p-md shadow-[0_4px_20px_rgba(0,0,0,0.05)] border-l-4 border-l-secondary-container flex justify-between items-center relative overflow-hidden">
+<div class="flex gap-md items-center">
+<div class="w-12 h-12 rounded-full bg-surface-variant bg-cover bg-center" data-alt="A clean top-down view of a half-empty carton of eggs on a pristine white background. The bright, high-key lighting emphasizes the freshness and modern aesthetic. The color palette is minimal, mostly white with the beige of the eggshells providing a subtle accent." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBl0fKH6oAe93cS1uifjlqQtcI-KoFpRNZfZqK4-3SvwpNad359DaqwjgyT6zbR027qp5W6ezXDapU2tm1taNPM8hI7ioE04yLH8LRLUQ5e97bUDTgwaznq8304_BtB0PUTDxwQW-qCrlyIIu7tJzi1eTfxfKtMjXog_WZG1F1aSwEfciijg3zdBBuw01-5Zoo0fJo1CffHoinqo6KNMghoFAIJ5V9ToTixK8BcbJYAvSUgVYnbaLs')"></div>
+<div>
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Eggs</h3>
+<div class="flex items-center gap-2">
+<span class="font-numeric-data text-numeric-data text-secondary-container">2 left</span>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container text-[10px] font-bold uppercase tracking-wider">Low Stock</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<button class="px-3 py-1 bg-surface border border-primary text-primary font-body-sm text-body-sm rounded hover:bg-primary-fixed transition-colors">Used Up</button>
+<button class="px-3 py-1 bg-secondary-container text-on-secondary font-body-sm text-body-sm rounded shadow-sm hover:opacity-90 transition-opacity">Add to Basket</button>
+</div>
+</div>
+<!-- Item Card (Normal) -->
+<div class="bg-surface rounded-lg p-md shadow-[0_4px_20px_rgba(0,0,0,0.05)] border-l-4 border-l-primary flex justify-between items-center">
+<div class="flex gap-md items-center">
+<div class="w-12 h-12 rounded-full bg-surface-variant bg-cover bg-center" data-alt="A block of sharp cheddar cheese wrapped in clear plastic on a white cutting board. The scene is brightly lit with natural-looking light to fit a modern light-mode UI style. The colors are crisp, featuring the pale yellow of the cheese against white." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDdiNDlDWJ_2t3TbjG-tfhuSPl4tKHCn2Xg1d3Naqh1UhUjALPH00lMzzJG6mVxZhp5YxT3hZaGV5z5JvsuZ0mqLQxqDlWO2wStXFVXAk4AKcZq2g9CUYL50K1dcV4brGJvQ3BnSbAMlYHGRs_0ci98cWoiUPL1PCb6ukyUCrHhcqG8KovLLGjMipaMMyzVn_WuE3mgCT3Z_EiBQ9vDY65sglyyG9GmrNalkN69a1b6QrEL1rfhM3c')"></div>
+<div>
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Cheddar Cheese</h3>
+<p class="font-numeric-data text-numeric-data text-outline">400g</p>
+</div>
+</div>
+<button class="px-3 py-1 bg-surface border border-primary text-primary font-body-sm text-body-sm rounded hover:bg-primary-fixed transition-colors">Used Up</button>
+</div>
+</div>
+</div>
+<!-- Cupboard/Staples -->
+<div>
+<h2 class="font-title-md text-title-md text-on-surface mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">inventory_2</span> Cupboard / Staples
+                </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Item Card (Normal) -->
+<div class="bg-surface rounded-lg p-md shadow-[0_4px_20px_rgba(0,0,0,0.05)] border-l-4 border-l-primary flex justify-between items-center">
+<div class="flex gap-md items-center">
+<div class="w-12 h-12 rounded-full bg-surface-variant bg-cover bg-center" data-alt="A minimalist aesthetic photo of a clear glass jar filled with dried pasta shapes (penne) on a plain, light grey background. Soft, diffused lighting creates a clean and organized feel suitable for a modern inventory app." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDWCuIVwh-zZwHjqdcymFCJgHjUuH4JEYFt8aI2J2sfeF1L_YDEm_vpjpSq2A9-kSFERAm5dSPxZFykKjt23Yh8aAPfgLFIHkS05j0gau4s6tfOi4tJSTBPWwh-3J1RUnMmY8jfnqADs82wjziDEbbkwFwAus0He6WW1FpxATZXy9JBx-7PfUFk94JwsK-S7QqQPV5E-tQnB70jjdKdl7XNTU82TbgJ2_Akm-IylWDa0O_6aBoS9KQ')"></div>
+<div>
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Pasta</h3>
+<p class="font-numeric-data text-numeric-data text-outline">1.5kg</p>
+</div>
+</div>
+<button class="px-3 py-1 bg-surface border border-primary text-primary font-body-sm text-body-sm rounded hover:bg-primary-fixed transition-colors">Used Up</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface dark:bg-surface-dim border-t border-outline-variant dark:border-outline shadow-[0_-4px_20px_rgba(0,0,0,0.05)] flex justify-around items-center h-20 pb-safe px-xs md:hidden">
+<!-- Feed (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 hover:bg-surface-container dark:hover:bg-surface-container-high transition-all active:scale-90 transition-transform duration-150 px-2" href="#">
+<span class="material-symbols-outlined">home_storage</span>
+<span class="font-label-caps text-label-caps mt-1">Feed</span>
+</a>
+<!-- Plan (Active based on Intent: Kitchen/Pantry tracking fits Planning/Storage) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full py-1 hover:bg-surface-container dark:hover:bg-surface-container-high transition-all active:scale-90 transition-transform duration-150 px-2" href="#">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+<span class="font-label-caps text-label-caps mt-1">Plan</span>
+</a>
+<!-- Fancy? (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 hover:bg-surface-container dark:hover:bg-surface-container-high transition-all active:scale-90 transition-transform duration-150 px-2" href="#">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span class="font-label-caps text-label-caps mt-1">Fancy?</span>
+</a>
+<!-- Basket (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 hover:bg-surface-container dark:hover:bg-surface-container-high transition-all active:scale-90 transition-transform duration-150 px-2" href="#" style="opacity: 0;">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-caps text-label-caps mt-1">Recipes</span>
+</a><a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 hover:bg-surface-container dark:hover:bg-surface-container-high transition-all active:scale-90 transition-transform duration-150 px-2" href="#">
+<span class="material-symbols-outlined">shopping_basket</span>
+<span class="font-label-caps text-label-caps mt-1">Basket</span>
+</a>
+<!-- Split (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 hover:bg-surface-container dark:hover:bg-surface-container-high transition-all active:scale-90 transition-transform duration-150 px-2" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-caps text-label-caps mt-1">Split</span>
+</a>
+</nav>
+
+
+</body></html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>My Account - HouseGrocer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e2e2e5",
+                        "tertiary-fixed-dim": "#bfc9c4",
+                        "secondary": "#994700",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#dce5e0",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#008751",
+                        "surface-dim": "#dadadc",
+                        "on-surface-variant": "#3e4a41",
+                        "surface-container-highest": "#e2e2e5",
+                        "on-secondary-fixed": "#321200",
+                        "on-tertiary-fixed": "#151d1b",
+                        "secondary-fixed-dim": "#ffb68b",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#592600",
+                        "on-surface": "#1a1c1e",
+                        "primary": "#006b3f",
+                        "secondary-fixed": "#ffdbc8",
+                        "on-primary-container": "#fdfff9",
+                        "surface-container": "#eeeef0",
+                        "surface-tint": "#006d40",
+                        "secondary-container": "#fb7800",
+                        "inverse-on-surface": "#f0f0f3",
+                        "tertiary-container": "#6f7874",
+                        "primary-fixed-dim": "#70db9d",
+                        "on-background": "#1a1c1e",
+                        "surface-container-high": "#e8e8ea",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#70db9d",
+                        "on-secondary": "#ffffff",
+                        "outline": "#6e7a70",
+                        "inverse-surface": "#2f3133",
+                        "surface-bright": "#f9f9fc",
+                        "on-primary-fixed": "#002110",
+                        "on-primary-fixed-variant": "#00522f",
+                        "on-secondary-fixed-variant": "#753400",
+                        "primary-fixed": "#8df8b7",
+                        "surface": "#f9f9fc",
+                        "outline-variant": "#bdcabe",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f3f3f6",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "on-tertiary-container": "#ffffff",
+                        "on-tertiary-fixed-variant": "#404945",
+                        "background": "#f9f9fc",
+                        "tertiary": "#565f5c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "margin-desktop": "48px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "numeric-data": ["JetBrains Mono"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "title-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "numeric-data": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f9f9fc; /* bg-surface */
+        }
+        /* Custom scrollbar for subtle appearance */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #dadadc; /* bg-surface-dim */
+            border-radius: 4px;
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-margin-mobile h-16 w-full fixed top-0 z-50 bg-surface shadow-sm docked full-width">
+<button class="text-primary hover:opacity-80 transition-all duration-200 active:scale-95 flex items-center justify-center p-2 rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined" data-icon="home_work">home_work</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold tracking-tight">HouseGrocer</h1>
+<button class="text-primary hover:opacity-80 transition-all duration-200 active:scale-95 flex items-center justify-center p-2 rounded-full hover:bg-surface-variant relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-secondary-container rounded-full"></span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-2xl mx-auto mt-16 px-margin-mobile py-lg pb-32 flex flex-col gap-xl">
+<!-- Profile Section -->
+<section class="flex flex-col items-center gap-md relative">
+<!-- Decorative background element -->
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-primary-container opacity-10 rounded-full blur-2xl -z-10"></div>
+<div class="relative">
+<img class="w-24 h-24 rounded-full object-cover border-4 border-surface shadow-md" data-alt="A high-quality, professional headshot of a friendly young male student, Alex Chen, looking directly at the camera with a warm smile. He has short dark hair and is wearing a casual yet tidy green sweater. The background is a slightly blurred, bright, modern student apartment with natural light streaming in, emphasizing a clean, modern aesthetic with soft greens and warm neutral tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrHZtu0ki-dB1Y8rajXFk0m_LtXewXkxvrfPTmiFjRQ6JsLFaHerJ4rRMzgolPZP6aFrYEvhHwUXSCYMn7UYdvdLAbLAGKX6BR3tasrtZ1bPfFzplhnVkOFCAXt6bEymdmz2DJaIRhDx2_G3QrBJvi_5jtDMfy384XXToG_2chFTSx_tWAdF3YTDLGEpN3be8Y-OTgefgiRYH_yH9lbeSJs8XXS8fjmiL1fo66eP5SzKCW45OHxjs">
+<div class="absolute -bottom-2 -right-2 bg-secondary-container text-on-secondary-container rounded-full w-8 h-8 flex items-center justify-center border-2 border-surface shadow-sm" title="Master Saver">
+<span class="material-symbols-outlined text-[16px]" data-icon="savings">savings</span>
+</div>
+</div>
+<div class="text-center">
+<h2 class="font-title-md text-title-md text-on-surface">Alex Chen</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Room 3B • Master Saver</p>
+</div>
+</section>
+<!-- Bento Grid Layout for Account Sections -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Personal Settings Card -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-md flex flex-col gap-sm relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-16 h-16 bg-primary-container/5 rounded-bl-full -z-0 transition-transform duration-500 group-hover:scale-150"></div>
+<h3 class="font-title-md text-title-md text-on-surface flex items-center gap-sm mb-xs relative z-10">
+<span class="material-symbols-outlined text-primary" data-icon="person">person</span>
+                    Personal Settings
+                </h3>
+<a class="flex items-center justify-between p-sm hover:bg-surface-container rounded-lg transition-colors duration-200" href="#">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="credit_card">credit_card</span>
+<span class="font-body-lg text-body-lg text-on-surface">Payment Methods</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</a>
+<a class="flex items-center justify-between p-sm hover:bg-surface-container rounded-lg transition-colors duration-200" href="#">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="local_dining">local_dining</span>
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg text-on-surface">Dietary Preferences</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Vegan, Nut-free</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</a>
+<a class="flex items-center justify-between p-sm hover:bg-surface-container rounded-lg transition-colors duration-200" href="#">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications_active">notifications_active</span>
+<span class="font-body-lg text-body-lg text-on-surface">Notification Settings</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</a>
+</section>
+<!-- House Statistics Card -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-md flex flex-col gap-sm relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-16 h-16 bg-secondary-container/5 rounded-bl-full -z-0 transition-transform duration-500 group-hover:scale-150"></div>
+<h3 class="font-title-md text-title-md text-on-surface flex items-center gap-sm mb-xs relative z-10">
+<span class="material-symbols-outlined text-secondary-container" data-icon="query_stats">query_stats</span>
+                    My Impact
+                </h3>
+<div class="grid grid-cols-2 gap-sm relative z-10">
+<div class="bg-surface-container-low rounded-lg p-sm flex flex-col items-center justify-center text-center">
+<span class="font-numeric-data text-numeric-data text-primary text-2xl mb-xs">4</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-[10px]">Orders this month</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-sm flex flex-col items-center justify-center text-center">
+<span class="font-numeric-data text-numeric-data text-primary text-2xl mb-xs">12</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-[10px]">Meals Planned</span>
+</div>
+<div class="col-span-2 bg-secondary-container/10 rounded-lg p-sm flex items-center gap-sm justify-center border border-secondary-container/20">
+<span class="material-symbols-outlined text-secondary-container" data-icon="workspace_premium" data-weight="fill">workspace_premium</span>
+<span class="font-body-sm text-body-sm font-semibold text-secondary-container">Top Contributor - March</span>
+</div>
+</div>
+</section>
+<!-- Household Section Card -->
+<section class="md:col-span-2 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-md flex flex-col gap-md">
+<h3 class="font-title-md text-title-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-tertiary" data-icon="group">group</span>
+                    Household
+                </h3>
+<div>
+<h4 class="font-body-sm text-body-sm text-on-surface-variant mb-sm uppercase tracking-wider font-semibold">Housemates</h4>
+<div class="flex items-center gap-3 overflow-x-auto pb-2 -mx-md px-md md:mx-0 md:px-0 hide-scrollbar">
+<!-- Housemate 1 -->
+<div class="flex flex-col items-center gap-1 min-w-[64px]">
+<img class="w-12 h-12 rounded-full object-cover border-2 border-surface-container-high" data-alt="A small circular avatar of a young woman named Maya with curly hair, smiling. Bright, clean, well-lit background, reflecting a modern student lifestyle aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIRcZUqEiecz3sCBUsMTfSZ2ndQp4pt70XPdBDBR7xKXGdeKvCnY7NRsB0iDUJSHPgiOP5aOSEvORfzal4Qm1ja8tgLdf9uk3rzZg6UTIKtZKyAulLOAQjRIeD5Teqk1X1du8QKEZWgQ7y9HGAFUuv_0Atd2Io1ekWo-aaBAEoY-iHs_XMwSOFHAIt2lzR1TO3JstJMJorPg7tqI-J3cbZPB84dbe2_yZUP4-GMa5IHKQn1TpCoyc">
+<span class="font-body-sm text-body-sm text-on-surface truncate w-full text-center">Maya</span>
+</div>
+<!-- Housemate 2 -->
+<div class="flex flex-col items-center gap-1 min-w-[64px]">
+<img class="w-12 h-12 rounded-full object-cover border-2 border-surface-container-high" data-alt="A small circular avatar of a young man named Jordan with short hair, wearing glasses and a casual t-shirt. Clean, well-lit background with a soft warm tint, suitable for a friendly household app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_VykWih4uVOzeEZCp6OU-lmcUNfg34tEkURC7CLpkS8TKUQQAEiQo6ECIzMEtIA6Q4I0S-KGk0aeniA_SUvJadozvkW4qZSNfyqTpB_oH__R7e88ciJeOm40Jo0s-dgJuty7UcOPMQbfAuz1jlm3UvCDH0qLgyUNeSDD4lVID177DtQwWlSqTrTSYGIWPaiRAbrNW1GDolO_4ZjhD1gj3WJ-dCadivFb8Qcyb-K0jCjxcSGU9RV4">
+<span class="font-body-sm text-body-sm text-on-surface truncate w-full text-center">Jordan</span>
+</div>
+<!-- Housemate 3 (Self) -->
+<div class="flex flex-col items-center gap-1 min-w-[64px]">
+<img class="w-12 h-12 rounded-full object-cover border-2 border-primary-container p-0.5" data-alt="A high-quality, professional headshot of a friendly young male student, Alex Chen, looking directly at the camera with a warm smile. He has short dark hair and is wearing a casual yet tidy green sweater. The background is a slightly blurred, bright, modern student apartment with natural light streaming in, emphasizing a clean, modern aesthetic with soft greens and warm neutral tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWL05fGOgA_rgUjQ6ePrs0QsAwiztKHdXZL9uceMCdEUpkkSUZqG7pdqJ5j0vPhLMOukPKobuKUBqLIB_BbGx5YiYmaGrYRkx840tJzBUJV_MiQ9yY_K653HEpcFm-gHifoDj9OcL3ULp8cugxdlIIm-R6Zm_2nPubgMyN8Yca9B_t2r6cqpbVwaPmD5cYgZRbs_cjTiza0I9rC3yW3I4I3kbJOqXo593nQ8PvPQfqOeDwpkCTJSc">
+<span class="font-body-sm text-body-sm text-on-surface truncate w-full text-center font-semibold">You</span>
+</div>
+<!-- Add Housemate -->
+<button class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-[68px] hover:opacity-80 transition-opacity">
+<div class="w-12 h-12 rounded-full border-2 border-dashed border-outline-variant flex items-center justify-center bg-surface">
+<span class="material-symbols-outlined text-outline-variant">add</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate w-full text-center">Invite</span>
+</button>
+</div>
+</div>
+<div class="w-full h-px bg-outline-variant/30"></div>
+<div class="flex flex-col gap-sm">
+<h4 class="font-body-sm text-body-sm text-on-surface-variant uppercase tracking-wider font-semibold">Invite Code</h4>
+<div class="flex items-center justify-between bg-surface-container-low rounded-lg p-2 pl-3 border border-outline-variant/50">
+<span class="font-numeric-data text-numeric-data tracking-[0.2em] text-on-surface">HG-3B-ALEX-992</span>
+<button class="p-2 text-primary hover:bg-surface-variant rounded-md transition-colors" title="Copy Code">
+<span class="material-symbols-outlined text-[20px]" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+<div class="pt-sm">
+<button class="w-full py-3 rounded-lg border-2 border-error text-error font-title-md text-title-md hover:bg-error-container/20 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                        Leave House
+                    </button>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar (Hidden on md and up, as Account is typically an overlay, but per instructions, we suppress standard navs on deep settings pages unless requested. The prompt specifically requested the 5-item bottom nav from the JSON be present but adjusted to 6 or consistent with the user's intent. Wait, the prompt said: "6-item BottomNavBar (Feed, Plan, Fancy?, Recipes, Basket, Split). No item is currently active... Actually, let's keep the 6-item nav consistent with {{DATA:COMPONENTS:COMPONENTS_17}}." 
+    Since I must use the JSON BottomNavBar component provided, I will render it exactly as the JSON specifies (5 items: Feed, Plan, Recipes, Basket, Split) but set them all to inactive since this is an Account page. -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-surface-container-low shadow-lg docked full-width bottom-0 rounded-t-xl" style="border-top: none;">
+<!-- The JSON specifies:
+        label_texts: ["Feed", "Plan", "Recipes", "Basket", "Split"]
+        icons: ["dynamic_feed", "calendar_month", "restaurant_menu", "shopping_basket", "payments"]
+        -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-2 hover:bg-surface-variant transition-transform duration-300 active:scale-90 rounded-lg py-1" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="dynamic_feed">dynamic_feed</span>
+<span class="font-label-caps text-label-caps">Feed</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-2 hover:bg-surface-variant transition-transform duration-300 active:scale-90 rounded-lg py-1" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="calendar_month">calendar_month</span>
+<span class="font-label-caps text-label-caps">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-2 hover:bg-surface-variant transition-transform duration-300 active:scale-90 rounded-lg py-1" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-label-caps text-label-caps">Recipes</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-2 hover:bg-surface-variant transition-transform duration-300 active:scale-90 rounded-lg py-1" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="shopping_basket">shopping_basket</span>
+<span class="font-label-caps text-label-caps">Basket</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-2 hover:bg-surface-variant transition-transform duration-300 active:scale-90 rounded-lg py-1" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="payments">payments</span>
+<span class="font-label-caps text-label-caps">Split</span>
+</a>
+</nav>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</body></html>

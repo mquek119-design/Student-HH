@@ -1,0 +1,267 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Basket - HouseGrocer</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#2f3133",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#ffdbc8",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#fdfff9",
+                        "on-primary-fixed-variant": "#00522f",
+                        "secondary": "#994700",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#70db9d",
+                        "surface-bright": "#f9f9fc",
+                        "on-secondary-fixed": "#321200",
+                        "on-secondary-fixed-variant": "#753400",
+                        "surface-container-highest": "#e2e2e5",
+                        "surface-container-high": "#e8e8ea",
+                        "on-surface-variant": "#3e4a41",
+                        "outline-variant": "#bdcabe",
+                        "surface-container": "#eeeef0",
+                        "on-tertiary-fixed-variant": "#404945",
+                        "on-primary-fixed": "#002110",
+                        "tertiary": "#565f5c",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#dce5e0",
+                        "on-tertiary-fixed": "#151d1b",
+                        "surface-dim": "#dadadc",
+                        "primary-fixed": "#8df8b7",
+                        "surface-tint": "#006d40",
+                        "outline": "#6e7a70",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#bfc9c4",
+                        "on-tertiary-container": "#ffffff",
+                        "inverse-on-surface": "#f0f0f3",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f3f3f6",
+                        "on-secondary-container": "#592600",
+                        "primary-fixed-dim": "#70db9d",
+                        "surface": "#f9f9fc",
+                        "primary": "#006b3f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1a1c1e",
+                        "secondary-container": "#fb7800",
+                        "background": "#f9f9fc",
+                        "surface-variant": "#e2e2e5",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#1a1c1e",
+                        "tertiary-container": "#6f7874",
+                        "secondary-fixed-dim": "#ffb68b",
+                        "primary-container": "#008751"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "gutter": "16px",
+                        "xl": "32px",
+                        "base": "4px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "numeric-data": ["JetBrains Mono"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "title-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "numeric-data": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-lg antialiased">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-on-background shadow-sm docked full-width top-0 flex justify-between items-center px-margin-mobile py-sm w-full fixed top-0 z-50">
+<div class="flex items-center gap-sm">
+<img alt="User Profile" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAORpTcPVv2ZRo52NBjSZv0CbMwYzTqUj55VGczYYpVFnK-l9yeoSihskqq-DVU4H5j0Gs2zmH-0REegZCv4h3AE9lE8T2SH2CJLVmgigZ_QBDKFbK_p-D9FzyYUi26VCviXTmuFU0iK8qk_5cYusNHWzv5vP6tP1V01eqzjppti4ax79TQvIQZiFXMNfTXPmaMtaOuaPGnUfQ7R_qt3YO0bVdM1JyZ6YAdAbiYjYcoO78kotOj3PQ">
+<h1 class="font-display-lg text-display-lg text-primary dark:text-primary-fixed">HouseGrocer</h1>
+</div>
+<button class="text-primary dark:text-primary-fixed hover:opacity-80 transition-all duration-200 active:scale-95"></button><button class="text-on-surface-variant hover:text-primary transition-all duration-200 active:scale-95 mr-2"><span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span></button>
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-[72px] pb-[160px] px-margin-mobile flex flex-col gap-xl max-w-4xl mx-auto">
+<!-- Summary Header & Savings -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-container-highest p-md mt-md flex flex-col gap-md">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="font-title-md text-title-md text-on-surface">Basket Total</h2>
+<p class="font-headline-lg-mobile text-headline-lg-mobile text-primary mt-base">£42.50</p>
+</div>
+<div class="bg-primary-container text-on-primary-container rounded-lg px-sm py-xs flex flex-col items-end">
+<span class="font-label-caps text-label-caps opacity-80">Est. Savings</span>
+<span class="font-numeric-data text-numeric-data">£12.40</span>
+</div>
+</div>
+<div class="h-px bg-surface-container-highest w-full"></div>
+<!-- Swap Toggle -->
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold">Swap to Own-Brand</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Save approx £4.20 instantly</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value="">
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary-container"></div>
+</label>
+</div>
+</section>
+<!-- Basket Items List -->
+<section class="flex flex-col gap-lg">
+<!-- Category: Fresh -->
+<div class="flex flex-col gap-sm">
+<h3 class="font-title-md text-title-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">eco</span> Fresh
+                </h3>
+<!-- Item Row 1 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-container-highest p-sm flex items-center gap-md">
+<div class="w-16 h-16 rounded-lg bg-cover bg-center bg-surface-container flex-shrink-0" data-alt="A bright, high-quality product shot of fresh organic bananas on a clean white background. Modern, minimalist lighting highlighting the yellow texture. The overall aesthetic is fresh, vibrant, and clean, fitting a modern grocery app in light mode." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAedZ_bWBOntiiDF0BRcaw-7EG0JiCu5MjzF0xI0pa9TXIudYy2F0Hg0Mfv8dFTRp0DN3fBt5Sge9G30WRABRE8b61KmGSMv81zJoUcbJryaxTlqJNhrhqoynw7dAyLKLc4vcsk4OdBiZED5-lFqhrHJOhN7eGbZIEiI6sxHpVlrf5KeAnL2ss55ZxFayMlvyZJqXuUQwNWRWtEMfQ9poYpj1YNuFPzjwat0RHIM0VsaFWDOcBbfYA')"></div>
+<div class="flex-1 flex flex-col">
+<span class="font-body-lg text-body-lg font-semibold">Organic Bananas</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Fairtrade, 5 pack</span>
+<div class="flex items-center gap-xs mt-base">
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Shared</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-sm">
+<span class="font-numeric-data text-numeric-data">£1.40</span>
+<div class="flex items-center gap-2 bg-surface-container rounded-lg p-1">
+<button class="w-6 h-6 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded"><span class="material-symbols-outlined text-sm">remove</span></button>
+<span class="font-numeric-data text-numeric-data w-4 text-center">1</span>
+<button class="w-6 h-6 flex items-center justify-center text-primary hover:bg-primary-container hover:text-on-primary-container rounded"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+</div>
+</div>
+<!-- Item Row 2 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-container-highest p-sm flex items-center gap-md">
+<div class="w-16 h-16 rounded-lg bg-cover bg-center bg-surface-container flex-shrink-0" data-alt="A bright, high-quality product shot of fresh milk in a clear plastic bottle with a blue cap on a pristine white background. Clean, uniform lighting. Modern corporate grocery aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC_4J1M12W0erRnfhMpDh_gn4ypb62sT7rGqsrJLibrfFJ7jpRgaJ86mEBm8HOg6-Gs7qqqYlXZIK_iFjDplsEudcfo_7BwjgTCoRyrfud2Rk7iGHficiGVKTNJY61XJehYvoRxEjixTJFeYvCEW60sFy9THHwasC-zV2HtLgQQ7G4roetlsNQZ7AOj6Soz0hWSk_BRy5lSaLmmuvfTHopARs4vfrAzVafYEdX42f7s7WB1sUT10Qs')"></div>
+<div class="flex-1 flex flex-col">
+<span class="font-body-lg text-body-lg font-semibold">Whole Milk</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Dairy Crest, 4 Pints</span>
+<div class="flex items-center gap-xs mt-base">
+<img alt="Mike" class="w-4 h-4 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwn-jebWGJPTYgB_GWph183HEiO6s9tHWHv9649cGq_E9rBf912Z-JakKFQNtemMkDfNmq3r6JMvpNN7u9lAy6vxHTEDfGBqqJYpT4G8rMWRs6W0wIpwprxa_CZzca-nMMAsigZRxYZVj5jfsI0I-NoGOB0l2bGq78w3cX4tDu2U7DOgCHDOYi0ehyXfEDKFLxoZJzx0ZRq78KNPxNb5Ml7LSGxO1St3vsLJ7ZndOeDqe7TTAGedM">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Mike</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-sm">
+<span class="font-numeric-data text-numeric-data">£1.65</span>
+<div class="flex items-center gap-2 bg-surface-container rounded-lg p-1">
+<button class="w-6 h-6 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded"><span class="material-symbols-outlined text-sm">remove</span></button>
+<span class="font-numeric-data text-numeric-data w-4 text-center">2</span>
+<button class="w-6 h-6 flex items-center justify-center text-primary hover:bg-primary-container hover:text-on-primary-container rounded"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Category: Cupboard -->
+<div class="flex flex-col gap-sm">
+<h3 class="font-title-md text-title-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">inventory_2</span> Cupboard
+                </h3>
+<!-- Item Row 3 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-container-highest p-sm flex items-center gap-md relative overflow-hidden group">
+<div class="absolute inset-y-0 right-0 w-16 bg-error flex items-center justify-center translate-x-full group-hover:translate-x-0 transition-transform duration-200 cursor-pointer">
+<span class="material-symbols-outlined text-on-error">delete</span>
+</div>
+<div class="w-16 h-16 rounded-lg bg-cover bg-center bg-surface-container flex-shrink-0" data-alt="A bright, high-quality product shot of a box of premium pasta on a white background. Modern, crisp lighting showcasing the packaging details. Clean light-mode aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDQJrlhGomIWecIf-2HK7u-oVeebNSovhbEOPNbgPb_ZyNtjQHo60xVYO9IYJN7U-bV_VR7pu1yYQimqWifz8QPDw3Sb_GMwJQTJP69YAFhODICz2Mp4McmR-Munhu9TP73VQTDt1R22wI7sICtPvWMws3Tjwc_I3_SFXB_kEnZkNUXZAyisf6uWfyotAxG-0wS8Qhb8-oJFWH3RaBgBrNuppQo_49Ocgs6BKwlmyWLcBEWy9TtSIA')"></div>
+<div class="flex-1 flex flex-col group-hover:-translate-x-16 transition-transform duration-200">
+<span class="font-body-lg text-body-lg font-semibold">Penne Pasta</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Barilla, 500g</span>
+<div class="flex items-center gap-xs mt-base">
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Shared</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-sm group-hover:-translate-x-16 transition-transform duration-200">
+<span class="font-numeric-data text-numeric-data line-through text-on-surface-variant text-xs">£1.80</span>
+<span class="font-numeric-data text-numeric-data text-primary">£1.20</span>
+<div class="flex items-center gap-2 bg-surface-container rounded-lg p-1">
+<button class="w-6 h-6 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded"><span class="material-symbols-outlined text-sm">remove</span></button>
+<span class="font-numeric-data text-numeric-data w-4 text-center">4</span>
+<button class="w-6 h-6 flex items-center justify-center text-primary hover:bg-primary-container hover:text-on-primary-container rounded"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Persistent Bottom Action Bar (Contextual to Basket) -->
+<div class="fixed bottom-[72px] md:bottom-0 w-full bg-surface-container-lowest border-t border-surface-container-highest p-md shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40">
+<div class="max-w-4xl mx-auto flex items-center justify-between gap-md">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Total</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">£42.50</span>
+</div>
+<button class="bg-secondary-container hover:bg-secondary text-on-primary font-title-md text-title-md px-lg py-sm rounded-xl transition-colors duration-200 flex-1 md:flex-none text-center">Proceed to Checkout</button>
+</div>
+</div>
+<!-- BottomNavBar -->
+<nav class="bg-surface dark:bg-on-background border-t border-surface-container-highest shadow-lg docked full-width bottom-0 rounded-t-xl fixed bottom-0 w-full z-50 flex justify-around items-center px-2 py-2 pb-safe md:hidden"><a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-caps text-label-caps mt-1">Feed</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-label-caps text-label-caps mt-1">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-label-caps text-label-caps mt-1">Recipes</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+<span class="font-label-caps text-label-caps mt-1">Fancy?</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 hover:bg-surface-container-low transition-transform duration-200 active:scale-90" href="#" aria-current="page">
+<span class="material-symbols-outlined" data-icon="shopping_basket">shopping_basket</span>
+<span class="font-label-caps text-label-caps mt-1">Basket</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform duration-200 active:scale-90 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-caps text-label-caps mt-1">Split</span>
+</a></nav>
+
+
+</body></html>
