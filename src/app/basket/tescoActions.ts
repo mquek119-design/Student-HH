@@ -108,6 +108,24 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
       syncedCount += 1;
     }
 
+    // Fetch actual basket from Tesco trolley to update local database prices
+    try {
+      const actualBasket = await provider.getBasket();
+      for (const actualItem of actualBasket.items) {
+        if (!actualItem.product_uid) continue;
+        const localMatch = items.find((i) => i.tesco_product_id === actualItem.product_uid);
+        if (localMatch) {
+          const actualPricePence = Math.round(actualItem.unit_price * 100);
+          await supabase
+            .from('basket_items')
+            .update({ unit_price: actualPricePence })
+            .eq('id', localMatch.id);
+        }
+      }
+    } catch (basketErr) {
+      console.warn('Failed to update local prices from Tesco trolley:', basketErr);
+    }
+
     // Mark plan as ordered
     await supabase
       .from('weekly_plans')
