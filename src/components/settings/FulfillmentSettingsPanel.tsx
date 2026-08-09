@@ -21,8 +21,12 @@ export function FulfillmentSettingsPanel({ house }: FulfillmentSettingsPanelProp
     setSaveStatus('Saving...');
     startTransition(async () => {
       try {
-        await updateFulfillmentSettings(method, postcode || null, collectStore);
-        setSaveStatus('Fulfillment settings updated successfully!');
+        const res = await updateFulfillmentSettings(method, postcode || null, collectStore);
+        if (res.status === 'error') {
+          setSaveStatus(`Error: ${res.message}`);
+        } else {
+          setSaveStatus('Fulfillment settings updated successfully!');
+        }
       } catch (err: any) {
         setSaveStatus(`Error: ${err?.message || 'Failed to save settings'}`);
       }
