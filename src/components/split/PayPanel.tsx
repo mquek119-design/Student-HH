@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { Icon } from '@/components/media/Icon';
+import { notifyPaymentSent, undoPaymentNotification } from '@/app/split/actions';
 
 /**
  * Payment details display + "I've Paid".
@@ -18,12 +19,35 @@ import { Icon } from '@/components/media/Icon';
 export function PayPanel({
   collectorName,
   paymentDetails,
+  splitId,
+  isNotified = false,
 }: {
   collectorName: string;
   paymentDetails: string | null;
+  splitId?: string;
+  isNotified?: boolean;
 }) {
-  const [notified, setNotified] = useState(false);
+  const [notified, setNotified] = useState(isNotified);
   const [copied, setCopied] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  async function handleMarkPaid() {
+    setNotified(true);
+    if (splitId) {
+      startTransition(async () => {
+        await notifyPaymentSent(splitId);
+      });
+    }
+  }
+
+  async function handleUndoPaid() {
+    setNotified(false);
+    if (splitId) {
+      startTransition(async () => {
+        await undoPaymentNotification(splitId);
+      });
+    }
+  }
 
   async function copyDetails() {
     if (!paymentDetails) return;
@@ -86,8 +110,9 @@ export function PayPanel({
             </p>
             <button
               type="button"
-              onClick={() => setNotified(false)}
-              className="font-label-caps text-label-caps text-error underline mt-2"
+              disabled={isPending}
+              onClick={handleUndoPaid}
+              className="font-label-caps text-label-caps text-error underline mt-2 disabled:opacity-50"
             >
               Undo
             </button>
@@ -95,8 +120,9 @@ export function PayPanel({
         ) : (
           <button
             type="button"
-            onClick={() => setNotified(true)}
-            className="w-full h-12 rounded-lg font-title-md text-title-md flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 bg-secondary-container hover:bg-secondary text-on-secondary"
+            disabled={isPending}
+            onClick={handleMarkPaid}
+            className="w-full h-12 rounded-lg font-title-md text-title-md flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 bg-secondary-container hover:bg-secondary text-on-secondary disabled:opacity-50"
           >
             <Icon name="check_circle" />
             I&apos;ve Paid
@@ -110,3 +136,4 @@ export function PayPanel({
     </div>
   );
 }
+

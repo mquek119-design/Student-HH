@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import { Avatar } from '@/components/avatars/Avatar';
 import { FoodImage } from '@/components/media/FoodImage';
 import { Icon } from '@/components/media/Icon';
@@ -9,6 +9,7 @@ import { clsx } from '@/lib/clsx';
 import { formatPence } from '@/lib/money';
 import { basketLineTotal, basketSavings, basketTotal } from '@/lib/calc';
 import type { BasketItem, IngredientCategory, User } from '@/lib/types';
+import { updateBasketItemQuantity } from '@/app/basket/actions';
 
 /**
  * Basket review — the collector's screen before the order goes to Tesco.
@@ -42,6 +43,8 @@ export function BasketView({ items, housemates, isCollector, collectorName }: Ba
   const [ownBrand, setOwnBrand] = useState(true);
   const [removed, setRemoved] = useState<Set<string>>(new Set());
 
+  const [isPending, startTransition] = useTransition();
+
   const byId = new Map(housemates.map((user) => [user.id, user]));
 
   const liveItems = useMemo(
@@ -73,9 +76,12 @@ export function BasketView({ items, housemates, isCollector, collectorName }: Ba
   function setQuantity(id: string, next: number) {
     if (next <= 0) {
       setRemoved((prev) => new Set(prev).add(id));
-      return;
+    } else {
+      setQuantities((prev) => ({ ...prev, [id]: next }));
     }
-    setQuantities((prev) => ({ ...prev, [id]: next }));
+    startTransition(async () => {
+      await updateBasketItemQuantity(id, next);
+    });
   }
 
   const grouped = CATEGORY_ORDER.map((category) => ({

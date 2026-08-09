@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { PageShell } from '@/components/ui/PageShell';
 import { getCurrentUser, getPantryItems } from '@/lib/queries';
 import type { IngredientCategory, PantryItem } from '@/lib/types';
+import { PantryItemRow } from '@/components/pantry/PantryItemRow';
 
 export const metadata = { title: 'Pantry · HouseGrocer' };
 
@@ -46,40 +47,7 @@ function PantrySection({ title, items }: { title: string; items: PantryItem[] })
             <Card padded={false} className="overflow-hidden">
               <ul className="divide-y divide-surface-container-highest">
                 {sectionItems.map((item) => (
-                  <li key={item.id} className="p-md flex items-center gap-md">
-                    <div className="flex-grow min-w-0">
-                      <p className="font-body-lg text-body-lg truncate">{item.name}</p>
-                      <p className="font-body-sm text-body-sm text-on-surface-variant font-numeric-data">
-                        {item.quantityRemaining}
-                        {item.unit === '%' ? '%' : ` ${item.unit}`} left
-                      </p>
-                    </div>
-
-                    {item.lowStock && (
-                      <Badge tone="secondary" className="shrink-0">
-                        Low
-                      </Badge>
-                    )}
-
-                    <div className="flex items-center gap-xs shrink-0">
-                      <button
-                        type="button"
-                        title="Mark used up"
-                        aria-label={`Mark ${item.name} used up`}
-                        className="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-                      >
-                        <Icon name="remove_shopping_cart" className="text-[18px]" />
-                      </button>
-                      <button
-                        type="button"
-                        title="Add to basket"
-                        aria-label={`Add ${item.name} to basket`}
-                        className="w-9 h-9 rounded-full flex items-center justify-center text-primary hover:bg-primary/10 transition-colors"
-                      >
-                        <Icon name="add_shopping_cart" className="text-[18px]" />
-                      </button>
-                    </div>
-                  </li>
+                  <PantryItemRow key={item.id} item={item} />
                 ))}
               </ul>
             </Card>

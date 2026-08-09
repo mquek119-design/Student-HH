@@ -212,3 +212,33 @@ export async function saveIngredientPack(
   // Re-run so the basket reflects the new price immediately.
   return buildBasket();
 }
+
+/** Updates the quantity of an item in the basket. Deletes if quantity <= 0. */
+export async function updateBasketItemQuantity(
+  basketItemId: string,
+  quantity: number
+): Promise<BasketActionState> {
+  const me = await getCurrentUser();
+  if (!me.houseId) return fail('Join a house first.');
+
+  const supabase = createClient();
+
+  if (quantity <= 0) {
+    const deleted = await supabase.from('basket_items').delete().eq('id', basketItemId);
+    if (deleted.error) return fail(deleted.error.message);
+  } else {
+    const updated = await supabase
+      .from('basket_items')
+      .update({ quantity })
+      .eq('id', basketItemId);
+    if (updated.error) return fail(updated.error.message);
+  }
+
+  revalidatePath('/basket');
+  revalidatePath('/split');
+  revalidatePath('/plan');
+  revalidatePath('/');
+
+  return { status: 'built', message: 'Basket updated.' };
+}
+

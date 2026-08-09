@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import { Icon } from '@/components/media/Icon';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -12,27 +12,18 @@ import type {
   Substitution,
   SubstitutionDecision,
 } from '@/lib/types';
-
-/**
- * Post-delivery reconciliation.
- *
- * Tesco substitutes and refunds, so the receipt never matches the planned
- * basket. Nothing is settled until the house agrees what actually arrived —
- * this screen produces the corrected total the split is rebuilt from.
- *
- * Money rules applied here:
- *  - An item marked not received is refunded in full and leaves the total.
- *  - A partial delivery is charged at the received quantity only.
- *  - An accepted substitution is charged at the substitute's price (which may
- *    be higher than ordered — that is the point of showing the delta).
- *  - A rejected substitution is charged nothing; Tesco refunds it.
- */
+import {
+  finaliseReconciliation,
+  updateItemReceived,
+  updateSubstitutionDecision,
+} from '@/app/split/actions';
 
 interface ReconciliationProps {
   items: ReconciliationItem[];
   substitutions: Substitution[];
   plannedTotal: Pence;
   isCollector: boolean;
+  planId?: string;
 }
 
 export function Reconciliation({
@@ -40,6 +31,7 @@ export function Reconciliation({
   substitutions,
   plannedTotal,
   isCollector,
+  planId,
 }: ReconciliationProps) {
   const [received, setReceived] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(items.map((item) => [item.basketItemId, item.received]))
@@ -52,6 +44,40 @@ export function Reconciliation({
   );
   const [adjustment, setAdjustment] = useState(0);
   const [finalised, setFinalised] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  function toggleItemReceived(basketItemId: string) {
+    const nextState = !received[basketItemId];
+    const qty = quantities[basketItemId] ?? 0;
+    setReceived((prev) => ({ ...prev, [basketItemId]: nextState }));
+    startTransition(async () => {
+      await updateItemReceived(basketItemId, nextState, qty);
+    });
+  }
+
+  function setItemQuantity(basketItemId: string, nextQty: number) {
+    const isRec = received[basketItemId];
+    setQuantities((prev) => ({ ...prev, [basketItemId]: nextQty }));
+    startTransition(async () => {
+      await updateItemReceived(basketItemId, isRec, nextQty);
+    });
+  }
+
+  function handleDecision(subId: string, decision: SubstitutionDecision) {
+    setDecisions((prev) => ({ ...prev, [subId]: decision }));
+    startTransition(async () => {
+      await updateSubstitutionDecision(subId, decision);
+    });
+  }
+
+  function handleFinalise() {
+    setFinalised(true);
+    if (planId) {
+      startTransition(async () => {
+        await finaliseReconciliation(planId);
+      });
+    }
+  }
 
   const { actualTotal, refunded, substitutionDelta, pending } = useMemo(() => {
     let actual = 0;
@@ -136,12 +162,7 @@ export function Reconciliation({
                     role="checkbox"
                     aria-checked={isReceived}
                     aria-label={`${item.name} received`}
-                    onClick={() =>
-                      setReceived((prev) => ({
-                        ...prev,
-                        [item.basketItemId]: !prev[item.basketItemId],
-                      }))
-                    }
+                    onClick={() => toggleItemReceived(item.basketItemId)}
                     className={clsx(
                       'w-6 h-6 border-2 rounded flex items-center justify-center shrink-0 transition-colors',
                       isReceived ? 'bg-primary border-primary' : 'border-outline'
@@ -176,10 +197,10 @@ export function Reconciliation({
                         type="button"
                         aria-label={`Decrease received ${item.name}`}
                         onClick={() =>
-                          setQuantities((prev) => ({
-                            ...prev,
-                            [item.basketItemId]: Math.max(0, (prev[item.basketItemId] ?? 0) - 1),
-                          }))
+                          setItemQuantity(
+                            item.basketItemId,
+                            Math.max(0, (quantities[item.basketItemId] ?? 0) - 1)
+                          )
                         }
                         className="w-6 h-6 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded"
                       >
@@ -192,10 +213,10 @@ export function Reconciliation({
                         type="button"
                         aria-label={`Increase received ${item.name}`}
                         onClick={() =>
-                          setQuantities((prev) => ({
-                            ...prev,
-                            [item.basketItemId]: (prev[item.basketItemId] ?? 0) + 1,
-                          }))
+                          setItemQuantity(
+                            item.basketItemId,
+                            (quantities[item.basketItemId] ?? 0) + 1
+                          )
                         }
                         className="w-6 h-6 flex items-center justify-center text-primary hover:bg-primary-container hover:text-on-primary-container rounded"
                       >
@@ -266,7 +287,7 @@ export function Reconciliation({
                     <div className="flex gap-sm">
                       <button
                         type="button"
-                        onClick={() => setDecisions((prev) => ({ ...prev, [sub.id]: 'accepted' }))}
+                        onClick={() => handleDecision(sub.id, 'accepted')}
                         className={clsx(
                           'flex-1 h-10 rounded-lg font-semibold text-[14px] flex items-center justify-center gap-xs transition-colors',
                           decision === 'accepted'
@@ -279,7 +300,7 @@ export function Reconciliation({
                       </button>
                       <button
                         type="button"
-                        onClick={() => setDecisions((prev) => ({ ...prev, [sub.id]: 'rejected' }))}
+                        onClick={() => handleDecision(sub.id, 'rejected')}
                         className={clsx(
                           'flex-1 h-10 rounded-lg font-semibold text-[14px] flex items-center justify-center gap-xs transition-colors',
                           decision === 'rejected'
@@ -328,8 +349,8 @@ export function Reconciliation({
 
       <button
         type="button"
-        disabled={!isCollector || pending > 0 || finalised}
-        onClick={() => setFinalised(true)}
+        disabled={!isCollector || pending > 0 || finalised || isPending}
+        onClick={handleFinalise}
         className="w-full h-12 bg-primary text-on-primary font-title-md text-title-md rounded-lg flex items-center justify-center gap-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Icon name={finalised ? 'check_circle' : 'gavel'} filled={finalised} />
@@ -344,3 +365,4 @@ export function Reconciliation({
     </div>
   );
 }
+
