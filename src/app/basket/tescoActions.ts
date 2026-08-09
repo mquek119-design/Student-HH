@@ -129,3 +129,29 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
     return fail(`Tesco sync error: ${err?.message || 'Could not connect to Tesco'}`);
   }
 }
+
+/** Runs a checkout dry-run to retrieve actual slot pricing and total checkout cost. */
+export async function startTescoCheckout(planId: string): Promise<TescoActionState> {
+  const me = await getCurrentUser();
+  if (!me.houseId) return fail('Join a house first.');
+
+  const sessionCheck = await checkTescoSession();
+  if (!sessionCheck.authenticated) {
+    return fail('Tesco session required. Please import cookies under My Account or Basket settings.');
+  }
+
+  try {
+    const provider = new TescoProvider();
+    // Run dry-run checkout to fetch slot and actual totals
+    const orderResult = await provider.checkout(true);
+
+    return {
+      status: 'success',
+      totalCost: Math.round(orderResult.total * 100),
+      message: `Checkout preview fetched successfully. Total: £${orderResult.total.toFixed(2)}.`,
+    };
+  } catch (err: any) {
+    return fail(`Checkout preview error: ${err?.message || 'Could not fetch checkout preview'}`);
+  }
+}
+

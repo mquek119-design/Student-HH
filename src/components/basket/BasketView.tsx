@@ -10,7 +10,7 @@ import { formatPence } from '@/lib/money';
 import { basketLineTotal, basketSavings, basketTotal } from '@/lib/calc';
 import type { BasketItem, IngredientCategory, User } from '@/lib/types';
 import { updateBasketItemQuantity } from '@/app/basket/actions';
-import { checkTescoSession, syncBasketToTesco } from '@/app/basket/tescoActions';
+import { checkTescoSession, syncBasketToTesco, startTescoCheckout } from '@/app/basket/tescoActions';
 import { TescoSessionModal } from '@/components/basket/TescoSessionModal';
 
 /**
@@ -45,6 +45,7 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
   );
   const [ownBrand, setOwnBrand] = useState(true);
   const [removed, setRemoved] = useState<Set<string>>(new Set());
+  const [actualTotalCost, setActualTotalCost] = useState<number | null>(null);
 
   const [isPending, startTransition] = useTransition();
   const [isSyncing, setIsSyncing] = useState(false);
@@ -139,6 +140,16 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
         newTab.location.href = 'https://www.tesco.com/groceries/en-GB/trolley';
       } else {
         window.open('https://www.tesco.com/groceries/en-GB/trolley', '_blank');
+      }
+
+      // Fetch actual checkout cost dynamically
+      setSyncStatusMsg('Fetching actual Tesco checkout cost...');
+      const checkoutRes = await startTescoCheckout(planId);
+      if (checkoutRes.status === 'success' && checkoutRes.totalCost !== undefined) {
+        setActualTotalCost(checkoutRes.totalCost);
+        setSyncStatusMsg(`Synced successfully! Actual Tesco Total: ${formatPence(checkoutRes.totalCost)}.`);
+      } else {
+        setSyncStatusMsg(`Synced successfully, but could not fetch actual checkout total: ${checkoutRes.message}`);
       }
     }
   }
@@ -327,9 +338,11 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
       <div className="fixed bottom-[76px] md:bottom-0 left-0 w-full bg-surface-container-lowest border-t border-surface-container-highest p-md shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-md px-margin-mobile md:px-margin-desktop">
           <div className="flex flex-col">
-            <span className="font-label-caps text-label-caps text-on-surface-variant">Total</span>
+            <span className="font-label-caps text-label-caps text-on-surface-variant">
+              {actualTotalCost !== null ? 'Tesco Actual Total' : 'Estimated Total'}
+            </span>
             <span className="font-numeric-data text-headline-lg-mobile text-on-surface">
-              {formatPence(total)}
+              {actualTotalCost !== null ? formatPence(actualTotalCost) : formatPence(total)}
             </span>
           </div>
           <button
