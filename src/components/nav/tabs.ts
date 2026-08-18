@@ -17,26 +17,26 @@ export const TABS: Tab[] = [
   {
     href: '/',
     label: 'Feed',
-    icon: 'home',
+    icon: 'ti-home',
     owns: ['/'],
   },
   {
     href: '/plan',
     label: 'Plan',
-    icon: 'grid_view',
+    icon: 'ti-calendar',
     // Recipes and the pantry are entered from the planning flow.
     owns: ['/plan', '/recipes', '/pantry'],
   },
   {
     href: '/basket',
     label: 'Basket',
-    icon: 'shopping_basket',
+    icon: 'ti-shopping-cart',
     owns: ['/basket'],
   },
   {
     href: '/split',
     label: 'Split',
-    icon: 'payments',
+    icon: 'ti-receipt',
     owns: ['/split'],
   },
 ];

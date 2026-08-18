@@ -1,8 +1,9 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormState } from 'react-dom';
 import { Icon } from '@/components/media/Icon';
 import { Card } from '@/components/ui/Card';
+import { SubmitButton } from '@/components/ui/SubmitButton';
 import { saveIngredientPack, type BasketActionState } from '@/app/basket/actions';
 
 const INITIAL: BasketActionState = { status: 'idle', message: '' };
@@ -11,16 +12,10 @@ const FIELD =
   'h-11 px-3 rounded-lg bg-surface-container-low border-none focus:ring-2 focus:ring-primary text-body-lg font-numeric-data w-full';
 
 function SaveButton() {
-  const { pending } = useFormStatus();
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="h-11 px-md rounded-lg bg-primary text-on-primary font-semibold text-[14px] flex items-center justify-center gap-xs hover:opacity-90 transition-opacity disabled:opacity-60 shrink-0"
-    >
-      <Icon name={pending ? 'progress_activity' : 'check'} className="text-[18px]" />
-      {pending ? 'Saving…' : 'Save'}
-    </button>
+    <SubmitButton icon="check" className="rounded-lg shrink-0" pendingLabel="Saving…">
+      Save
+    </SubmitButton>
   );
 }
 

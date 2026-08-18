@@ -83,7 +83,7 @@ export function BuildBasketPanel({
           type="button"
           disabled={pending || mealCount === 0}
           onClick={() => (hasBasket ? setConfirming(true) : run())}
-          className="w-full h-12 rounded-lg bg-secondary-container text-on-primary font-title-md text-title-md flex items-center justify-center gap-sm hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full h-12 rounded-lg bg-secondary-container text-on-secondary font-title-md text-title-md flex items-center justify-center gap-sm hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Icon name={pending ? 'progress_activity' : 'auto_awesome'} />
           {pending ? 'Optimising…' : hasBasket ? 'Rebuild basket' : 'Build basket'}

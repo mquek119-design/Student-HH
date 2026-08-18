@@ -1,10 +1,10 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormState } from 'react-dom';
 import { useState } from 'react';
-import { Icon } from '@/components/media/Icon';
 import { Card } from '@/components/ui/Card';
-import { createRecipe, type RecipeFormState } from '../actions';
+import { SubmitButton as FormSubmitButton } from '@/components/ui/SubmitButton';
+import { createRecipe, updateRecipe, type RecipeFormState } from '../actions';
 import { parseIngredientLine } from '@/lib/parseIngredient';
 
 const INITIAL: RecipeFormState = { status: 'idle', message: '' };
@@ -12,23 +12,42 @@ const INITIAL: RecipeFormState = { status: 'idle', message: '' };
 const FIELD =
   'w-full px-3 py-3 rounded-lg bg-surface-container-lowest border border-surface-container-highest focus:ring-2 focus:ring-primary focus:border-primary text-body-lg';
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ label }: { label: string }) {
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="w-full h-12 rounded-lg bg-secondary-container text-on-primary font-title-md text-title-md flex items-center justify-center gap-sm hover:bg-secondary transition-colors disabled:opacity-60"
+    <FormSubmitButton
+      variant="secondary"
+      size="lg"
+      fullWidth
+      icon="save"
+      pendingLabel="Saving…"
     >
-      <Icon name={pending ? 'progress_activity' : 'save'} />
-      {pending ? 'Saving…' : 'Save Recipe'}
-    </button>
+      {label}
+    </FormSubmitButton>
   );
 }
 
-export function RecipeForm() {
-  const [state, formAction] = useFormState(createRecipe, INITIAL);
-  const [ingredientsText, setIngredientsText] = useState('');
+export interface RecipePrefill {
+  recipeId?: string;
+  title?: string;
+  servings?: number;
+  cookTimeMins?: number;
+  costPerPortion?: string;
+  ingredients?: string;
+  instructions?: string;
+  tags?: string;
+  sourceUrl?: string;
+  proTip?: string;
+  /** Imported lines the parser could not read — shown so they aren't lost. */
+  unparsed?: string[];
+}
+
+export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
+  // Editing reuses the same form: the fields are identical, and keeping one
+  // component means a change to the ingredient syntax cannot drift between
+  // creating and editing.
+  const isEdit = Boolean(prefill?.recipeId);
+  const [state, formAction] = useFormState(isEdit ? updateRecipe : createRecipe, INITIAL);
+  const [ingredientsText, setIngredientsText] = useState(prefill?.ingredients ?? '');
 
   // Live preview so a mis-parsed line is obvious before saving, not after.
   const lines = ingredientsText.split('\n');
@@ -38,9 +57,27 @@ export function RecipeForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-md">
+      {prefill?.recipeId && <input type="hidden" name="recipeId" value={prefill.recipeId} />}
+
+      {prefill?.unparsed && prefill.unparsed.length > 0 && (
+        <Card accent="secondary" className="flex flex-col gap-xs">
+          <span className="font-body-sm text-body-sm font-semibold">
+            {prefill.unparsed.length} imported line
+            {prefill.unparsed.length === 1 ? '' : 's'} had no readable quantity
+          </span>
+          <ul className="font-body-sm text-[12px] text-on-surface-variant list-disc pl-md">
+            {prefill.unparsed.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <span className="font-body-sm text-[12px] text-on-surface-variant">
+            Add them above with a quantity, e.g. &ldquo;1 tsp Salt&rdquo;, or leave them out.
+          </span>
+        </Card>
+      )}
       <label className="flex flex-col gap-xs">
         <span className="font-body-sm text-body-sm font-semibold">Title</span>
-        <input name="title" required maxLength={120} placeholder="e.g. Creamy Tomato Pasta" className={FIELD} />
+        <input name="title" required maxLength={120} defaultValue={prefill?.title ?? ''} placeholder="e.g. Creamy Tomato Pasta" className={FIELD} />
       </label>
 
       <div className="grid grid-cols-2 gap-md">
@@ -50,7 +87,7 @@ export function RecipeForm() {
             type="number"
             name="servings"
             min={1}
-            defaultValue={4}
+            defaultValue={prefill?.servings ?? 4}
             className={`${FIELD} font-numeric-data`}
           />
         </label>
@@ -60,7 +97,7 @@ export function RecipeForm() {
             type="number"
             name="cookTimeMins"
             min={1}
-            defaultValue={30}
+            defaultValue={prefill?.cookTimeMins ?? 30}
             className={`${FIELD} font-numeric-data`}
           />
         </label>
@@ -72,6 +109,7 @@ export function RecipeForm() {
           <input
             name="costPerPortion"
             inputMode="decimal"
+            defaultValue={prefill?.costPerPortion ?? ''}
             placeholder="1.80"
             className={`${FIELD} font-numeric-data`}
           />
@@ -139,6 +177,7 @@ export function RecipeForm() {
         <textarea
           name="instructions"
           rows={6}
+          defaultValue={prefill?.instructions ?? ''}
           placeholder={'Boil the pasta until al dente.\nSoften the garlic in oil.\nAdd the tomatoes and simmer.'}
           className={`${FIELD} resize-y`}
         />
@@ -146,12 +185,12 @@ export function RecipeForm() {
 
       <label className="flex flex-col gap-xs">
         <span className="font-body-sm text-body-sm font-semibold">Tags</span>
-        <input name="tags" placeholder="Vegetarian, 15-min meals" className={FIELD} />
+        <input name="tags" defaultValue={prefill?.tags ?? ''} placeholder="Vegetarian, 15-min meals" className={FIELD} />
       </label>
 
       <label className="flex flex-col gap-xs">
         <span className="font-body-sm text-body-sm font-semibold">Source URL</span>
-        <input type="url" name="sourceUrl" placeholder="https://…" className={FIELD} />
+        <input type="url" name="sourceUrl" defaultValue={prefill?.sourceUrl ?? ''} placeholder="https://…" className={FIELD} />
       </label>
 
       <label className="flex flex-col gap-xs">
@@ -159,6 +198,7 @@ export function RecipeForm() {
         <textarea
           name="proTip"
           rows={2}
+          defaultValue={prefill?.proTip ?? ''}
           placeholder="The one thing that makes this work."
           className={`${FIELD} resize-y`}
         />
@@ -170,7 +210,7 @@ export function RecipeForm() {
         </p>
       )}
 
-      <SubmitButton />
+      <SubmitButton label={isEdit ? 'Save changes' : 'Save Recipe'} />
     </form>
   );
 }

@@ -148,7 +148,7 @@ export async function bookTescoSlot(slotId: string, headless: boolean = false): 
     const slotEl =
       (await page.$(`[data-slot-id="${slotId}"]`)) ||
       (await page.$(`[data-auto-id="${slotId}"]`)) ||
-      (await page.$(`#${slotId}`));
+      (await page.$(`[id="${slotId}"]`));
 
     if (!slotEl) {
       throw new Error(`Slot ${slotId} not found on page`);

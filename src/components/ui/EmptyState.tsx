@@ -27,7 +27,7 @@ export function EmptyState({
       {action && (
         <Link
           href={action.href}
-          className="mt-sm px-lg py-3 rounded-full bg-primary text-on-primary font-semibold hover:opacity-90 transition-opacity"
+          className="mt-sm px-lg py-3 rounded-full bg-secondary text-on-secondary font-semibold hover:opacity-95 transition-opacity"
         >
           {action.label}
         </Link>

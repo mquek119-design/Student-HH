@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Icon } from '@/components/media/Icon';
 import { CreateHouseForm } from './CreateHouseForm';
 
-export const metadata = { title: 'Create a House · HouseGrocer' };
+export const metadata = { title: 'Create a House · Grub' };
 
 export default function CreateHousePage() {
   return (

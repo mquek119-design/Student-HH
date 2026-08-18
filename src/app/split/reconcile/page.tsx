@@ -8,19 +8,35 @@ import {
   getCurrentUser,
   getReconciliationItems,
   getSubstitutions,
+  getWeeklyPlan,
 } from '@/lib/queries';
 
-export const metadata = { title: 'Reconciliation · HouseGrocer' };
+export const metadata = { title: 'Reconciliation · Grub' };
 export const dynamic = 'force-dynamic';
 
 export default async function ReconcilePage() {
-  const [items, substitutions, basket, currentUser, collector] = await Promise.all([
+  const [items, substitutions, basket, currentUser, collector, plan] = await Promise.all([
     getReconciliationItems(),
     getSubstitutions(),
     getBasketItems(),
     getCurrentUser(),
     getCollector(),
+    getWeeklyPlan(),
   ]);
+
+  // Nothing has been bought yet, so there is nothing that could have gone
+  // wrong with it. Showing a delivery form here invites people to tick off
+  // food that does not exist.
+  if (plan && plan.status !== 'ordered' && plan.status !== 'delivered') {
+    return (
+      <EmptyState
+        icon="local_shipping"
+        title="No order to reconcile"
+        body="This opens once the shop is placed. Tesco substitutes and refunds, so what you owe is only final after what turned up is recorded here."
+        action={{ href: '/basket', label: 'Go to Basket' }}
+      />
+    );
+  }
 
   if (items.length === 0) {
     return (

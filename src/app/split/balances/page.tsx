@@ -6,7 +6,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { formatPence } from '@/lib/money';
 import { getCurrentUser, getHousemates, getLedger, netBalances } from '@/lib/queries';
 
-export const metadata = { title: 'Balances · HouseGrocer' };
+export const metadata = { title: 'Balances · Grub' };
 
 // Reads the signed-in user's house — nothing to prerender at build time.
 export const dynamic = 'force-dynamic';
@@ -102,7 +102,13 @@ export default async function BalancesPage() {
                 <li key={entry.id} className="p-md flex items-center gap-md">
                   <span className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant shrink-0">
                     <Icon
-                      name={entry.status === 'confirmed' ? 'check_circle' : 'schedule'}
+                      name={
+                        entry.source === 'expense'
+                          ? 'receipt_long'
+                          : entry.status === 'confirmed'
+                            ? 'check_circle'
+                            : 'schedule'
+                      }
                       className="text-[20px]"
                     />
                   </span>
@@ -115,7 +121,11 @@ export default async function BalancesPage() {
                       → {entry.toUserId === currentUser.id ? 'you' : (to?.name ?? 'someone')}
                     </p>
                     <p className="font-body-sm text-body-sm text-on-surface-variant truncate">
-                      Week {entry.weekNumber} ·{' '}
+                      {/* A weekly split is derived from the basket; a one-off
+                          purchase was typed by a person and belongs to no week.
+                          "You owe Maya £14" means something different when it
+                          is a toaster, so the row says which. */}
+                      {entry.source === 'expense' ? 'One-off purchase' : `Week ${entry.weekNumber}`} ·{' '}
                       {new Date(entry.date).toLocaleDateString('en-GB', {
                         day: 'numeric',
                         month: 'short',

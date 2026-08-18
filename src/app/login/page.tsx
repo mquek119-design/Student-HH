@@ -1,7 +1,7 @@
 import { LoginForm } from './LoginForm';
-import { Icon } from '@/components/media/Icon';
+import { LogoMark } from '@/components/brand/Logo';
 
-export const metadata = { title: 'Sign in · HouseGrocer' };
+export const metadata = { title: 'Sign in · Grub' };
 
 export default function LoginPage({
   searchParams,
@@ -18,10 +18,13 @@ export default function LoginPage({
   return (
     <main className="min-h-screen flex flex-col justify-center px-margin-mobile py-xl max-w-md mx-auto gap-lg">
       <div className="flex flex-col gap-sm">
-        <span className="w-14 h-14 rounded-xl bg-primary text-on-primary flex items-center justify-center">
-          <Icon name="shopping_basket" filled className="text-[28px]" />
-        </span>
-        <h1 className="font-headline-lg text-headline-lg text-primary">HouseGrocer</h1>
+        <LogoMark className="h-16 w-auto" />
+        <h1
+          className="font-headline-lg text-headline-lg text-primary"
+          style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+        >
+          Grub
+        </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant">
           Sign in with your email. We&apos;ll send you a link — no password to remember.
         </p>

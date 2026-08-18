@@ -5,11 +5,11 @@ import { clsx } from '@/lib/clsx';
 type BadgeTone = 'neutral' | 'primary' | 'secondary' | 'error' | 'solid-primary';
 
 const TONE_CLASSES: Record<BadgeTone, string> = {
-  neutral: 'bg-surface-container text-on-surface-variant border-surface-container-highest',
-  primary: 'bg-primary/10 text-primary border-primary/20',
-  secondary: 'bg-secondary-container/10 text-secondary-container border-secondary-container/20',
-  error: 'bg-error-container text-on-error-container border-error/20',
-  'solid-primary': 'bg-primary-container text-on-primary-container border-transparent',
+  neutral: 'bg-surface-container text-on-surface-variant border-transparent',
+  primary: 'bg-[#D8F3DC] text-[#1B4332] border-transparent',
+  secondary: 'bg-[#FDECD0] text-[#7C4A1E] border-transparent',
+  error: 'bg-[#FCDADA] text-[#7A1A1A] border-transparent',
+  'solid-primary': 'bg-primary text-on-primary border-transparent',
 };
 
 interface BadgeProps {

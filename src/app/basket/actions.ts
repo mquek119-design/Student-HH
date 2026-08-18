@@ -1,13 +1,19 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { getCurrentUser, getPantryItems, getRecipes, getWeeklyPlan } from '@/lib/queries';
+import {
+  getCurrentUser,
+  getHouse,
+  getHouseStaples,
+  getPantryItems,
+  getRecipes,
+  getWeeklyPlan,
+} from '@/lib/queries';
 import { optimiseBasket, type IngredientPack } from '@/lib/optimiser';
 import { resolveIngredients } from '@/lib/tescoResolver';
 import { parsePounds } from '@/lib/money';
 import { createClient } from '@/lib/supabase/server';
 import { TescoProvider } from '../../../lib/tesco/providers/tesco/index';
-import { checkTescoSession, syncBasketToTesco, startTescoCheckout } from './tescoActions';
 
 export interface BasketActionState {
   status: 'idle' | 'error' | 'built';
@@ -35,11 +41,15 @@ export async function buildBasket(): Promise<BasketActionState> {
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const [plan, recipes, pantry] = await Promise.all([
+  const [plan, recipes, pantry, staples] = await Promise.all([
     getWeeklyPlan(),
     getRecipes(),
     getPantryItems(),
+    getHouseStaples(),
   ]);
+
+  // Bin bags are not in anyone's recipe, so they have to be asked for.
+  const dueStaples = staples.filter((staple) => staple.due);
 
   if (!plan?.id) return fail('No plan for this week yet.');
   if (plan.meals.length === 0) return fail('Plan some meals before building the basket.');
@@ -49,13 +59,16 @@ export async function buildBasket(): Promise<BasketActionState> {
   const ingredientRows = await supabase.from('ingredients').select('*');
   if (ingredientRows.error) return fail(ingredientRows.error.message);
 
-  // Only the ingredients this week's meals actually use need a product.
-  const usedIds = new Set(
-    plan.meals.flatMap((meal) => {
+  // Only the ingredients this week's meals actually use need a product —
+  // plus any staple that is due, which needs pricing for exactly the same
+  // reason and goes through exactly the same resolver.
+  const usedIds = new Set([
+    ...plan.meals.flatMap((meal) => {
       const recipe = recipes.find((r) => r.id === meal.recipeId);
       return recipe ? recipe.ingredients.map((i) => i.ingredientId) : [];
-    })
-  );
+    }),
+    ...dueStaples.map((staple) => staple.ingredientId),
+  ]);
 
   // Re-resolve anything uncached or stale. A price cached months ago is not a
   // price, and the split is only as honest as the numbers behind it. Search is
@@ -142,9 +155,20 @@ export async function buildBasket(): Promise<BasketActionState> {
     return fail('Those meals have no ingredients recorded.');
   }
 
-  // Replace wholesale. basket_allocations cascades on delete.
-  const cleared = await supabase.from('basket_items').delete().eq('plan_id', plan.id);
+  // Replace only the DERIVED lines. Manually added items are not reproducible
+  // from the plan, so wiping them would destroy the only copy.
+  const cleared = await supabase
+    .from('basket_items')
+    .delete()
+    .eq('plan_id', plan.id)
+    .eq('is_manual', false);
   if (cleared.error) return fail(cleared.error.message);
+
+  // Staples are nobody's individual order. When the house has opted in, drop
+  // the per-meal attribution on household lines so they divide equally — an
+  // empty allocation list is how the split expresses "everyone".
+  const house = await getHouse();
+  const splitStaplesEqually = house.sharedStaplesEnabled;
 
   // Lines with nothing left to buy (pantry covered them) are not basket items,
   // but they still counted toward pantry savings above.
@@ -173,6 +197,7 @@ export async function buildBasket(): Promise<BasketActionState> {
         image_url: line.ingredientId ? imageUrlByIngredient.get(line.ingredientId) ?? null : null,
         packs_if_separate: line.packsIfSeparate,
         packs_from_pantry: line.packsFromPantry,
+        quantity_assumed: line.quantityAssumed,
       })
       .select('id')
       .single();
@@ -181,7 +206,9 @@ export async function buildBasket(): Promise<BasketActionState> {
       return fail(inserted.error?.message ?? `Could not save ${line.name}.`);
     }
 
-    if (line.allocations.length > 0) {
+    const shareEqually = splitStaplesEqually && line.category === 'household';
+
+    if (line.allocations.length > 0 && !shareEqually) {
       const allocations = line.allocations.map((allocation) => ({
         basket_item_id: inserted.data.id,
         user_id: allocation.userId,
@@ -191,6 +218,54 @@ export async function buildBasket(): Promise<BasketActionState> {
       const linked = await supabase.from('basket_allocations').insert(allocations);
       if (linked.error) return fail(linked.error.message);
     }
+  }
+
+  // Due staples, added after the derived lines.
+  //
+  // They are not `is_manual`, so a rebuild replaces them like any other derived
+  // line — the standing list, not the basket, is the source of truth. They
+  // carry no allocations at all, which is how the split expresses "everyone"
+  // when equal splitting is on; with it off they fall back to the same rule as
+  // any other unattributed line.
+  const rowById = new Map(refreshed.data.map((row) => [row.id, row]));
+  let staplesAdded = 0;
+
+  for (const staple of dueStaples) {
+    const row = rowById.get(staple.ingredientId);
+    if (!row) continue;
+
+    const inserted = await supabase
+      .from('basket_items')
+      .insert({
+        plan_id: plan.id,
+        ingredient_id: row.id,
+        tesco_product_id: row.tesco_product_id,
+        name: row.tesco_title ?? row.name,
+        subtitle: 'House staple',
+        // Forced, not read from the row: the equal-split rule keys on this and
+        // a staple miscategorised as food would be charged to one person.
+        category: 'household',
+        quantity: 1,
+        unit_price: row.pack_price ?? 0,
+        original_unit_price: row.original_price,
+        own_brand_available:
+          row.original_price !== null && row.original_price > (row.pack_price ?? 0),
+        image_url: row.image_url,
+      })
+      .select('id')
+      .single();
+
+    if (inserted.error) return fail(`Could not add staple ${staple.name}: ${inserted.error.message}`);
+
+    // Only stamp the date once the line is really in the basket, so a failed
+    // build cannot push a staple a fortnight into the future.
+    const stamped = await supabase
+      .from('house_staples')
+      .update({ last_added_on: new Date().toISOString().slice(0, 10) })
+      .eq('id', staple.id);
+    if (stamped.error) return fail(`Could not record ${staple.name} as added: ${stamped.error.message}`);
+
+    staplesAdded += 1;
   }
 
   // Savings are recomputed from the same run, so the banner can never drift
@@ -205,20 +280,33 @@ export async function buildBasket(): Promise<BasketActionState> {
   revalidatePath('/plan');
   revalidatePath('/');
 
-  // Auto-sync with Tesco in the background if session is authenticated
-  const sessionCheck = await checkTescoSession();
-  if (sessionCheck.authenticated) {
-    await syncBasketToTesco(plan.id);
-    await startTescoCheckout();
-  }
+  // NOTE: rebuilding deliberately does NOT push to Tesco.
+  //
+  // It used to auto-call syncBasketToTesco() and startTescoCheckout() whenever a
+  // session existed. Three problems, all of them surprising for a button whose
+  // label is "Rebuild basket":
+  //
+  //   1. It wrote to the collector's real Tesco trolley as a side effect of a
+  //      local recalculation.
+  //   2. syncBasketToTesco sets weekly_plans.status = 'ordered', which locks
+  //      planning — so recomputing the shopping list silently ended the week.
+  //   3. startTescoCheckout drives Playwright with `headless: false`, so a
+  //      browser window opened on the collector's machine every rebuild.
+  //
+  // Pushing to Tesco is an outward-facing action with real consequences and
+  // stays behind the explicit Checkout button.
 
   const unpriced = result.needsPackData.length;
+  const stapleNote =
+    staplesAdded === 0
+      ? ''
+      : ` Plus ${staplesAdded} house staple${staplesAdded === 1 ? '' : 's'} that came due.`;
   return {
     status: 'built',
     message:
       unpriced === 0
-        ? `Basket built: ${buyable.length} items.`
-        : `Basket built: ${buyable.length} items. ${unpriced} need pack size and price before they can be split.`,
+        ? `Basket built: ${buyable.length} items.${stapleNote}`
+        : `Basket built: ${buyable.length} items.${stapleNote} ${unpriced} need pack size and price before they can be split.`,
   };
 }
 
@@ -358,3 +446,79 @@ export async function updateIngredientProductMapping(
   return { status: 'built', message: 'Brand successfully swapped!' };
 }
 
+
+/**
+ * Adds an item the recipes did not produce — washing-up liquid, snacks, milk
+ * for tea. Without this there is no way to buy anything that is not an
+ * ingredient, and the house needs a second shopping list.
+ *
+ * Marked `is_manual` so a rebuild preserves it: the basket is otherwise
+ * regenerated destructively from the plan, and this row cannot be recreated.
+ */
+export async function addManualItem(
+  _prev: BasketActionState,
+  formData: FormData
+): Promise<BasketActionState> {
+  const me = await getCurrentUser();
+  if (!me.houseId) return fail('Join a house first.');
+
+  const plan = await getWeeklyPlan();
+  if (!plan?.id) return fail('No plan for this week yet.');
+
+  const productId = String(formData.get('productId') ?? '').trim();
+  const name = String(formData.get('name') ?? '').trim();
+  const price = Number.parseInt(String(formData.get('price') ?? ''), 10);
+  const subtitle = String(formData.get('subtitle') ?? '').trim();
+  const imageUrl = String(formData.get('imageUrl') ?? '').trim() || null;
+  const quantity = Math.max(1, Number.parseInt(String(formData.get('quantity') ?? '1'), 10) || 1);
+
+  if (!name) return fail('Pick a product to add.');
+  if (!Number.isFinite(price) || price < 0) return fail('That product has no usable price.');
+
+  const supabase = createClient();
+  const inserted = await supabase.from('basket_items').insert({
+    plan_id: plan.id,
+    ingredient_id: null,
+    tesco_product_id: productId || null,
+    name,
+    subtitle: subtitle || 'Added by hand',
+    // Household so it rides with the shared-staples rule; nobody's recipe
+    // asked for it, so it is everyone's by default.
+    category: 'household',
+    quantity,
+    unit_price: price,
+    image_url: imageUrl,
+    is_manual: true,
+  });
+
+  if (inserted.error) {
+    const hint =
+      inserted.error.code === '42703'
+        ? ' — run supabase/migrations/0011_manual_basket_items.sql.'
+        : '';
+    return fail(`Could not add ${name}: ${inserted.error.message}${hint}`);
+  }
+
+  revalidatePath('/basket');
+  revalidatePath('/split');
+  return { status: 'built', message: `Added ${name}. It will survive a rebuild.` };
+}
+
+/** Removes a manually added item. Derived lines go by rebuilding instead. */
+export async function removeManualItem(itemId: string): Promise<BasketActionState> {
+  const me = await getCurrentUser();
+  if (!me.houseId) return fail('Join a house first.');
+
+  const supabase = createClient();
+  const removed = await supabase
+    .from('basket_items')
+    .delete()
+    .eq('id', itemId)
+    .eq('is_manual', true);
+
+  if (removed.error) return fail(removed.error.message);
+
+  revalidatePath('/basket');
+  revalidatePath('/split');
+  return { status: 'built', message: 'Removed.' };
+}

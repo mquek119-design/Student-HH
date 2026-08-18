@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Icon } from '@/components/media/Icon';
+import { LogoMark } from '@/components/brand/Logo';
 
-export const metadata = { title: 'Welcome · HouseGrocer' };
+export const metadata = { title: 'Welcome · Grub' };
 
 const BENEFITS = [
   {
@@ -26,10 +27,13 @@ export default function OnboardingWelcomePage() {
     <main className="min-h-screen flex flex-col justify-between px-margin-mobile py-xl max-w-md mx-auto">
       <div className="flex flex-col gap-xl">
         <div className="flex flex-col gap-sm pt-xl">
-          <span className="w-14 h-14 rounded-xl bg-primary text-on-primary flex items-center justify-center">
-            <Icon name="shopping_basket" filled className="text-[28px]" />
-          </span>
-          <h1 className="font-headline-lg text-headline-lg text-primary">HouseGrocer</h1>
+          <LogoMark className="h-16 w-auto" />
+          <h1
+            className="font-headline-lg text-headline-lg text-primary"
+            style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+          >
+            Grub
+          </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant">
             Plan meals together, buy one shop, split it fairly.
           </p>
@@ -53,7 +57,7 @@ export default function OnboardingWelcomePage() {
       <div className="flex flex-col gap-sm pt-xl">
         <Link
           href="/onboarding/create"
-          className="w-full h-12 rounded-lg bg-secondary-container text-on-primary font-title-md text-title-md flex items-center justify-center hover:bg-secondary transition-colors"
+          className="w-full h-12 rounded-lg bg-secondary-container text-on-secondary font-title-md text-title-md flex items-center justify-center hover:bg-secondary transition-colors"
         >
           Create a House
         </Link>

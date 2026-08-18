@@ -141,7 +141,7 @@ export async function bookSlot(slotId: string, headless: boolean = false): Promi
     
     // Find the slot
     const slotElement = await page.$(`[data-slot-id="${slotId}"]`) ||
-                        await page.$(`#${slotId}`);
+                        await page.$(`[id="${slotId}"]`);
     
     if (!slotElement) {
       throw new Error(`Slot ${slotId} not found`);

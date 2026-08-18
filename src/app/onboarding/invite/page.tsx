@@ -3,7 +3,7 @@ import { Icon } from '@/components/media/Icon';
 import { InviteLink } from '@/components/settings/InviteLink';
 import { getHouse } from '@/lib/queries';
 
-export const metadata = { title: 'Invite Housemates · HouseGrocer' };
+export const metadata = { title: 'Invite Housemates · Grub' };
 
 // Reads the signed-in user's house — nothing to prerender at build time.
 export const dynamic = 'force-dynamic';
@@ -34,7 +34,7 @@ export default async function InvitePage() {
       <div className="flex flex-col gap-sm">
         <Link
           href="/"
-          className="w-full h-12 rounded-lg bg-secondary-container text-on-primary font-title-md text-title-md flex items-center justify-center hover:bg-secondary transition-colors"
+          className="w-full h-12 rounded-lg bg-secondary-container text-on-secondary font-title-md text-title-md flex items-center justify-center hover:bg-secondary transition-colors"
         >
           Go to the Feed
         </Link>

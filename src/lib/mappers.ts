@@ -71,8 +71,18 @@ export function toUser(row: ProfileRow): User {
     avatarUrl: row.avatar_url,
     accent: row.accent,
     dietaryPreferences: row.dietary_preferences,
-    paymentDetailsText: row.payment_details_text,
+    // `?? null` rather than the raw column: until 0012 is applied these keys are
+    // absent from the row, and `undefined` would flow into defaultValue props as
+    // an uncontrolled-input warning instead of an empty field.
+    payment: {
+      bankName: row.payment_bank_name ?? null,
+      sortCode: row.payment_sort_code ?? null,
+      accountNumber: row.payment_account_number ?? null,
+      link: row.payment_link ?? null,
+      note: row.payment_details_text ?? null,
+    },
     isAdmin: row.is_admin,
+    isDemo: row.is_demo ?? false,
   };
 }
 
@@ -121,10 +131,24 @@ export function toPlannedMeal(
     day: row.day,
     mealType: row.meal_type,
     isShared: row.is_shared,
+    createdBy: row.created_by ?? null,
     cookedByUserId: row.cooked_by_user_id,
+    cookOfferTo: row.cook_offer_to ?? null,
+    maxDiners: row.max_diners ?? null,
+    // `?? 'planned'` so the app still works against a database where 0013 has
+    // not been applied — the column is simply absent, not null.
+    status: row.status ?? 'planned',
+    // Opted-out participants are dropped: they were never part of the shop.
+    // Bailed ones are deliberately KEPT — they paid for their share and it is
+    // still theirs, so they must keep appearing in every allocation.
     participants: participants
       .filter((participant) => !participant.opted_out)
-      .map((participant) => ({ userId: participant.user_id })),
+      .map((participant) => ({
+        userId: participant.user_id,
+        bailed: participant.bailed ?? false,
+        guests: participant.guests ?? 0,
+        guestsCovered: participant.guests_covered ?? true,
+      })),
   };
 }
 
@@ -150,8 +174,8 @@ export function toWeeklyPlan(row: WeeklyPlanRow, meals: PlannedMeal[]): WeeklyPl
     cutoffAt: row.cutoff_at,
     sharedSavings: row.shared_savings,
     meals,
-    // Conflicts are derived, not stored — see detectConflicts() in conflicts.ts.
-    conflicts: [],
+    // Derived, not stored — see findOverlapGaps() in overlaps.ts.
+    overlaps: [],
   };
 }
 
@@ -172,6 +196,8 @@ export function toBasketItem(
     packsIfSeparate: row.packs_if_separate,
     packsFromPantry: row.packs_from_pantry,
     needsPackData,
+    quantityAssumed: row.quantity_assumed ?? false,
+    isManual: row.is_manual,
     tescoProductId: row.tesco_product_id ?? '',
     name: row.name,
     subtitle: row.subtitle,
@@ -193,6 +219,7 @@ export function toSplit(row: SplitRow, lines: Split['lines']): Split {
     toUserId: row.to_user_id,
     amount: row.amount,
     status: row.status,
+    isPosted: true,
     lines,
   };
 }
@@ -208,6 +235,7 @@ export function toLedgerEntry(row: SplitRow, weekNumber: number): LedgerEntry {
     amount: row.amount,
     status: row.status,
     note: row.note,
+    source: 'split',
   };
 }
 

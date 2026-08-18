@@ -102,6 +102,8 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
   try {
     const provider = new TescoProvider();
 
+    let priceNote = '';
+    let repricedCount = 0;
     let syncedCount = 0;
     for (const item of syncable) {
       await provider.addToBasket(item.tesco_product_id!, item.quantity);
@@ -115,7 +117,13 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
         if (!actualItem.product_uid) continue;
         const localMatch = items.find((i) => i.tesco_product_id === actualItem.product_uid);
         if (localMatch) {
+          // Tesco's trolley is the authority on price. Our figure is derived
+          // from pack size and a listed price, which for anything sold by
+          // weight is a guide only — loose items are charged on actual weight,
+          // so the estimate can sit above or below the real charge. Once the
+          // item is in the trolley, take Tesco's number.
           const actualPricePence = Math.round(actualItem.unit_price * 100);
+          if (actualPricePence !== localMatch.unit_price) repricedCount += 1;
           await supabase
             .from('basket_items')
             .update({ unit_price: actualPricePence })
@@ -123,6 +131,11 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
         }
       }
     } catch (basketErr) {
+      // Not fatal — the items are in the trolley either way. But the split now
+      // rests on our own estimate rather than Tesco's figure, so say so instead
+      // of only logging where nobody will look.
+      priceNote =
+        ' Prices could not be reconciled against the Tesco trolley, so the split still uses estimates.';
       console.warn('Failed to update local prices from Tesco trolley:', basketErr);
     }
 
@@ -141,7 +154,12 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
       status: 'success',
       authenticated: true,
       syncedCount,
-      message: `Successfully pushed ${syncedCount} item${syncedCount === 1 ? '' : 's'} to Tesco online basket!`,
+      message:
+        `Pushed ${syncedCount} item${syncedCount === 1 ? '' : 's'} to your Tesco basket.` +
+        (repricedCount > 0
+          ? ` ${repricedCount} price${repricedCount === 1 ? '' : 's'} updated to Tesco's actual charge — the split now matches your trolley.`
+          : '') +
+        priceNote,
     };
   } catch (err: any) {
     return fail(`Tesco sync error: ${err?.message || 'Could not connect to Tesco'}`);

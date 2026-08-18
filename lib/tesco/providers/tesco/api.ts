@@ -337,15 +337,28 @@ export class TescoAPI {
     return { delivery: data?.[field] ?? [] };
   }
 
+  // LOCAL CHANGE (see lib/tesco/VENDOR-CHANGES.md): corrected selection set.
+  //
+  // This asked for `orderId`, `status` and `error` directly on the mutation
+  // result, none of which exist — the request failed schema validation every
+  // time, so booking never worked. `fulfilment(slotId:)` returns a
+  // SlotWrapperType whose only field is `slot: SlotType`.
+  //
+  // Field names were confirmed against the live schema (introspection is
+  // disabled) by sending a selection set containing a deliberately invalid
+  // field: validation then fails before execution, so nothing is booked, and
+  // the error names exactly which fields are wrong.
   async bookSlot(slotId: string) {
     return this.gql('Fulfilment', `
       mutation Fulfilment($slotId: ID!) {
         fulfilment(slotId: $slotId) {
-          orderId
-          status
-          error {
-            code
-            message
+          slot {
+            id
+            start
+            end
+            status
+            charge
+            expiry
           }
         }
       }

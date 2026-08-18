@@ -11,6 +11,7 @@ import { PageShell } from '@/components/ui/PageShell';
 import {
   getCurrentUser,
   getHousemates,
+  getLeftovers,
   getPantryItems,
   getPaymentStatus,
   getWeeklyPlan,
@@ -34,21 +35,45 @@ export default async function FeedPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser.houseId) redirect('/onboarding');
 
-  const [plan, housemates, payments, pantry] = await Promise.all([
+  const [plan, housemates, payments, pantry, leftovers] = await Promise.all([
     getWeeklyPlan(),
     getHousemates(),
     getPaymentStatus(),
     getPantryItems(),
+    getLeftovers(),
   ]);
 
   if (!plan) redirect('/onboarding');
 
   const byId = new Map(housemates.map((user) => [user.id, user]));
+
+  // Weekends only appear once somebody plans one. An empty Saturday with an
+  // "add a meal" button is the app asking about a night nobody was going to
+  // plan — see the same rule in WeekStrip.
+  const visibleDays = WEEKDAYS.filter(
+    (day) => !['sat', 'sun'].includes(day) || plan.meals.some((meal) => meal.day === day)
+  );
+
+  // Today, in the same weekday vocabulary the plan uses.
+  const today = WEEKDAYS[(new Date().getDay() + 6) % 7];
+  const cookingTonight = plan.meals.filter(
+    (meal) => meal.day === today && meal.cookedByUserId === currentUser.id
+  );
+  // Mouths, not housemates: someone's +1 still has to be fed.
+  const mouths = (cookingTonight[0]?.participants ?? []).reduce(
+    (sum, participant) => sum + 1 + (participant.guests ?? 0),
+    0
+  );
   const sharedMealCount = plan.meals.filter((meal) => meal.isShared).length;
   const currentUserHasInput = plan.meals.some((meal) =>
     meal.participants.some((p) => p.userId === currentUser.id)
   );
   const lowStock = pantry.filter((item) => item.isShared && item.lowStock);
+
+  // Anything on the leftovers board with a day or less on it. Not a general
+  // "use up your food" nag — only things somebody actually cooked and offered,
+  // which is the case where a reminder rescues a real meal.
+  const goingOff = leftovers.filter((item) => item.daysLeft <= 1);
 
   return (
     <PageShell wide className="md:grid md:grid-cols-12 md:gap-lg md:items-start">
@@ -78,7 +103,7 @@ export default async function FeedPage() {
             </div>
             <Link
               href="/plan"
-              className="relative z-10 w-full bg-secondary-container text-on-primary font-title-md text-title-md py-3 rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-auto"
+              className="relative z-10 w-full bg-secondary-container text-on-secondary font-title-md text-title-md py-3 rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-auto"
             >
               <Icon name="restaurant" />
               {currentUserHasInput ? 'Review Your Week' : 'Submit Your Fancy?'}
@@ -88,9 +113,9 @@ export default async function FeedPage() {
 
         {plan.meals.length === 0 ? (
           <EmptyState
-            icon="calendar_add_on"
-            title="No meals planned yet"
-            body="Add what you fancy this week and the plan fills in here. Once the cutoff passes, the basket is built from it."
+            icon="ti-calendar"
+            title="Nobody's picked anything"
+            body="You're all just going to wing it again aren't you."
             action={{ href: '/plan', label: 'Start planning' }}
           />
         ) : (
@@ -103,19 +128,24 @@ export default async function FeedPage() {
             </div>
 
             <div className="overflow-x-auto hide-scrollbar">
-              <ul className="flex md:grid md:grid-cols-7 gap-sm p-md min-w-max md:min-w-0">
-                {WEEKDAYS.map((day) => {
+              <ul
+                className="flex md:grid gap-sm p-md min-w-max md:min-w-0"
+                style={{ gridTemplateColumns: `repeat(${visibleDays.length}, minmax(0, 1fr))` }}
+              >
+                {visibleDays.map((day) => {
                   const meals = plan.meals.filter((meal) => meal.day === day);
                   const diners = meals
                     .flatMap((meal) => meal.participants.map((p) => byId.get(p.userId)))
                     .filter((user): user is NonNullable<typeof user> => Boolean(user));
-                  const hasConflict = plan.conflicts.some((conflict) => conflict.day === day);
+                  // Days with a shared-shopping suggestion get a quiet marker,
+                  // not a red one. Nothing here is wrong — see overlaps.ts.
+                  const hasHint = plan.overlaps.some((entry) => entry.day === day);
 
                   return (
                     <li
                       key={day}
                       className={`flex flex-col items-center gap-xs w-16 md:w-auto rounded-lg py-1 ${
-                        hasConflict ? 'bg-error-container/40 border border-error/20' : ''
+                        hasHint ? 'bg-secondary-fixed/30 border border-secondary-container/30' : ''
                       }`}
                     >
                       <span className="font-label-caps text-label-caps text-on-surface-variant">
@@ -142,6 +172,48 @@ export default async function FeedPage() {
       </div>
 
       <div className="md:col-span-4 flex flex-col gap-md mt-md md:mt-0">
+        {cookingTonight.length > 0 && (
+          <Card accent="secondary" className="flex items-start gap-sm">
+            <Icon name="skillet" filled className="text-secondary mt-1" />
+            <div className="min-w-0">
+              <h3 className="font-title-md text-title-md text-on-surface">
+                You&apos;re cooking tonight
+              </h3>
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                {cookingTonight.map((meal) => meal.recipeTitle).join(' and ')} for {mouths}
+                {mouths === 1 ? ' person' : ' people'}.
+              </p>
+              <Link
+                href={`/recipes/${cookingTonight[0].recipeId}`}
+                className="inline-flex items-center gap-xs mt-xs text-secondary font-semibold text-[14px] hover:opacity-80"
+              >
+                Open the recipe
+                <Icon name="chevron_right" className="text-[18px]" />
+              </Link>
+            </div>
+          </Card>
+        )}
+
+        {goingOff.length > 0 && (
+          <Card accent="secondary" className="flex items-start gap-sm">
+            <Icon name="schedule" filled className="text-secondary mt-1" />
+            <div className="min-w-0">
+              <h3 className="font-numeric-data text-numeric-data text-on-surface mb-1">
+                Eat this or bin it
+              </h3>
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                {goingOff.map((item) => item.description).join(', ')}{' '}
+                {goingOff.length === 1 ? 'is' : 'are'} on the board and{' '}
+                {goingOff.some((item) => item.daysLeft < 0) ? 'past it' : 'about to go'}.{' '}
+                <Link href="/pantry" className="text-secondary font-semibold underline">
+                  Claim it
+                </Link>
+                .
+              </p>
+            </div>
+          </Card>
+        )}
+
         {lowStock.length > 0 && (
           <Card accent="primary" className="flex items-start gap-sm">
             <Icon name="info" filled className="text-primary mt-1" />
@@ -165,9 +237,9 @@ export default async function FeedPage() {
 
         {payments.length === 0 ? (
           <EmptyState
-            icon="payments"
-            title="Nothing to settle"
-            body="Once an order is placed and reconciled, who owes what shows up here."
+            icon="ti-receipt"
+            title="Clean slate"
+            body="No one owes anyone anything. Enjoy it while it lasts."
           />
         ) : (
           <Card padded={false} className="overflow-hidden">

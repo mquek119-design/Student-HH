@@ -32,12 +32,25 @@ export interface IngredientPack {
   originalPrice: Pence | null;
 }
 
+/**
+ * How a meal's diners divide it.
+ *
+ * A weight of 1 is one mouth. A housemate bringing a guest they are covering
+ * weighs 2; a guest the table agreed to split weighs 1/n on everybody. This
+ * replaced a plain `userIds: string[]` and reduces to exactly the old
+ * behaviour when nobody brings anyone — every weight is 1.
+ */
+interface Head {
+  userId: string;
+  weight: number;
+}
+
 /** One meal's claim on an ingredient, kept so the line can be attributed back. */
 interface Demand {
   mealId: string;
   /** Quantity in the group's base unit, already scaled to the diner count. */
   baseQuantity: number;
-  userIds: string[];
+  heads: Head[];
 }
 
 export interface BasketLine {
@@ -62,8 +75,14 @@ export interface BasketLine {
   packsFromPantry: number | null;
   /** Relative weights per user, for splitPence(). Empty means split equally. */
   allocations: { userId: string; share: number }[];
+  /**
+   * True when the pack is sold by weight but the recipe counts items, so how
+   * many packs to buy could not be calculated and one was assumed. Surfaced in
+   * the basket for the collector to check, never hidden.
+   */
+  quantityAssumed: boolean;
   /** Why this line cannot be priced, when it cannot. */
-  blocked: 'no-pack-data' | 'incompatible-units' | null;
+  blocked: 'no-pack-data' | null;
 }
 
 export interface OptimisedBasket {
@@ -77,9 +96,34 @@ export interface OptimisedBasket {
   needsPackData: { ingredientId: string; name: string }[];
 }
 
-/** How many people are actually eating a meal. */
+/**
+ * Who is eating, and how much of the meal each of them answers for.
+ *
+ * Guests have no account and no balance, so they never appear as a head of
+ * their own — their weight is folded into whoever is paying for them. Covered
+ * guests load their host; uncovered ones spread evenly across the table, which
+ * is what "split across the table" means once you write it down.
+ */
+function headsFor(meal: PlannedMeal): Head[] {
+  const eating = meal.participants.filter((p) => !p.optedOut);
+  if (eating.length === 0) return [];
+
+  const sharedGuests = eating.reduce(
+    (sum, p) => sum + (p.guestsCovered === false ? (p.guests ?? 0) : 0),
+    0
+  );
+  const sharedPerHead = sharedGuests / eating.length;
+
+  return eating.map((p) => ({
+    userId: p.userId,
+    weight: 1 + (p.guestsCovered === false ? 0 : (p.guests ?? 0)) + sharedPerHead,
+  }));
+}
+
+/** How many mouths a meal is cooked for, housemates and guests together. */
 function dinerCount(meal: PlannedMeal): number {
-  return Math.max(1, meal.participants.filter((p) => !p.optedOut).length);
+  const total = headsFor(meal).reduce((sum, head) => sum + head.weight, 0);
+  return Math.max(1, total);
 }
 
 export function optimiseBasket(
@@ -102,7 +146,7 @@ export function optimiseBasket(
     const diners = dinerCount(meal);
     // Recipes are written for `servings`; scale to who is actually eating.
     const scale = diners / Math.max(1, recipe.servings);
-    const userIds = meal.participants.filter((p) => !p.optedOut).map((p) => p.userId);
+    const heads = headsFor(meal);
 
     for (const ingredient of recipe.ingredients) {
       const group = unitGroup(ingredient.unit);
@@ -115,7 +159,7 @@ export function optimiseBasket(
         ingredientId: ingredient.ingredientId,
         items: [],
       };
-      entry.items.push({ mealId: meal.id, baseQuantity: base, userIds });
+      entry.items.push({ mealId: meal.id, baseQuantity: base, heads });
       demands.set(key, entry);
     }
   }
@@ -150,17 +194,18 @@ export function optimiseBasket(
     // fairly carries more of the pasta than someone eating one.
     const weights = new Map<string, number>();
     for (const demand of entry.items) {
-      if (demand.userIds.length === 0) continue;
-      const perHead = demand.baseQuantity / demand.userIds.length;
-      for (const userId of demand.userIds) {
-        weights.set(userId, (weights.get(userId) ?? 0) + perHead);
+      const totalHeads = demand.heads.reduce((sum, head) => sum + head.weight, 0);
+      if (totalHeads <= 0) continue;
+      for (const head of demand.heads) {
+        const share = (demand.baseQuantity * head.weight) / totalHeads;
+        weights.set(head.userId, (weights.get(head.userId) ?? 0) + share);
       }
     }
     const allocations = [...weights.entries()]
       .filter(([, share]) => share > 0)
       .map(([userId, share]) => ({ userId, share }));
 
-    const base: Omit<BasketLine, 'packs' | 'unitPrice' | 'originalUnitPrice' | 'lineTotal' | 'packsIfSeparate' | 'packsFromPantry' | 'blocked'> = {
+    const base: Omit<BasketLine, 'packs' | 'unitPrice' | 'originalUnitPrice' | 'lineTotal' | 'packsIfSeparate' | 'packsFromPantry' | 'blocked' | 'quantityAssumed'> = {
       ingredientId: entry.ingredientId,
       name: pack?.name ?? 'Unknown ingredient',
       category: pack?.category ?? 'cupboard',
@@ -183,6 +228,7 @@ export function optimiseBasket(
         lineTotal: null,
         packsIfSeparate: null,
         packsFromPantry: null,
+        quantityAssumed: false,
         blocked: 'no-pack-data',
       });
       continue;
@@ -190,16 +236,34 @@ export function optimiseBasket(
 
     // Express one pack in the same base unit as the demand.
     const packInBase = convert(pack.packSize, pack.packUnit, unitLabel);
+
     if (packInBase === null || packInBase <= 0) {
+      // The recipe counts items ("3 garlic cloves", "4 slices of bread") but
+      // Tesco sells the thing by weight, so there is no arithmetic that turns
+      // one into the other — a 190g jar of garlic states no clove count.
+      //
+      // This used to drop the line out of the basket with no price, which
+      // rendered as £0.00, quietly left it out of the total, and undercharged
+      // everybody. Buying ONE is the better answer: a weighed pack is nearly
+      // always a container of many countable things — a loaf, a bulb, a bunch,
+      // a punnet — and one covers a week's recipe. It is flagged rather than
+      // assumed silently, and the collector has a stepper.
+      const assumedTotal = pack.packPrice;
+      if (assumedTotal !== null) totalCost += assumedTotal;
+      else needsPackData.push({ ingredientId: entry.ingredientId, name: pack.name });
+
       lines.push({
         ...base,
-        packs: null,
-        unitPrice: null,
-        originalUnitPrice: null,
-        lineTotal: null,
+        packs: 1,
+        unitPrice: pack.packPrice,
+        originalUnitPrice: pack.originalPrice,
+        lineTotal: assumedTotal,
+        // No savings claim: we do not know what one pack covers, so we cannot
+        // say what pooling or the pantry saved.
         packsIfSeparate: null,
         packsFromPantry: null,
-        blocked: 'incompatible-units',
+        quantityAssumed: true,
+        blocked: null,
       });
       continue;
     }
@@ -236,6 +300,7 @@ export function optimiseBasket(
       lineTotal,
       packsIfSeparate,
       packsFromPantry,
+      quantityAssumed: false,
       blocked: null,
     });
   }

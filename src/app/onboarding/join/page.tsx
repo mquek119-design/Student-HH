@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Icon } from '@/components/media/Icon';
 import { JoinHouseForm } from './JoinHouseForm';
 
-export const metadata = { title: 'Join a House · HouseGrocer' };
+export const metadata = { title: 'Join a House · Grub' };
 
 export default function JoinHousePage({
   searchParams,

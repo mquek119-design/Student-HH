@@ -1,5 +1,6 @@
 node_modules/
 .next/
+.next-dev/
 out/
 build/
 .env
@@ -13,6 +14,16 @@ next-env.d.ts
 
 # Playwright MCP screenshots, traces and session output
 .playwright-mcp/
+
+# Claude Code: settings.json is shared and reviewed, settings.local.json is not.
+# The local file accumulates whatever was clicked through at a prompt — one-off
+# compound commands, paths from one machine — so it is per-developer noise
+# rather than a decision the house has made.
+.claude/settings.local.json
+
+# rtk's own working files. Its filters.toml IS committed: it is project config.
+.rtk/cache/
+.rtk/*.log
 
 # Vendored Tesco fork — treat as a dependency, do not edit
 # (kept in the repo per CLAUDE.md, but its node_modules never are)

@@ -1,24 +1,11 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormState } from 'react-dom';
 import { Icon } from '@/components/media/Icon';
+import { SubmitButton } from '@/components/ui/SubmitButton';
 import { sendMagicLink, type LoginState } from './actions';
 
 const INITIAL: LoginState = { status: 'idle', message: '' };
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="w-full h-12 rounded-lg bg-secondary-container text-on-primary font-title-md text-title-md flex items-center justify-center gap-sm hover:bg-secondary transition-colors disabled:opacity-60"
-    >
-      <Icon name={pending ? 'progress_activity' : 'mail'} />
-      {pending ? 'Sending…' : 'Email me a link'}
-    </button>
-  );
-}
 
 export function LoginForm({ next }: { next: string }) {
   const [state, formAction] = useFormState(sendMagicLink, INITIAL);
@@ -55,7 +42,9 @@ export function LoginForm({ next }: { next: string }) {
         </p>
       )}
 
-      <SubmitButton />
+      <SubmitButton variant="secondary" size="lg" fullWidth icon="mail" pendingLabel="Sending…">
+        Email me a link
+      </SubmitButton>
     </form>
   );
 }

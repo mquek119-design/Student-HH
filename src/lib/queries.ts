@@ -14,7 +14,7 @@ import { cache } from 'react';
  */
 
 import { basketLineTotal, basketTotal, perPersonTotals } from './calc';
-import { detectConflicts } from './conflicts';
+import { findOverlapGaps } from './overlaps';
 import {
   toBasketItem,
   toHouse,
@@ -27,19 +27,28 @@ import {
   toUser,
 } from './mappers';
 import { allocateLine, formatPence, splitPence } from './money';
+import { isStapleDue } from './staples';
+import { currentWeekStart } from './weeks';
 import { createClient } from './supabase/server';
+import { resolveViewAs } from './viewAs';
 import type {
   BasketItem,
+  Expense,
   House,
+  HouseStaple,
   IngredientCategory,
+  Leftover,
   LedgerEntry,
   PantryItem,
   Pence,
+  PlanStatus,
+  PlannedMeal,
   Recipe,
   ReconciliationItem,
   Savings,
   Split,
   SplitLine,
+  SplitStatus,
   Substitution,
   User,
   WeeklyPlan,
@@ -80,6 +89,23 @@ const ACCENTS = ['green', 'orange', 'blue', 'purple'] as const;
  * Bootstrapping here keeps sign-in working either way — and the RLS insert
  * policy (`id = auth.uid()`) means a user can only ever create their own.
  */
+/**
+ * The signed-in account, never impersonated.
+ *
+ * Only the "viewing as" banner needs this — everything else in the app should
+ * go through `getCurrentUser()` so the whole screen agrees on who it is for.
+ */
+export const getRealUser = cache(async (): Promise<User | null> => {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const existing = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
+  return existing.data ? toUser(existing.data) : null;
+});
+
 export const getCurrentUserOrNull = cache(async (): Promise<User | null> => {
   const supabase = createClient();
   const {
@@ -88,7 +114,12 @@ export const getCurrentUserOrNull = cache(async (): Promise<User | null> => {
   if (!user) return null;
 
   const existing = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
-  if (existing.data) return toUser(existing.data);
+  if (existing.data) {
+    const real = toUser(existing.data);
+    // Dev-only, demo-only, same-house-only. RLS still judges every write by the
+    // real `auth.uid()` — see viewAs.ts.
+    return (await resolveViewAs(real, supabase)) ?? real;
+  }
 
   const fallbackName =
     (user.user_metadata?.name as string | undefined)?.trim() ||
@@ -240,14 +271,6 @@ export async function getRecipe(id: string): Promise<Recipe | null> {
 // ---------------------------------------------------------------------------
 
 /** Monday of the current week, as an ISO date. */
-function currentWeekStart(): string {
-  const now = new Date();
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-  monday.setHours(0, 0, 0, 0);
-  return monday.toISOString().slice(0, 10);
-}
-
 /** Next occurrence of the house's cutoff day and time, as an ISO timestamp. */
 function nextCutoff(cutoffDay: string, cutoffTime: string): string {
   const dayIndex = WEEKDAYS.indexOf(cutoffDay as (typeof WEEKDAYS)[number]);
@@ -292,11 +315,21 @@ function emptyPlan(houseId: string, cutoffDay: string, cutoffTime: string): Week
     sharedSavings: 0,
     slot: null,
     meals: [],
-    conflicts: [],
+    overlaps: [],
   };
 }
 
-export const getWeeklyPlan = cache(async (): Promise<WeeklyPlan | null> => {
+/**
+ * One named week, by its Monday.
+ *
+ * This replaced "the most recent plan row", which was fine while a house could
+ * only hold one week and wrong the moment it could hold two: the second the
+ * next-week plan existed, the Basket, the Split and the Feed would all have
+ * silently followed it and started costing a shop nobody had ordered yet.
+ * Every caller now says which week it means.
+ */
+export const getWeeklyPlanFor = cache(
+  async (weekStartDate: string): Promise<WeeklyPlan | null> => {
   const house = await getHouseOrNull();
   if (!house) return null;
 
@@ -305,14 +338,18 @@ export const getWeeklyPlan = cache(async (): Promise<WeeklyPlan | null> => {
     .from('weekly_plans')
     .select('*')
     .eq('house_id', house.id)
-    .order('week_start_date', { ascending: false })
-    .limit(1)
+    .eq('week_start_date', weekStartDate)
     .maybeSingle();
 
-  if (planResult.error) throw new Error(`getWeeklyPlan: ${planResult.error.message}`);
+  if (planResult.error) throw new Error(`getWeeklyPlanFor: ${planResult.error.message}`);
 
   const planRow = planResult.data;
-  if (!planRow) return emptyPlan(house.id, house.cutoffDay, house.cutoffTime);
+  if (!planRow) {
+    return {
+      ...emptyPlan(house.id, house.cutoffDay, house.cutoffTime),
+      weekStartDate,
+    };
+  }
 
   const [mealsResult, housemates] = await Promise.all([
     supabase.from('planned_meals').select('*').eq('plan_id', planRow.id),
@@ -361,9 +398,71 @@ export const getWeeklyPlan = cache(async (): Promise<WeeklyPlan | null> => {
           }
         : null,
     meals,
-    conflicts: detectConflicts(meals, recipes, names),
+    overlaps: findOverlapGaps(meals, recipes, names),
   };
-});
+  }
+);
+
+/** The week the house is eating. What the Basket, Split and Feed all mean. */
+export const getWeeklyPlan = cache(
+  async (): Promise<WeeklyPlan | null> => getWeeklyPlanFor(currentWeekStart())
+);
+
+/**
+ * One meal, with the state of the plan it belongs to.
+ *
+ * Every meal-scoped action used to validate against `getWeeklyPlan()`, which
+ * silently meant "this week" — so the moment a next-week plan existed, joining
+ * or leaving anything in it would have been rejected as "not in this week".
+ * Scoped to the caller's house, so a meal id from elsewhere resolves to null.
+ */
+export const getMealContext = cache(
+  async (
+    mealId: string
+  ): Promise<{
+    meal: PlannedMeal;
+    planId: string;
+    planStatus: PlanStatus;
+    /** The plan's own Monday, so callers can date the meal's day without
+     *  assuming which week it belongs to. */
+    weekStartDate: string;
+  } | null> => {
+    const house = await getHouseOrNull();
+    if (!house) return null;
+
+    const supabase = createClient();
+    const mealRow = await supabase
+      .from('planned_meals')
+      .select('*')
+      .eq('id', mealId)
+      .maybeSingle();
+
+    if (mealRow.error || !mealRow.data) return null;
+
+    const planRow = await supabase
+      .from('weekly_plans')
+      .select('id, status, house_id, week_start_date')
+      .eq('id', mealRow.data.plan_id)
+      .maybeSingle();
+
+    if (planRow.error || !planRow.data) return null;
+    if (planRow.data.house_id !== house.id) return null;
+
+    const participants = unwrap(
+      await supabase.from('meal_participants').select('*').eq('planned_meal_id', mealId),
+      'meal_participants'
+    );
+
+    const recipes = await loadRecipes([mealRow.data.recipe_id]);
+
+    return {
+      meal: toPlannedMeal(mealRow.data, recipes[0]?.title ?? 'Unknown recipe', participants),
+      planId: planRow.data.id,
+      planStatus: planRow.data.status,
+      weekStartDate: planRow.data.week_start_date,
+    };
+  }
+);
 
 // ---------------------------------------------------------------------------
 // Basket
@@ -405,7 +504,12 @@ export const getBasketItems = cache(async (): Promise<BasketItem[]> => {
     toBasketItem(
       row,
       allocationRows.filter((allocation) => allocation.basket_item_id === row.id),
-      row.ingredient_id !== null && unpriced.has(row.ingredient_id)
+      // `unit_price === 0` is the real test. Nothing in a supermarket is free,
+      // so a zero here means the line could not be priced — and that used to
+      // slip through whenever the *ingredient* had a price but the line could
+      // not use it (a counted recipe against a weighed pack). Twelve items
+      // rendered as £0.00 and were silently missing from the total.
+      row.unit_price === 0 || (row.ingredient_id !== null && unpriced.has(row.ingredient_id))
     )
   );
 });
@@ -428,6 +532,50 @@ const CATEGORY_LINES: { category: IngredientCategory; label: string; icon: strin
  *
  * Returns null when there is no basket to split.
  */
+/**
+ * How one basket line arrived at your share of it, in words you can check.
+ *
+ * Three cases, and they must stay distinguishable — this used to print
+ * "(yours)" for every allocated line, so a fifth of a chicken pack and a whole
+ * pack of stir fry strips you alone were paying for looked identical. There was
+ * no way to tell £6.40 meant "all of it" from "your bit of something bigger",
+ * which is the one thing the workings exist to say.
+ *
+ * Allocations are relative weights rather than fractions, so your portion is
+ * your weight over the total weight. The percentage is descriptive: the pence
+ * beside it come from `splitPence`, which is exact, so a third rendering as
+ * 33.3% three times is a rounded label on arithmetic that still adds up.
+ */
+function shareWorking(
+  item: BasketItem,
+  lineTotal: Pence,
+  userId: string,
+  houseSize: number
+): string {
+  // Nobody in particular: the whole house carries it equally.
+  if (item.allocatedTo.length === 0) {
+    return `${formatPence(lineTotal)} ÷ ${houseSize}`;
+  }
+
+  // Summed rather than found: `allocateLine` adds up repeated userIds, so a
+  // housemate allocated twice on one line has both weights counted there and
+  // must have both counted here, or the label undersells the figure beside it.
+  const totalWeight = item.allocatedTo.reduce((sum, allocation) => sum + allocation.share, 0);
+  const myWeight = item.allocatedTo.reduce(
+    (sum, allocation) => (allocation.userId === userId ? sum + allocation.share : sum),
+    0
+  );
+
+  if (totalWeight <= 0 || myWeight >= totalWeight) {
+    return `${formatPence(lineTotal)} — all yours`;
+  }
+
+  const percent = (myWeight / totalWeight) * 100;
+  // One decimal, and only when it earns its place.
+  const rendered = Number.isInteger(percent) ? percent.toString() : percent.toFixed(1);
+  return `${formatPence(lineTotal)} × ${rendered}%`;
+}
+
 export const getCurrentSplit = cache(async (): Promise<Split | null> => {
   const [plan, items, housemates, me, collector] = await Promise.all([
     getWeeklyPlan(),
@@ -440,6 +588,8 @@ export const getCurrentSplit = cache(async (): Promise<Split | null> => {
   if (!plan || !plan.id || items.length === 0 || !collector || collector.id === me.id) {
     return null;
   }
+
+  const supabase = createClient();
 
   const allUserIds = housemates.map((user) => user.id);
   const totals = perPersonTotals(items, allUserIds);
@@ -456,15 +606,13 @@ export const getCurrentSplit = cache(async (): Promise<Split | null> => {
     const workings: { label: string; value: string }[] = [];
 
     for (const item of categoryItems) {
-      const share = allocateLine(basketLineTotal(item), item.allocatedTo, allUserIds)[me.id] ?? 0;
+      const lineTotal = basketLineTotal(item);
+      const share = allocateLine(lineTotal, item.allocatedTo, allUserIds)[me.id] ?? 0;
       if (share === 0) continue;
       lineAmount += share;
 
-      const isShared = item.allocatedTo.length === 0;
       workings.push({
-        label: isShared
-          ? `${item.name} (${formatPence(basketLineTotal(item))} ÷ ${allUserIds.length})`
-          : `${item.name} (yours)`,
+        label: `${item.name} (${shareWorking(item, lineTotal, me.id, allUserIds.length)})`,
         value: formatPence(share),
       });
     }
@@ -473,7 +621,9 @@ export const getCurrentSplit = cache(async (): Promise<Split | null> => {
 
     lines.push({
       label,
-      detail: `${workings.length} item${workings.length === 1 ? '' : 's'}`,
+      // "of your items", because this counts the lines you have a share in and
+      // not the lines in the category — the bare number read as the latter.
+      detail: `${workings.length} of your item${workings.length === 1 ? '' : 's'}`,
       amount: lineAmount,
       icon,
       workings,
@@ -515,16 +665,60 @@ export const getCurrentSplit = cache(async (): Promise<Split | null> => {
     }
   }
 
+  // Prefer the posted row. Its id is what "I've Paid" updates and its status is
+  // the shared truth; without one this is a live preview of what will be owed,
+  // which is exactly what the week looks like before the order goes in.
+  const postedRow = await supabase
+    .from('splits')
+    .select('*')
+    .eq('plan_id', plan.id)
+    .eq('from_user_id', me.id)
+    .maybeSingle();
+
+  const posted = postedRow.error ? null : postedRow.data;
+
   return {
-    id: `${plan.id}:${me.id}`,
+    id: posted?.id ?? `${plan.id}:${me.id}`,
     planId: plan.id,
     fromUserId: me.id,
     toUserId: collector.id,
-    amount: myTotal + slotShare,
-    status: 'pending',
+    // The posted amount is the agreed one. A live recomputation drifting away
+    // from what everybody saw when they paid is how a split loses trust.
+    amount: posted?.amount ?? myTotal + slotShare,
+    status: posted?.status ?? 'pending',
+    isPosted: posted !== null,
     lines,
   };
 });
+
+/**
+ * This week's posted debts, for the collector's view.
+ *
+ * Empty until someone posts the split — which is the honest answer, since
+ * before that nobody owes anything, they merely will.
+ */
+export const getPostedSplits = cache(
+  async (): Promise<{ user: User; amount: Pence; status: SplitStatus; splitId: string }[]> => {
+    const [plan, housemates] = await Promise.all([getWeeklyPlan(), getHousemates()]);
+    if (!plan?.id) return [];
+
+    const supabase = createClient();
+    const rows = await supabase.from('splits').select('*').eq('plan_id', plan.id);
+    if (rows.error) return [];
+
+    const byId = new Map(housemates.map((user) => [user.id, user]));
+
+    return (rows.data ?? [])
+      .map((row) => {
+        const user = byId.get(row.from_user_id);
+        return user
+          ? { user, amount: row.amount, status: row.status, splitId: row.id }
+          : null;
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+      .sort((a, b) => a.user.name.localeCompare(b.user.name));
+  }
+);
 
 export const getLedger = cache(async (): Promise<LedgerEntry[]> => {
   const house = await getHouseOrNull();
@@ -547,7 +741,83 @@ export const getLedger = cache(async (): Promise<LedgerEntry[]> => {
     'getLedger'
   );
 
-  return splitRows.map((row) => toLedgerEntry(row, weekByPlan.get(row.plan_id) ?? 0));
+  const fromSplits = splitRows.map((row) =>
+    toLedgerEntry(row, weekByPlan.get(row.plan_id) ?? 0)
+  );
+
+  // One-off purchases join the same ledger, one entry per person who owes a
+  // share. The payer's own share is not a debt to themselves and is skipped —
+  // including it would inflate every balance by the payer's own spending.
+  const expenses = await getExpenses();
+  const fromExpenses: LedgerEntry[] = expenses.flatMap((expense) =>
+    expense.shares
+      .filter((share) => share.userId !== expense.paidByUserId && share.amount > 0)
+      .map((share) => ({
+        id: `${expense.id}:${share.userId}`,
+        houseId: expense.houseId,
+        // Not part of a weekly plan, so it has no week number. 0 sorts it
+        // outside the weekly grouping rather than pretending it belongs to one.
+        weekNumber: 0,
+        date: expense.spentOn,
+        fromUserId: share.userId,
+        toUserId: expense.paidByUserId,
+        amount: share.amount,
+        status: share.settled ? ('confirmed' as const) : ('pending' as const),
+        note: expense.description,
+        source: 'expense' as const,
+      }))
+  );
+
+  return [...fromSplits, ...fromExpenses].sort((a, b) => b.date.localeCompare(a.date));
+});
+
+/**
+ * One-off purchases made outside the weekly shop.
+ *
+ * Empty rather than throwing when 0014 has not been applied — the Split tab
+ * loses a panel instead of the whole page.
+ */
+export const getExpenses = cache(async (): Promise<Expense[]> => {
+  const me = await getCurrentUserOrNull();
+  if (!me?.houseId) return [];
+
+  const supabase = createClient();
+  const expenses = await supabase
+    .from('expenses')
+    .select('*')
+    .eq('house_id', me.houseId)
+    .order('spent_on', { ascending: false });
+
+  if (expenses.error) {
+    if (expenses.error.code === 'PGRST205' || expenses.error.code === '42P01') return [];
+    throw new Error(`getExpenses: ${expenses.error.message}`);
+  }
+  if ((expenses.data ?? []).length === 0) return [];
+
+  const shares = unwrap(
+    await supabase
+      .from('expense_shares')
+      .select('*')
+      .in('expense_id', expenses.data.map((row) => row.id)),
+    'expense_shares'
+  );
+
+  return expenses.data.map((row) => ({
+    id: row.id,
+    houseId: row.house_id,
+    paidByUserId: row.paid_by_user_id,
+    description: row.description,
+    amount: row.amount,
+    spentOn: row.spent_on,
+    note: row.note,
+    shares: shares
+      .filter((share) => share.expense_id === row.id)
+      .map((share) => ({
+        userId: share.user_id,
+        amount: share.amount,
+        settled: share.settled,
+      })),
+  }));
 });
 
 export const getPaymentStatus = cache(async (): Promise<{ user: User; paid: boolean }[]> => {
@@ -588,6 +858,91 @@ export const getPantryItems = cache(async (): Promise<PantryItem[]> => {
       return ingredient ? toPantryItem(row, ingredient) : null;
     })
     .filter((value): value is PantryItem => value !== null);
+});
+
+/**
+ * The house's standing list of non-food essentials.
+ *
+ * Returns them all, each flagged with whether it is due, so the settings page
+ * and the basket build agree by construction rather than by both remembering
+ * to apply the same rule.
+ *
+ * Empty (rather than throwing) when 0013 has not been applied — the feature
+ * simply does not appear yet, which beats a crash on the settings page.
+ */
+export const getHouseStaples = cache(async (): Promise<HouseStaple[]> => {
+  const me = await getCurrentUserOrNull();
+  if (!me?.houseId) return [];
+
+  const supabase = createClient();
+  const [result, ingredientRows] = await Promise.all([
+    supabase.from('house_staples').select('*').eq('house_id', me.houseId),
+    getIngredientRows(),
+  ]);
+
+  if (result.error) {
+    if (result.error.code === 'PGRST205' || result.error.code === '42P01') return [];
+    throw new Error(`getHouseStaples: ${result.error.message}`);
+  }
+
+  const ingredientById = new Map(ingredientRows.map((row) => [row.id, row]));
+
+  return (result.data ?? [])
+    .map((row) => {
+      const ingredient = ingredientById.get(row.ingredient_id);
+      if (!ingredient) return null;
+      return {
+        id: row.id,
+        ingredientId: row.ingredient_id,
+        name: ingredient.name,
+        frequency: row.frequency,
+        lastAddedOn: row.last_added_on,
+        due: isStapleDue(row.frequency, row.last_added_on),
+      };
+    })
+    .filter((value): value is HouseStaple => value !== null)
+    .sort((a, b) => a.name.localeCompare(b.name));
+});
+
+/**
+ * The leftovers board.
+ *
+ * Carries no cost and never touches the split — the food was paid for by
+ * whoever cooked it and offering it round is a gift. Past-date entries are
+ * still returned, flagged with a negative `daysLeft`, because a fish pie from
+ * Tuesday quietly disappearing is how a board like this loses its credibility.
+ */
+export const getLeftovers = cache(async (): Promise<Leftover[]> => {
+  const me = await getCurrentUserOrNull();
+  if (!me?.houseId) return [];
+
+  const supabase = createClient();
+  const result = await supabase
+    .from('leftovers')
+    .select('*')
+    .eq('house_id', me.houseId)
+    .order('eat_by');
+
+  if (result.error) {
+    if (result.error.code === 'PGRST205' || result.error.code === '42P01') return [];
+    throw new Error(`getLeftovers: ${result.error.message}`);
+  }
+
+  const today = new Date();
+  const midnight = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+
+  return (result.data ?? []).map((row) => ({
+    id: row.id,
+    houseId: row.house_id,
+    createdBy: row.created_by,
+    description: row.description,
+    portions: row.portions,
+    madeOn: row.made_on,
+    eatBy: row.eat_by,
+    daysLeft: Math.round(
+      (new Date(`${row.eat_by}T00:00:00Z`).getTime() - midnight) / 86_400_000
+    ),
+  }));
 });
 
 // ---------------------------------------------------------------------------

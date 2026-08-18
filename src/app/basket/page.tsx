@@ -3,9 +3,14 @@ import { BasketView } from '@/components/basket/BasketView';
 import { BuildBasketPanel } from '@/components/basket/BuildBasketPanel';
 import { SlotPicker } from '@/components/basket/SlotPicker';
 import { PackDataForm } from '@/components/basket/PackDataForm';
+import { Notice } from '@/components/ui/Notice';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageShell } from '@/components/ui/PageShell';
+import { MinimumOrderBar } from '@/components/basket/MinimumOrderBar';
+import { AddItemPanel } from '@/components/basket/AddItemPanel';
+import { ORDER_MINIMUMS } from '@/lib/orderMinimums';
+import { basketTotal } from '@/lib/calc';
 import {
   getBasketItems,
   getHouse,
@@ -15,7 +20,7 @@ import {
   getWeeklyPlan,
 } from '@/lib/queries';
 
-export const metadata = { title: 'Basket · HouseGrocer' };
+export const metadata = { title: 'Basket · Grub' };
 export const dynamic = 'force-dynamic';
 
 export default async function BasketPage() {
@@ -32,6 +37,11 @@ export default async function BasketPage() {
 
   const mealCount = plan?.meals.length ?? 0;
   const unpriced = items.filter((item) => item.needsPackData);
+
+  // Unpriced lines cannot count toward a spend threshold — including them would
+  // claim the minimum was met on the strength of items worth an unknown amount.
+  const pricedTotal = basketTotal(items.filter((item) => !item.needsPackData));
+  const method = plan?.slot?.method ?? house.fulfillmentMethod;
 
   return (
     // Extra bottom padding clears the fixed total/checkout bar.
@@ -50,6 +60,14 @@ export default async function BasketPage() {
         mealCount={mealCount}
         overlapSavings={plan?.sharedSavings ?? 0}
       />
+
+      {items.length > 0 && (
+        <MinimumOrderBar
+          total={pricedTotal}
+          minimum={ORDER_MINIMUMS[method]}
+          method={method}
+        />
+      )}
 
       {/* Deliberately not gated on the basket having items: Tesco lets you hold
           a slot before you have shopped, and slots for a busy weekend go early.
@@ -70,14 +88,15 @@ export default async function BasketPage() {
           for the leftovers — an ingredient with no sensible product match. */}
       {unpriced.length > 0 && (
         <section className="flex flex-col gap-sm">
-          <h2 className="font-title-md text-title-md">
-            {unpriced.length} item{unpriced.length === 1 ? '' : 's'} Tesco couldn&apos;t match
-          </h2>
-          <p className="font-body-sm text-body-sm text-on-surface-variant">
-            Everything else was priced automatically from Tesco. These had no clear product match,
-            so they need filling in once — try renaming the ingredient to something closer to a
-            product name and rebuilding first.
-          </p>
+          <Notice
+            tone="info"
+            icon="search_off"
+            title={`Tesco drew a blank on ${unpriced.length} thing${unpriced.length === 1 ? '' : 's'}`}
+          >
+            Everything else was priced automatically. These had no clear product match, so they
+            need filling in once — or rename the ingredient to something closer to a product name
+            and rebuild.
+          </Notice>
           {unpriced.map((item) =>
             item.ingredientId ? (
               <PackDataForm
@@ -93,16 +112,18 @@ export default async function BasketPage() {
 
       {items.length === 0 ? (
         <EmptyState
-          icon="shopping_basket"
+          icon="ti-shopping-cart"
           title="No basket yet"
           body={
             mealCount > 0
-              ? 'Build it from the plan above — ingredients get pooled across meals, so overlapping recipes are only bought once.'
+              ? "Your meals are planned but the basket hasn't been built yet. Let the optimiser do its thing."
               : 'Plan some meals first. The basket is derived from what the house is cooking.'
           }
           action={mealCount === 0 ? { href: '/plan', label: 'Plan meals' } : undefined}
         />
       ) : (
+        <>
+        <AddItemPanel />
         <BasketView
           items={items}
           housemates={housemates}
@@ -110,6 +131,7 @@ export default async function BasketPage() {
           collectorName={collector?.name ?? 'The collector'}
           planId={plan?.id}
         />
+        </>
       )}
     </PageShell>
   );

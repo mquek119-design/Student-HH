@@ -18,7 +18,7 @@ export function BottomNav({ basketHasUpdates = false }: BottomNavProps) {
   return (
     <nav
       aria-label="Primary"
-      className="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-2 py-2 pb-safe bg-surface border-t border-surface-container-highest rounded-t-xl shadow-lg"
+      className="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-2 py-2 pb-safe bg-primary border-t border-primary/10 shadow-lg"
     >
       {TABS.map((tab) => {
         const isActive = active === tab.href;
@@ -28,17 +28,17 @@ export function BottomNav({ basketHasUpdates = false }: BottomNavProps) {
             href={tab.href}
             aria-current={isActive ? 'page' : undefined}
             className={clsx(
-              'relative flex flex-col items-center justify-center transition-transform duration-200 active:scale-90',
+              'relative flex flex-col items-center justify-center transition-transform duration-200 active:scale-90 p-2 rounded-lg',
               isActive
-                ? 'bg-primary-container text-on-primary-container rounded-full px-4 py-1'
-                : 'text-on-surface-variant hover:bg-surface-container-low p-2 rounded-lg'
+                ? 'text-secondary font-bold'
+                : 'text-[#A3C4A8] hover:text-white'
             )}
           >
-            <Icon name={tab.icon} filled={isActive} />
+            <Icon name={tab.icon} className="text-[20px]" />
             {tab.href === '/basket' && basketHasUpdates && !isActive && (
-              <span className="absolute top-1 right-2 w-2 h-2 bg-secondary-container rounded-full border border-surface" />
+              <span className="absolute top-2 right-4 w-2.5 h-2.5 bg-[#E07A5F] rounded-full border-2 border-primary" />
             )}
-            <span className={clsx('font-label-caps text-label-caps mt-1', isActive && 'font-bold')}>
+            <span className="font-label-caps text-[10px] tracking-wide mt-1">
               {tab.label}
             </span>
           </Link>

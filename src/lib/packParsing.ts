@@ -24,6 +24,17 @@ export interface ResolvedProduct {
   imageUrl: string | null;
 }
 
+/**
+ * Titles that match on keywords but are not food for people.
+ *
+ * "Beef strips" resolved to *Tesco Tasty Treats Meaty Strips – Rich in Beef*,
+ * a dog treat, because it hit both keywords and was cheap. Cheapest-first
+ * matching needs a floor somewhere, and "not pet food" is the least
+ * controversial one available.
+ */
+const NOT_FOR_PEOPLE =
+  /\b(dog|dogs|cat|cats|puppy|kitten|pet|pets|hamster|rabbit)\b|\bdental stick|\bchews\b/i;
+
 const STOPWORDS = new Set(['a', 'an', 'the', 'of', 'and', 'or', 'with', 'in', 'for', 'to', 'at', 'some', 'fresh']);
 
 function keywords(text: string): string[] {
@@ -32,6 +43,18 @@ function keywords(text: string): string[] {
     .split(/[\s,\-]+/)
     .map((word) => word.replace(/[^a-z]/g, ''))
     .filter((word) => word.length >= 3 && !STOPWORDS.has(word));
+}
+
+/**
+ * Crude stem so plurals match singular product names.
+ *
+ * "Beef patties" never matched "Beef Patty", and "burger buns" missed "Burger
+ * Bun", so both scored on one keyword and lost to whatever was cheapest. Four
+ * characters is enough to keep "beef" and "bean" apart while letting
+ * patties/patty and onions/onion meet.
+ */
+function stem(word: string): string {
+  return word.length > 4 ? word.slice(0, 4) : word;
 }
 
 /** "4 X 400G" → 1600 g. Multipacks first, since they contain a plain size too. */
@@ -107,12 +130,32 @@ export function pickBestProduct(
     .map((product) => {
       const title = product.title ?? '';
       const price = priceInPence(product);
-      const pack = parsePackFromTitle(title);
-      if (!product.id || !title || price === null || pack === null) return null;
+      if (!product.id || !title || price === null) return null;
+      if (NOT_FOR_PEOPLE.test(title)) return null;
+
+      // A title with no readable size is not a dead end. Loose produce — "Tesco
+      // Onions Loose", "Tesco Ripe & Ready Avocado" — is sold by the item, and
+      // one purchase is one of the thing. Treating that as `1 whole` is what
+      // lets a recipe asking for "1 onion" be priced at all; before this those
+      // ingredients silently fell out of the basket with no price.
+      const parsed = parsePackFromTitle(title);
+      const pack = parsed ?? { size: 1, unit: 'whole' };
 
       const lower = title.toLowerCase();
-      const hits = words.filter((word) => lower.includes(word)).length;
-      return { product, title, price, pack, hits };
+      const hits = words.filter((word) => lower.includes(stem(word))).length;
+
+      // Word order carries real meaning. "Beef strips" should find *Beef Stir
+      // Fry Strips*, not *Tasty Treats Meaty Strips - Rich In Beef*, which hits
+      // the same two keywords backwards and was winning on price alone.
+      let cursor = -1;
+      const inOrder = words.every((word) => {
+        const at = lower.indexOf(stem(word), cursor + 1);
+        if (at === -1) return false;
+        cursor = at;
+        return true;
+      });
+
+      return { product, title, price, pack, hits, inOrder, parsed: parsed !== null };
     })
     .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
 
@@ -120,7 +163,16 @@ export function pickBestProduct(
 
   const bestHits = Math.max(...scored.map((entry) => entry.hits));
   // Only fall back to ignoring relevance when nothing matched at all.
-  const relevant = bestHits > 0 ? scored.filter((entry) => entry.hits === bestHits) : scored;
+  const byRelevance = bestHits > 0 ? scored.filter((entry) => entry.hits === bestHits) : scored;
+
+  // Among equally relevant products, prefer one that reads the ingredient's
+  // words in the ingredient's order, then one whose pack we could actually
+  // read — a stated size beats an assumed single item every time.
+  const ordered = byRelevance.filter((entry) => entry.inOrder);
+  const byOrder = ordered.length > 0 ? ordered : byRelevance;
+
+  const withPack = byOrder.filter((entry) => entry.parsed);
+  const relevant = withPack.length > 0 ? withPack : byOrder;
 
   relevant.sort((a, b) => a.price - b.price);
   const winner = relevant[0];

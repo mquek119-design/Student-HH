@@ -7,6 +7,7 @@ import { Icon } from '@/components/media/Icon';
 import { clsx } from '@/lib/clsx';
 import type { User } from '@/lib/types';
 import { TABS, activeTabHref } from './tabs';
+import { Logo } from '@/components/brand/Logo';
 
 interface TopAppBarProps {
   currentUser: Pick<User, 'name' | 'accent' | 'avatarUrl'>;
@@ -17,12 +18,9 @@ export function TopAppBar({ currentUser }: TopAppBarProps) {
   const active = activeTabHref(pathname);
 
   return (
-    <header className="flex justify-between items-center gap-sm px-margin-mobile md:px-margin-desktop py-sm w-full fixed top-0 z-50 bg-surface shadow-sm h-[72px]">
-      <Link href="/account" className="flex items-center gap-sm min-w-0 group">
-        <Avatar user={currentUser} size="md" className="group-hover:opacity-80 transition-opacity" />
-        <span className="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight truncate">
-          HouseGrocer
-        </span>
+    <header className="flex justify-between items-center gap-sm px-margin-mobile md:px-margin-desktop py-sm w-full fixed top-0 z-50 bg-primary border-b border-primary/10 shadow-md h-[72px]">
+      <Link href="/" className="flex items-center gap-sm group">
+        <Logo tone="onDark" markClassName="h-8 w-auto" wordmarkClassName="text-[22px]" />
       </Link>
 
       {/* Desktop mirrors the same four tabs — no bottom bar above md. */}
@@ -35,24 +33,42 @@ export function TopAppBar({ currentUser }: TopAppBarProps) {
               href={tab.href}
               aria-current={isActive ? 'page' : undefined}
               className={clsx(
-                'flex items-center gap-2 transition-opacity hover:opacity-80',
-                isActive ? 'text-primary font-bold' : 'text-on-surface-variant'
+                'flex items-center gap-2 transition-colors duration-200',
+                isActive ? 'text-secondary font-bold' : 'text-[#A3C4A8] hover:text-white'
               )}
             >
-              <Icon name={tab.icon} filled={isActive} className="text-[20px]" />
+              <Icon name={tab.icon} className="text-[20px]" />
               <span className="font-title-md text-title-md">{tab.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="flex items-center shrink-0">
+      <div className="flex items-center gap-sm shrink-0">
+        <Link
+          href="/dev"
+          aria-label="Testing and development"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-[#A3C4A8] hover:text-secondary hover:bg-white/5 transition-colors active:scale-95"
+        >
+          <Icon name="science" />
+        </Link>
         <Link
           href="/settings"
           aria-label="House settings"
-          className="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-95"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-[#A3C4A8] hover:text-secondary hover:bg-white/5 transition-colors active:scale-95"
         >
           <Icon name="settings" />
+        </Link>
+        <Link
+          href="/account"
+          aria-label="My account"
+          className="flex items-center justify-center rounded-full hover:opacity-90 transition-opacity"
+        >
+          <Avatar
+            user={currentUser}
+            size="sm"
+            ring={pathname.startsWith('/account') ? 'secondary' : 'none'}
+          />
         </Link>
       </div>
     </header>

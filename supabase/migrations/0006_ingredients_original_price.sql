@@ -1,2 +1,2 @@
--- Add original_price column to cache branded alternatives for ingredients
-ALTER TABLE ingredients ADD COLUMN original_price integer;
+-- Pre-swap price, so an own-brand saving can be evidenced rather than claimed.
+alter table ingredients add column if not exists original_price integer;

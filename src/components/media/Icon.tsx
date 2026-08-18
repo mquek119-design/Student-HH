@@ -8,6 +8,9 @@ interface IconProps {
 }
 
 export function Icon({ name, filled = false, className }: IconProps) {
+  if (name.startsWith('ti-')) {
+    return <i aria-hidden="true" className={clsx('ti', name, className)} />;
+  }
   return (
     <span
       aria-hidden="true"

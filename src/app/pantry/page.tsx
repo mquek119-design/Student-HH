@@ -3,11 +3,13 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageShell } from '@/components/ui/PageShell';
-import { getCurrentUser, getPantryItems } from '@/lib/queries';
+import { getCurrentUser, getHousemates, getLeftovers, getPantryItems } from '@/lib/queries';
 import type { IngredientCategory, PantryItem } from '@/lib/types';
 import { PantryItemRow } from '@/components/pantry/PantryItemRow';
+import { AddPantryItem } from '@/components/pantry/AddPantryItem';
+import { LeftoversBoard } from '@/components/pantry/LeftoversBoard';
 
-export const metadata = { title: 'Pantry · HouseGrocer' };
+export const metadata = { title: 'Pantry · Grub' };
 
 // Reads the signed-in user's house — nothing to prerender at build time.
 export const dynamic = 'force-dynamic';
@@ -58,7 +60,12 @@ function PantrySection({ title, items }: { title: string; items: PantryItem[] })
 }
 
 export default async function PantryPage() {
-  const [items, currentUser] = await Promise.all([getPantryItems(), getCurrentUser()]);
+  const [items, currentUser, leftovers, housemates] = await Promise.all([
+    getPantryItems(),
+    getCurrentUser(),
+    getLeftovers(),
+    getHousemates(),
+  ]);
 
   const shared = items.filter((item) => item.isShared);
   const personal = items.filter((item) => !item.isShared && item.ownerUserId === currentUser.id);
@@ -72,10 +79,11 @@ export default async function PantryPage() {
           subtitle="What you already have, so the shop doesn't buy it twice."
         />
         <EmptyState
-          icon="kitchen"
-          title="Pantry is empty"
-          body="Nothing is recorded as being in the house yet. Once items are tracked here, recipes show what you already have and the basket skips it."
+          icon="ti-package"
+          title="Your cupboard is giving nothing"
+          body="Probably accurate."
         />
+        <LeftoversBoard leftovers={leftovers} housemates={housemates} />
       </PageShell>
     );
   }
@@ -96,6 +104,10 @@ export default async function PantryPage() {
           </p>
         </Card>
       )}
+
+      <AddPantryItem />
+
+      <LeftoversBoard leftovers={leftovers} housemates={housemates} />
 
       <PantrySection title="Shared" items={shared} />
       <PantrySection title="Personal" items={personal} />

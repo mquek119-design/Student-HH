@@ -20,6 +20,8 @@ of thing that gets lost and then quietly breaks a shop.
 | `providers/tesco/auth.ts` | session handling tweaks | Made by a previous agent; not audited here. |
 | `browser/tesco-checkout.ts` | `handleTescoFulfillment()` + fulfilment-aware dry run | Select delivery vs collection and a store/postcode before previewing. |
 | `browser/tesco-slots.ts` | minor | Made by a previous agent; not audited here. |
+| `providers/tesco/api.ts` | `bookSlot` selection set corrected to `{ slot { … } }` | Asked for `orderId`/`status`/`error`, none of which exist on `SlotWrapperType`; every booking failed validation. |
+| `browser/{slots,tesco-slots}.ts` | query `[id="${slotId}"]` instead of `#${slotId}` | Avoids Playwright CSS selector syntax crash when slotId contains base64/URL special chars like `=` or `:`. |
 
 ## Known weakness in `browser/tesco-checkout.ts`
 
@@ -71,3 +73,17 @@ so callers store the unambiguous value.
 
 Live check after the fix: 166/166 delivery and 52/52 collection slots fall at
 plausible UK hours; before, many read as 00:00–04:00.
+
+### Booking a slot
+
+`fulfilment(slotId:)` returns `SlotWrapperType`, whose only field is
+`slot: SlotType`. `SlotType` exposes `id`, `start`, `end`, `status`, `charge`,
+`group`, `locationUuid`, `expiry` and `price { … }`. There is **no** `orderId`,
+`status` or `error` on the wrapper — the original selection set was invalid, so
+booking failed schema validation on every attempt and fell through to a browser
+fallback that could not work either.
+
+Field names were confirmed without booking anything: send a selection set
+containing one deliberately invalid field, and GraphQL fails validation *before*
+execution while naming exactly which fields are wrong. Anything absent from that
+list is real.

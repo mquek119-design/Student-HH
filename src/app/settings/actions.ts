@@ -105,3 +105,62 @@ export async function updateSlotPreference(formData: FormData) {
         : 'Preference cleared. The slot picker will open empty.',
   };
 }
+
+/**
+ * Saves the planning cutoff — the only part of the old "Delivery Routine" that
+ * is still meaningful.
+ *
+ * Delivery day and time used to live here too, duplicating the Preferred Slot
+ * panel and, worse, disagreeing with it: the real delivery time is whatever
+ * slot the collector books, not a value typed on a settings screen. Two places
+ * claiming to hold the same fact is how a house ends up trusting the wrong one.
+ */
+export async function updateCutoff(formData: FormData) {
+  const me = await getCurrentUser();
+  if (!me.houseId) return { status: 'error' as const, message: 'Join a house first.' };
+
+  const day = String(formData.get('cutoffDay') ?? '');
+  const time = String(formData.get('cutoffTime') ?? '');
+
+  if (!(WEEKDAYS as string[]).includes(day)) {
+    return { status: 'error' as const, message: 'Pick a valid day.' };
+  }
+  if (!/^\d{2}:\d{2}$/.test(time)) {
+    return { status: 'error' as const, message: 'Pick a valid time.' };
+  }
+
+  const supabase = createClient();
+  const result = await supabase
+    .from('houses')
+    .update({ cutoff_day: day as Weekday, cutoff_time: time })
+    .eq('id', me.houseId);
+
+  if (result.error) return { status: 'error' as const, message: result.error.message };
+
+  revalidatePath('/settings');
+  revalidatePath('/plan');
+  revalidatePath('/');
+  return { status: 'success' as const, message: 'Cutoff updated.' };
+}
+
+/** Hands the collector role to another housemate. */
+export async function updateCollector(formData: FormData) {
+  const me = await getCurrentUser();
+  if (!me.houseId) return { status: 'error' as const, message: 'Join a house first.' };
+
+  const collectorId = String(formData.get('collectorId') ?? '').trim();
+  if (!collectorId) return { status: 'error' as const, message: 'Pick a housemate.' };
+
+  const supabase = createClient();
+  const result = await supabase
+    .from('houses')
+    .update({ collector_user_id: collectorId })
+    .eq('id', me.houseId);
+
+  if (result.error) return { status: 'error' as const, message: result.error.message };
+
+  revalidatePath('/settings');
+  revalidatePath('/basket');
+  revalidatePath('/split');
+  return { status: 'success' as const, message: 'Collector updated.' };
+}

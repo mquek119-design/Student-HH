@@ -7,8 +7,8 @@ import type { User } from '@/lib/types';
  * a real upload exists.
  */
 const ACCENT_CLASSES: Record<User['accent'], string> = {
-  green: 'bg-primary-fixed text-on-primary-fixed',
-  orange: 'bg-secondary-fixed text-on-secondary-fixed',
+  green: 'bg-[#D8F3DC] text-[#1B4332]',
+  orange: 'bg-[#FDECD0] text-[#7C4A1E]',
   blue: 'bg-[#cfe4ff] text-[#001d36]',
   purple: 'bg-[#e6ddff] text-[#22005d]',
 };

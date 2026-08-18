@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Icon } from '@/components/media/Icon';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { updateSlotPreference } from '@/app/settings/actions';
 import { WEEKDAYS, WEEKDAY_LABELS, type House } from '@/lib/types';
@@ -105,14 +105,15 @@ export function SlotPreferencePanel({ house }: { house: House }) {
           </span>
         </fieldset>
 
-        <button
+        <Button
           type="submit"
-          disabled={pending}
-          className="self-start flex items-center gap-xs px-md py-2 rounded-full bg-primary text-on-primary text-[14px] font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+          icon="check"
+          pending={pending}
+          pendingLabel="Saving…"
+          className="self-start"
         >
-          <Icon name={pending ? 'progress_activity' : 'check'} className="text-[18px]" />
-          {pending ? 'Saving…' : 'Save preference'}
-        </button>
+          Save preference
+        </Button>
 
         {state && (
           <p

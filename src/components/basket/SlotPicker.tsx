@@ -61,8 +61,19 @@ export function SlotPicker({
   function pick(slot: SlotOption) {
     startTransition(async () => {
       const result = await chooseSlot(slot, method);
-      setState((current) => ({ ...result, slots: result.status === 'error' ? current.slots : undefined }));
-      if (result.status !== 'error') setLoadedFor(null);
+
+      if (result.status === 'error') {
+        // A refusal usually means the slot went while the list was on screen,
+        // so re-fetch rather than leaving stale options the collector will
+        // keep clicking. Show the reason above the refreshed list.
+        const refreshed = await listSlots(method);
+        setState({ ...result, slots: refreshed.slots ?? [] });
+        setLoadedFor(method);
+        return;
+      }
+
+      setState({ ...result, slots: undefined });
+      setLoadedFor(null);
     });
   }
 

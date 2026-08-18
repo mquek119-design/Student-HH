@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
+import { Notice } from '@/components/ui/Notice';
 import { Icon } from '@/components/media/Icon';
 import { checkTescoSession, importTescoSession } from '@/app/basket/tescoActions';
 
@@ -76,6 +77,22 @@ export function TescoSessionPanel() {
           {message}
         </div>
       )}
+
+      {/* Shown only on a narrow screen, and above the steps rather than below
+          them: step one links to the Chrome Web Store, and a phone user who
+          taps it discovers the constraint by failing at it. Not user-agent
+          sniffing — a viewport wide enough to hide this is a browser that can
+          run extensions. */}
+      <Notice
+        tone="check"
+        icon="desktop_windows"
+        title="This step needs a computer"
+        className="md:hidden"
+      >
+        Exporting a Tesco session means logging in and running the Cookie-Editor extension, which
+        mobile browsers cannot do. Open Grub on a laptop for the shop, then carry on from your
+        phone — everything else works fine there.
+      </Notice>
 
       <div className="bg-surface-container p-md rounded-lg flex flex-col gap-sm">
         <h4 className="font-body-md text-body-md font-semibold">Instructions for importing Tesco cookies:</h4>

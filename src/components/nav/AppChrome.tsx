@@ -2,9 +2,11 @@
 
 import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
+import { clsx } from '@/lib/clsx';
 import type { User } from '@/lib/types';
 import { BottomNav } from './BottomNav';
 import { TopAppBar } from './TopAppBar';
+import { ViewAsBanner } from './ViewAsBanner';
 import { RealtimeListener } from '../realtime/RealtimeListener';
 
 /** Routes that render bare — no tab bar, no app bar. */
@@ -19,9 +21,16 @@ const BARE_PREFIXES = ['/onboarding', '/login', '/auth', '/setup'];
  */
 export function AppChrome({
   currentUser,
+  viewingAsName,
   children,
 }: {
   currentUser: User | null;
+  /**
+   * Set when the app is rendering as a demo housemate rather than the signed-in
+   * account. Shown on every page — writes land as them, so forgetting is not a
+   * small mistake.
+   */
+  viewingAsName?: string | null;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -37,8 +46,11 @@ export function AppChrome({
     <>
       <RealtimeListener houseId={currentUser.houseId} />
       <TopAppBar currentUser={currentUser} />
-      {/* Top padding clears the fixed app bar; bottom clears the tab bar. */}
-      <div className="pt-[72px] pb-[96px] md:pb-xl">{children}</div>
+      {viewingAsName && <ViewAsBanner name={viewingAsName} />}
+      {/* Top padding clears the fixed app bar, plus the banner when it is up. */}
+      <div className={clsx('pb-[96px] md:pb-xl', viewingAsName ? 'pt-[108px]' : 'pt-[72px]')}>
+        {children}
+      </div>
       <BottomNav basketHasUpdates />
     </>
   );

@@ -43,8 +43,11 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
   const [quantities, setQuantities] = useState<Record<string, number>>(
     () => Object.fromEntries(items.map((item) => [item.id, item.quantity]))
   );
-  const [ownBrand, setOwnBrand] = useState(true);
+
   const [removed, setRemoved] = useState<Set<string>>(new Set());
+  // Categories start open: a basket you have to unfold before you can check it
+  // is a basket nobody checks. Collapsing is for after you have read a section.
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [actualTotalCost, setActualTotalCost] = useState<number | null>(null);
   const [selectedSwapItem, setSelectedSwapItem] = useState<{
     id: string;
@@ -77,10 +80,8 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
         .map((item) => ({
           ...item,
           quantity: quantities[item.id] ?? item.quantity,
-          // Toggling own-brand off reverts to the branded price where one exists.
-          unitPrice: ownBrand ? item.unitPrice : (item.originalUnitPrice ?? item.unitPrice),
         })),
-    [items, quantities, ownBrand, removed]
+    [items, quantities, removed]
   );
 
   // Unpriced lines contribute nothing to the total; the count is surfaced
@@ -229,45 +230,78 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
           </div>
         </div>
 
-        <div className="h-px bg-surface-container-highest w-full" />
-
-        <div className="flex items-center justify-between gap-md">
-          <div>
-            <h3 className="font-body-lg text-body-lg font-semibold">Swap to Own-Brand</h3>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">
-              {ownBrand
-                ? `Saving ${formatPence(availableSwapValue)} on this order`
-                : `Save approx ${formatPence(availableSwapValue)} instantly`}
+        {/* This used to be a "Swap to Own-Brand" switch. It was a lie: it
+            flipped displayed prices in React state and wrote nothing, so the
+            total moved while the basket, the split and what would actually be
+            sent to Tesco all stayed exactly the same. The cheapest matching
+            product is already chosen when the basket is built, so there was
+            never a choice here to offer — only a fact to state. Per-item "Swap
+            brand" is the real control and it does write. */}
+        {availableSwapValue > 0 && (
+          <>
+            <div className="h-px bg-surface-container-highest w-full" />
+            <p className="flex items-start gap-sm font-body-sm text-body-sm text-on-surface-variant">
+              <Icon name="savings" className="text-primary mt-0.5 shrink-0 text-[18px]" />
+              <span>
+                Own-brand picks have already taken{' '}
+                <strong className="font-numeric-data text-on-surface">
+                  {formatPence(availableSwapValue)}
+                </strong>{' '}
+                off this shop. Swap any line back yourself if the house wants the brand.
+              </span>
             </p>
-          </div>
-          <label className="relative inline-flex items-center cursor-pointer shrink-0">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={ownBrand}
-              onChange={(event) => setOwnBrand(event.target.checked)}
-            />
-            <span className="sr-only">Swap branded items to own-brand</span>
-            <div className="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:bg-secondary-container peer-focus-visible:ring-2 peer-focus-visible:ring-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white" />
-          </label>
-        </div>
+          </>
+        )}
       </Card>
 
 
 
       {grouped.map(({ category, items: categoryItems }) => {
         const meta = CATEGORY_META[category];
-        return (
-          <section key={category} className="flex flex-col gap-sm">
-            <h3 className="font-title-md text-title-md text-on-surface flex items-center gap-sm">
-              <Icon name={meta.icon} className={meta.tone} />
-              {meta.label}
-            </h3>
+        const isCollapsed = collapsed.has(category);
+        const sectionTotal = categoryItems
+          .filter((item) => !item.needsPackData)
+          .reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
 
-            <ul className="flex flex-col gap-sm">
+        return (
+          <section key={category} className="flex flex-col">
+            <button
+              type="button"
+              aria-expanded={!isCollapsed}
+              onClick={() =>
+                setCollapsed((current) => {
+                  const next = new Set(current);
+                  if (next.has(category)) next.delete(category);
+                  else next.add(category);
+                  return next;
+                })
+              }
+              className="w-full flex items-center gap-sm py-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+            >
+              <Icon name={meta.icon} className={meta.tone} />
+              <h3 className="font-title-md text-title-md text-on-surface">{meta.label}</h3>
+              <span className="font-numeric-data text-[12px] text-on-surface-variant">
+                {categoryItems.length}
+              </span>
+              <span className="flex-1" />
+              {/* The section total is why collapsing is worth having: folded up,
+                  a category still tells you what it costs. */}
+              <span className="font-numeric-data text-body-lg text-on-surface-variant">
+                {formatPence(sectionTotal)}
+              </span>
+              <Icon
+                name="expand_more"
+                className={clsx(
+                  'text-on-surface-variant transition-transform',
+                  isCollapsed && '-rotate-90'
+                )}
+              />
+            </button>
+
+            <ul className={clsx('flex flex-col gap-xs', isCollapsed && 'hidden')}>
               {categoryItems.map((item) => {
                 const original = item.originalUnitPrice;
-                const swapped = ownBrand && original !== null && original > item.unitPrice;
+                const swapped = original !== null && original > item.unitPrice;
                 const allocatedUsers = item.allocatedTo
                   .map((allocation) => byId.get(allocation.userId))
                   .filter((user): user is User => Boolean(user));
@@ -275,37 +309,59 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
                 return (
                   <li
                     key={item.id}
-                    className="bg-surface-container-lowest rounded-xl shadow-ambient-card border border-surface-container-highest p-sm flex items-center gap-md"
+                    className="bg-surface-container-lowest rounded-lg border border-surface-container-highest px-sm py-xs flex items-center gap-sm"
                   >
                     <FoodImage
                       src={item.imageUrl}
                       seed={item.tescoProductId}
                       alt={item.name}
                       icon="grocery"
-                      className="w-16 h-16 rounded-lg shrink-0 text-[28px] object-contain"
+                      className="w-12 h-12 rounded-lg shrink-0 text-[22px] object-contain"
                     />
 
                     <div className="flex-1 flex flex-col min-w-0">
-                      <span className="font-body-lg text-body-lg font-semibold truncate">
+                      <span className="font-body-lg text-body-lg font-semibold leading-tight truncate">
                         {item.name}
                       </span>
-                      <span className="font-body-sm text-body-sm text-on-surface-variant truncate">
-                        {item.subtitle}
-                      </span>
-                      <div className="flex items-center gap-xs mt-base flex-wrap">
+                      {/* An assumed quantity is stated, not hidden. The
+                          collector is the only person who can say whether one
+                          bunch of spring onions covers four. */}
+                      {item.quantityAssumed && (
+                        <span className="mt-xs flex items-center gap-xs w-fit px-2 py-0.5 rounded-full bg-secondary-fixed/50 border border-secondary-container/40">
+                          <Icon name="help" className="text-secondary text-[14px]" />
+                          <span className="font-label-caps text-label-caps uppercase text-secondary">
+                            1 pack assumed — check
+                          </span>
+                        </span>
+                      )}
+
+                      <div className="flex items-center gap-xs flex-wrap">
+                        <span className="font-body-sm text-[12px] text-on-surface-variant">
+                          {item.subtitle}
+                        </span>
+                        <span aria-hidden="true" className="text-on-surface-variant/40">
+                          ·
+                        </span>
                         {allocatedUsers.length === 0 ? (
                           <span className="bg-surface-container-highest text-on-surface-variant text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                             Shared
                           </span>
                         ) : (
-                          allocatedUsers.map((user) => (
-                            <span key={user.id} className="flex items-center gap-xs">
-                              <Avatar user={user} size="xs" />
-                              <span className="font-label-caps text-label-caps text-on-surface-variant">
-                                {user.name}
-                              </span>
-                            </span>
-                          ))
+                          // Names cost a line at five housemates; the faces do
+                          // the job and the title carries the names.
+                          <span
+                            className="flex items-center -space-x-1.5"
+                            title={allocatedUsers.map((user) => user.name).join(', ')}
+                          >
+                            {allocatedUsers.map((user) => (
+                              <Avatar
+                                key={user.id}
+                                user={user}
+                                size="xs"
+                                className="ring-2 ring-surface-container-lowest"
+                              />
+                            ))}
+                          </span>
                         )}
                         {isCollector && (
                           <button
@@ -384,15 +440,17 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
 
       {/* Persistent action bar — sits above the bottom nav on mobile. */}
       {sessionAuth && sessionDaysLeft !== null && sessionDaysLeft <= 2 && (
-        <p
+        <div
           role="status"
-          className="font-body-sm text-body-sm text-secondary flex items-center gap-xs"
+          className="flex items-start gap-sm p-md rounded-lg bg-secondary-fixed/40 border border-secondary-container/40"
         >
-          <Icon name="schedule" className="text-[18px]" />
-          {sessionDaysLeft <= 0
-            ? 'Your Tesco session expires today — re-import cookies before checking out.'
-            : `Your Tesco session expires in ${sessionDaysLeft} day${sessionDaysLeft === 1 ? '' : 's'}.`}
-        </p>
+          <Icon name="schedule" filled className="text-secondary mt-0.5 text-[18px]" />
+          <p className="font-body-sm text-body-sm text-on-surface-variant">
+            {sessionDaysLeft <= 0
+              ? 'Your Tesco session expires today — re-import cookies before checking out.'
+              : `Your Tesco session expires in ${sessionDaysLeft} day${sessionDaysLeft === 1 ? '' : 's'}.`}
+          </p>
+        </div>
       )}
 
       <div className="fixed bottom-[76px] md:bottom-0 left-0 w-full bg-surface-container-lowest border-t border-surface-container-highest p-md shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40">
@@ -414,7 +472,7 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
                 ? undefined
                 : `Only ${collectorName} can place this week's order from their Tesco account.`
             }
-            className="bg-secondary-container hover:bg-secondary text-on-primary font-title-md text-title-md px-lg py-sm rounded-xl transition-colors flex-1 md:flex-none text-center disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-secondary-container hover:bg-secondary text-on-secondary font-title-md text-title-md px-lg py-sm rounded-xl transition-colors flex-1 md:flex-none text-center disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSyncing
               ? 'Syncing to Tesco...'

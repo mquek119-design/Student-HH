@@ -1,13 +1,26 @@
 import Link from 'next/link';
 import { Avatar } from '@/components/avatars/Avatar';
 import { Icon } from '@/components/media/Icon';
-import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { PageShell } from '@/components/ui/PageShell';
+import { Notice } from '@/components/ui/Notice';
 import { formatPence } from '@/lib/money';
-import { getCurrentUser, getHouse, getLedger, getSavings, getWeeklyPlan } from '@/lib/queries';
+import {
+  getCurrentUser,
+  getHouse,
+  getLedger,
+  getRealUser,
+  getSavings,
+  getWeeklyPlan,
+} from '@/lib/queries';
+import {
+  DeleteAccountPanel,
+  DietaryPanel,
+  LeaveHousePanel,
+  PaymentDetailsPanel,
+} from '@/components/account/AccountPanels';
 
-export const metadata = { title: 'My Account · HouseGrocer' };
+export const metadata = { title: 'My Account · Grub' };
 
 // Reads the signed-in user's house — nothing to prerender at build time.
 export const dynamic = 'force-dynamic';
@@ -25,8 +38,26 @@ export default async function AccountPage() {
   const mealsPlanned =
     plan?.meals.filter((meal) => meal.participants.some((p) => p.userId === user.id)).length ?? 0;
 
+  // Impersonation swaps who the app renders for while `auth.uid()` stays you,
+  // so profile edits go through `demo_update_*` (migration 0020) and save
+  // properly against the demo housemate. Leaving and deleting deliberately do
+  // not: those end an account, and a seeded housemate is not yours to end.
+  const realUser = await getRealUser();
+  const viewingAs = realUser && realUser.id !== user.id ? user.name : null;
+
   return (
     <PageShell>
+      {viewingAs && (
+        <Notice tone="info" icon="visibility" title={`This is ${viewingAs}'s account`}>
+          Payment details and dietary profile save against them, which is what makes paying them
+          testable. Leaving and deleting are hidden — those end an account. Switch back on{' '}
+          <Link href="/dev" className="underline font-semibold">
+            Testing &amp; Development
+          </Link>
+          .
+        </Notice>
+      )}
+
       <section className="flex flex-col items-center text-center gap-sm py-lg">
         <Avatar user={user} size="xl" />
         <h1 className="font-headline-lg-mobile text-headline-lg-mobile">{user.name}</h1>
@@ -56,47 +87,17 @@ export default async function AccountPage() {
 
       <section className="flex flex-col gap-sm">
         <h2 className="font-title-md text-title-md">Personal Settings</h2>
+        <PaymentDetailsPanel user={user} />
+        <DietaryPanel user={user} />
         <Card padded={false} className="overflow-hidden">
-          <ul className="divide-y divide-surface-container-highest">
-            <li className="p-md flex items-start gap-md">
-              <Icon name="payments" className="text-on-surface-variant mt-0.5" />
-              <div className="flex-grow min-w-0">
-                <p className="font-body-lg text-body-lg">Payment details</p>
-                <p className="font-body-sm text-body-sm text-on-surface-variant truncate">
-                  {user.paymentDetailsText ?? 'Not set — housemates cannot pay you'}
-                </p>
-              </div>
-            </li>
-            <li className="p-md flex items-start gap-md">
-              <Icon name="restaurant_menu" className="text-on-surface-variant mt-0.5" />
-              <div className="flex-grow min-w-0">
-                <p className="font-body-lg text-body-lg">Dietary profile</p>
-                <div className="flex flex-wrap gap-xs mt-xs">
-                  {user.dietaryPreferences.length === 0 ? (
-                    <span className="font-body-sm text-body-sm text-on-surface-variant">
-                      No restrictions set
-                    </span>
-                  ) : (
-                    user.dietaryPreferences.map((preference) => (
-                      <Badge key={preference} tone="primary">
-                        {preference}
-                      </Badge>
-                    ))
-                  )}
-                </div>
-              </div>
-            </li>
-            <li>
-              <Link
-                href="/account/savings"
-                className="p-md flex items-center gap-md hover:bg-surface-container-low transition-colors"
-              >
-                <Icon name="trending_up" className="text-on-surface-variant" />
-                <span className="flex-grow font-body-lg text-body-lg">Savings history</span>
-                <Icon name="chevron_right" className="text-on-surface-variant" />
-              </Link>
-            </li>
-          </ul>
+          <Link
+            href="/account/savings"
+            className="p-md flex items-center gap-md hover:bg-surface-container-low transition-colors"
+          >
+            <Icon name="trending_up" className="text-on-surface-variant" />
+            <span className="flex-grow font-body-lg text-body-lg">Savings history</span>
+            <Icon name="chevron_right" className="text-on-surface-variant" />
+          </Link>
         </Card>
       </section>
 
@@ -118,13 +119,12 @@ export default async function AccountPage() {
           </Link>
         </Card>
 
-        <button
-          type="button"
-          className="w-full h-12 rounded-lg border border-error text-error font-title-md text-title-md flex items-center justify-center gap-sm hover:bg-error-container transition-colors"
-        >
-          <Icon name="logout" />
-          Leave House
-        </button>
+        {!viewingAs && (
+          <>
+            <LeaveHousePanel />
+            <DeleteAccountPanel />
+          </>
+        )}
       </section>
     </PageShell>
   );

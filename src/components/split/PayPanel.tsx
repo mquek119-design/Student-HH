@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Icon } from '@/components/media/Icon';
 import { notifyPaymentSent, undoPaymentNotification } from '@/app/split/actions';
+import type { User } from '@/lib/types';
 
 /**
  * Payment details display + "I've Paid".
@@ -11,25 +12,37 @@ import { notifyPaymentSent, undoPaymentNotification } from '@/app/split/actions'
  * notifies the collector, who confirms or disputes. See CLAUDE.md, "No custody
  * of funds".
  *
- * Details are whatever the collector typed into their profile, shown verbatim.
- * We deliberately do not parse them into sort code / account number fields: the
- * app has no business validating bank details it never uses, and a housemate
- * paying by Revolut or Monzo link should be able to put that here instead.
+ * Each detail is a separate row with its own copy button, because that is how
+ * they are used: a housemate types the sort code into one box of their banking
+ * app and the account number into the next. One combined blob meant copying it
+ * and then hand-picking the digits back out, which is exactly where a transfer
+ * goes to the wrong account.
  */
 export function PayPanel({
   collectorName,
-  paymentDetails,
+  payment,
   splitId,
   isNotified = false,
+  isPosted = true,
 }: {
   collectorName: string;
-  paymentDetails: string | null;
+  payment: User['payment'];
   splitId?: string;
   isNotified?: boolean;
+  /** False while the figure is still a live estimate rather than a debt. */
+  isPosted?: boolean;
 }) {
   const [notified, setNotified] = useState(isNotified);
-  const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const rows: { label: string; value: string; mono: boolean }[] = [];
+  if (payment.bankName) rows.push({ label: 'Bank', value: payment.bankName, mono: false });
+  if (payment.sortCode) rows.push({ label: 'Sort code', value: payment.sortCode, mono: true });
+  if (payment.accountNumber) {
+    rows.push({ label: 'Account number', value: payment.accountNumber, mono: true });
+  }
+  if (payment.link) rows.push({ label: 'Link or tag', value: payment.link, mono: false });
+  if (payment.note) rows.push({ label: 'Note', value: payment.note, mono: false });
 
   async function handleMarkPaid() {
     setNotified(true);
@@ -49,17 +62,6 @@ export function PayPanel({
     }
   }
 
-  async function copyDetails() {
-    if (!paymentDetails) return;
-    try {
-      await navigator.clipboard.writeText(paymentDetails);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard can be blocked by permissions; the value is on screen anyway.
-    }
-  }
-
   return (
     <div className="flex flex-col gap-md">
       <div className="bg-surface-container-lowest rounded-xl border border-surface-container-highest shadow-ambient-card p-lg flex flex-col gap-lg relative overflow-hidden">
@@ -71,24 +73,11 @@ export function PayPanel({
           Pay {collectorName}
         </h3>
 
-        {paymentDetails ? (
-          <div className="bg-surface-bright rounded-lg p-md border border-surface-container-highest flex items-start justify-between gap-sm">
-            <div className="min-w-0">
-              <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">
-                Payment details
-              </p>
-              <p className="font-numeric-data text-numeric-data text-on-background break-words">
-                {paymentDetails}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={copyDetails}
-              aria-label="Copy payment details"
-              className="p-2 shrink-0 text-primary hover:bg-primary-container/20 rounded-full transition-colors active:scale-95"
-            >
-              <Icon name={copied ? 'check' : 'content_copy'} className="text-[20px]" />
-            </button>
+        {rows.length > 0 ? (
+          <div className="bg-surface-bright rounded-lg border border-surface-container-highest divide-y divide-surface-container-highest">
+            {rows.map((row) => (
+              <DetailRow key={row.label} label={row.label} value={row.value} mono={row.mono} />
+            ))}
           </div>
         ) : (
           <div className="bg-surface-container-low rounded-lg p-md border border-dashed border-outline-variant flex items-start gap-sm">
@@ -100,7 +89,11 @@ export function PayPanel({
           </div>
         )}
 
-        {notified ? (
+        {!isPosted ? (
+          <p className="font-body-sm text-body-sm text-on-surface-variant text-center">
+            Nothing to pay yet — the collector posts this week&apos;s split once the order is in.
+          </p>
+        ) : notified ? (
           <div className="flex flex-col gap-2 text-center">
             <p className="font-body-sm text-body-sm text-primary font-bold">
               Payment notification sent.
@@ -137,3 +130,41 @@ export function PayPanel({
   );
 }
 
+function DetailRow({ label, value, mono }: { label: string; value: string; mono: boolean }) {
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard can be blocked by permissions; the value is on screen anyway.
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-between gap-sm p-md">
+      <div className="min-w-0">
+        <p className="font-label-caps text-label-caps text-on-surface-variant mb-1">{label}</p>
+        <p
+          className={
+            mono
+              ? 'font-numeric-data text-numeric-data tracking-wider text-on-background break-words'
+              : 'font-body-md text-body-md text-on-background break-words'
+          }
+        >
+          {value}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={copy}
+        aria-label={`Copy ${label.toLowerCase()}`}
+        className="p-2 shrink-0 text-primary hover:bg-primary-container/20 rounded-full transition-colors active:scale-95"
+      >
+        <Icon name={copied ? 'check' : 'content_copy'} className="text-[20px]" />
+      </button>
+    </div>
+  );
+}

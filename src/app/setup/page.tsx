@@ -1,6 +1,6 @@
 import { SetupRequired } from '@/components/SetupRequired';
 
-export const metadata = { title: 'Connect a database · HouseGrocer' };
+export const metadata = { title: 'Connect a database · Grub' };
 
 /**
  * Where middleware sends every request while Supabase is unconfigured.

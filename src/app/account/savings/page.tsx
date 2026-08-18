@@ -6,7 +6,7 @@ import { PageShell } from '@/components/ui/PageShell';
 import { formatPence } from '@/lib/money';
 import { getSavings } from '@/lib/queries';
 
-export const metadata = { title: 'Savings · HouseGrocer' };
+export const metadata = { title: 'Savings · Grub' };
 export const dynamic = 'force-dynamic';
 
 export default async function SavingsPage() {
@@ -24,9 +24,9 @@ export default async function SavingsPage() {
 
       {savings.totalAllTime === 0 ? (
         <EmptyState
-          icon="savings"
-          title="No savings recorded yet"
-          body="When the basket swaps a branded item for own-brand, the difference is banked here. Nothing has been swapped yet."
+          icon="ti-piggy-bank"
+          title="No savings yet"
+          body="No receipts yet. Finish your first shop and we start counting."
         />
       ) : (
         <>

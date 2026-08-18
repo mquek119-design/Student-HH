@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { getCurrentUser, getWeeklyPlan } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 import { TescoProvider } from '../../../lib/tesco/providers/tesco';
+import { TescoAPI } from '../../../lib/tesco/providers/tesco/api';
 
 export interface SlotOption {
   slotId: string;
@@ -96,6 +97,16 @@ export async function chooseSlot(
   const plan = await getWeeklyPlan();
   if (!plan?.id) return fail('No plan for this week yet.');
 
+  // Already holding exactly this slot: nothing to do. Re-booking would make a
+  // pointless round trip to Tesco and, if the API refused the duplicate, would
+  // report a scary failure for a slot that is in fact fine.
+  if (plan.slot?.id === slot.slotId) {
+    return {
+      status: 'success',
+      message: `That slot is already booked — ${slot.date} ${slot.startTime}–${slot.endTime}. Nothing changed.`,
+    };
+  }
+
   const supabase = createClient();
   const saved = await supabase
     .from('weekly_plans')
@@ -118,26 +129,51 @@ export async function chooseSlot(
     return fail(`Could not save the slot: ${saved.error.message}${hint}`);
   }
 
+  // Book through the GraphQL API directly, NOT provider.bookSlot().
+  //
+  // provider.bookSlot() swallows the API error and falls back to driving
+  // Playwright with `headless: false`. From a web request that opens a browser
+  // window on the collector's machine, and the fallback then fails anyway
+  // because a base64 slot id is not a usable page selector. The real reason
+  // booking failed was lost entirely.
   let bookingNote = '';
+  let booked = false;
+
   try {
-    const provider = new TescoProvider();
-    await provider.bookSlot(slot.slotId);
+    const api = new TescoAPI();
+    const response = await api.bookSlot(slot.slotId);
+
+    // Success is Tesco echoing the slot back. There is no error field on this
+    // type — failures arrive as thrown GraphQL errors, handled below.
+    const held = response?.fulfilment?.slot;
+    if (held?.id) {
+      booked = true;
+    } else {
+      bookingNote =
+        ' Tesco accepted the request but did not confirm the slot. It may have just been taken —' +
+        ' refresh the slots and pick another.';
+    }
   } catch (error) {
-    // The choice is recorded either way; the collector can book manually.
-    bookingNote =
-      ` Saved, but booking it with Tesco failed (${(error as Error).message ?? 'unknown error'}) — ` +
-      'book it yourself on tesco.com before checking out.';
+    const message = (error as Error).message ?? 'unknown error';
+    // A lapsed session is by far the most common cause; say so plainly rather
+    // than leaving the collector to interpret a GraphQL error.
+    bookingNote = /unauthor/i.test(message)
+      ? ' Your Tesco session has expired — re-import your cookies in House Settings, then pick the slot again.'
+      : ` Tesco would not hold this slot: ${message}. Refresh the slots and pick another.`;
   }
 
   revalidatePath('/basket');
   revalidatePath('/split');
 
+  const when = `${slot.date} ${slot.startTime}–${slot.endTime}`;
+  const cost = slot.charge > 0 ? ` (£${(slot.charge / 100).toFixed(2)})` : ' (free)';
+
+  // Saved either way: the charge still belongs in the split, and the collector
+  // can hold the slot manually. But do not call an unbooked slot "booked".
   return {
-    status: 'success',
-    message:
-      `Slot booked for ${slot.date} ${slot.startTime}–${slot.endTime}` +
-      (slot.charge > 0 ? ` (£${(slot.charge / 100).toFixed(2)})` : ' (free)') +
-      '.' +
-      bookingNote,
+    status: booked ? 'success' : 'error',
+    message: booked
+      ? `Slot booked for ${when}${cost}. The charge is now in the split.`
+      : `Saved ${when}${cost} to the split, but it is NOT held with Tesco.${bookingNote}`,
   };
 }

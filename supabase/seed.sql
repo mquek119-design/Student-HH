@@ -47,9 +47,11 @@ begin
   -- Profiles already exist via the on_auth_user_created trigger; top them up.
   update profiles set name = 'Maya',  house_id = v_house_id, room = 'Room 2', accent = 'green',
     dietary_preferences = array['Vegetarian'], is_admin = true,
-    payment_details_text = 'Monzo · 04-00-04 · 12345678' where id = maya_id;
+    payment_bank_name = 'Monzo', payment_sort_code = '04-00-04',
+    payment_account_number = '12345678', payment_link = 'monzo.me/maya' where id = maya_id;
   update profiles set name = 'Sarah', house_id = v_house_id, room = 'Room 1', accent = 'orange',
-    payment_details_text = 'Starling · 04-00-04 · 12345678' where id = sarah_id;
+    payment_bank_name = 'Starling', payment_sort_code = '04-00-04',
+    payment_account_number = '12345678' where id = sarah_id;
   update profiles set name = 'Mike',  house_id = v_house_id, room = 'Room 3', accent = 'blue',
     dietary_preferences = array['No pork'] where id = mike_id;
   update profiles set name = 'Alex',  house_id = v_house_id, room = 'Room 4', accent = 'purple'

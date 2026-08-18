@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const recipe = await getRecipe(params.id);
-  return { title: recipe ? `${recipe.title} · HouseGrocer` : 'Recipe · HouseGrocer' };
+  return { title: recipe ? `${recipe.title} · Grub` : 'Recipe · Grub' };
 }
 
 export default async function RecipePage({ params }: { params: { id: string } }) {
@@ -37,7 +37,7 @@ export default async function RecipePage({ params }: { params: { id: string } })
         className="w-full h-48 md:h-64 rounded-xl text-[64px]"
       />
 
-      <div className="flex items-start justify-between gap-md">
+      <div className="flex items-start justify-between gap-sm flex-wrap">
         <div className="flex flex-col gap-xs min-w-0">
           <h1 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg">
             {recipe.title}
@@ -50,6 +50,12 @@ export default async function RecipePage({ params }: { params: { id: string } })
             ))}
           </div>
         </div>
+        <Link
+          href={`/recipes/${recipe.id}/edit`}
+          className="shrink-0 px-md py-3 rounded-full border border-outline-variant text-on-surface-variant font-semibold hover:border-primary hover:text-primary transition-colors"
+        >
+          Edit
+        </Link>
         <Link
           href="/plan#roster"
           className="shrink-0 px-lg py-3 rounded-full bg-primary text-on-primary font-semibold hover:opacity-90 transition-opacity"

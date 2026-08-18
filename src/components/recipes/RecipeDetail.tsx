@@ -121,7 +121,7 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
             <button
               type="button"
               disabled={missing.length === 0}
-              className="w-full h-12 rounded-lg bg-secondary-container text-on-primary font-title-md text-title-md flex items-center justify-center gap-sm hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-12 rounded-lg bg-secondary-container text-on-secondary font-title-md text-title-md flex items-center justify-center gap-sm hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Icon name="add_shopping_cart" />
               {missing.length === 0

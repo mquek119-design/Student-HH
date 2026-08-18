@@ -1,6 +1,9 @@
 import { redirect } from 'next/navigation';
 import { Icon } from '@/components/media/Icon';
 import { PayPanel } from '@/components/split/PayPanel';
+import { ExpensePanel } from '@/components/split/ExpensePanel';
+import { Notice } from '@/components/ui/Notice';
+import { CollectorPanel } from '@/components/split/CollectorPanel';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatPence } from '@/lib/money';
 import {
@@ -8,40 +11,74 @@ import {
   getCollector,
   getCurrentSplit,
   getCurrentUser,
+  getExpenses,
+  getHousemates,
+  getPostedSplits,
   getWeeklyPlan,
 } from '@/lib/queries';
 
-export const metadata = { title: 'Split · HouseGrocer' };
+export const metadata = { title: 'Split · Grub' };
 export const dynamic = 'force-dynamic';
 
 export default async function SplitPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser.houseId) redirect('/onboarding');
 
-  const [split, collector, plan, basket] = await Promise.all([
+  const [split, collector, plan, basket, expenses, housemates] = await Promise.all([
     getCurrentSplit(),
     getCollector(),
     getWeeklyPlan(),
     getBasketItems(),
+    getExpenses(),
+    getHousemates(),
   ]);
+
+  const postedSplits = await getPostedSplits();
+
+  // Rendered whether or not there is a weekly split: a house with no basket can
+  // still have bought a kettle, and that debt is just as real.
+  const purchases = (
+    <ExpensePanel expenses={expenses} housemates={housemates} currentUserId={currentUser.id} />
+  );
 
   const unpriced = basket.filter((item) => item.needsPackData).length;
 
   if (!split || !collector) {
     const isCollector = collector?.id === currentUser.id;
+
+    // The collector is not a spectator here — posting the week is their job,
+    // and chasing it is the rest of it.
+    if (isCollector) {
+      return (
+        <div className="flex flex-col gap-lg">
+          <CollectorPanel splits={postedSplits} basketIsEmpty={basket.length === 0} />
+          {purchases}
+        </div>
+      );
+    }
+
     return (
-      <EmptyState
-        icon="receipt_long"
-        title={isCollector ? "You're the collector this week" : 'Nothing to settle yet'}
-        body={
-          isCollector
-            ? 'You place the order, so you have nothing to pay. Housemates see what they owe you here once the basket exists.'
-            : 'Once a basket is built for this week, your share of it is worked out here — with the arithmetic shown.'
-        }
-        action={(plan?.meals.length ?? 0) === 0 ? { href: '/plan', label: 'Plan meals' } : undefined}
-      />
+      <div className="flex flex-col gap-lg">
+        <EmptyState
+          icon="receipt_long"
+          title={isCollector ? "You're the collector this week" : 'Nothing to settle yet'}
+          body={
+            isCollector
+              ? 'You place the order, so you have nothing to pay. Housemates see what they owe you here once the basket exists.'
+              : 'Once a basket is built for this week, your share of it is worked out here — with the arithmetic shown.'
+          }
+          action={
+            (plan?.meals.length ?? 0) === 0 ? { href: '/plan', label: 'Plan meals' } : undefined
+          }
+        />
+        {purchases}
+      </div>
     );
   }
+
+  // What the breakdown actually adds up to. Equal to `split.amount` in the
+  // ordinary case; they part company when the basket moves after posting.
+  const breakdownTotal = split.lines.reduce((sum, line) => sum + line.amount, 0);
 
   return (
     <>
@@ -59,18 +96,19 @@ export default async function SplitPage() {
         </p>
       </section>
 
+      {!split.isPosted && (
+        <Notice tone="info" icon="pending">
+          This is what you <em>will</em> owe. It moves with the basket until the collector posts
+          the split, and only then can it be paid or appear on Balances.
+        </Notice>
+      )}
+
       {unpriced > 0 && (
-        <div
-          role="alert"
-          className="flex items-start gap-sm px-md py-sm rounded-lg bg-secondary-fixed/50 border border-secondary-container/30"
-        >
-          <Icon name="warning" filled className="text-secondary mt-0.5 shrink-0" />
-          <p className="font-body-sm text-body-sm text-on-secondary-fixed">
-            This total leaves out <strong>{unpriced}</strong> basket item
-            {unpriced === 1 ? '' : 's'} with no recorded price, so it is lower than the real bill.
-            Add pack details on the Basket tab to settle accurately.
-          </p>
-        </div>
+        <Notice tone="check" icon="warning" role="alert">
+          This total leaves out <strong>{unpriced}</strong> basket item
+          {unpriced === 1 ? '' : 's'} with no recorded price, so it is lower than the real bill.
+          Add pack details on the Basket tab to settle accurately.
+        </Notice>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
@@ -115,19 +153,39 @@ export default async function SplitPage() {
             </div>
           ))}
 
+          {/* The sum of the lines above, not `split.amount`. Those two are the
+              same number right up until the basket moves after the split was
+              posted — and then this row was quietly printing a total the
+              breakdown above it did not add up to. The agreed figure keeps the
+              headline; the disagreement gets said out loud below. */}
           <div className="flex items-center justify-between gap-md px-md py-sm rounded-lg bg-surface-container">
             <span className="font-title-md text-title-md">Total</span>
             <span className="font-numeric-data text-title-md font-bold">
-              {formatPence(split.amount)}
+              {formatPence(breakdownTotal)}
             </span>
           </div>
+
+          {breakdownTotal !== split.amount && (
+            <Notice tone="check" icon="difference" role="alert">
+              The basket has changed since this split was posted. You owe the agreed{' '}
+              <strong>{formatPence(split.amount)}</strong>; the basket as it stands now comes to{' '}
+              <strong>{formatPence(breakdownTotal)}</strong>. The collector can re-post the split to
+              bring the two together.
+            </Notice>
+          )}
         </div>
 
-        <div className="lg:col-span-5">
+        <div className="lg:col-span-5 flex flex-col gap-md">
+          {/* splitId is the posted row. Without one, "I've Paid" is a button
+              that updates nothing — so it is only offered once posted. */}
           <PayPanel
             collectorName={collector.name}
-            paymentDetails={collector.paymentDetailsText}
+            payment={collector.payment}
+            splitId={split.isPosted ? split.id : undefined}
+            isNotified={split.status === 'notified' || split.status === 'confirmed'}
+            isPosted={split.isPosted}
           />
+          {purchases}
         </div>
       </div>
     </>
