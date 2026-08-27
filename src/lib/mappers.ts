@@ -153,7 +153,7 @@ export function toPlannedMeal(
   };
 }
 
-export function toWeeklyPlan(row: WeeklyPlanRow, meals: PlannedMeal[]): WeeklyPlan {
+export function toWeeklyPlan(row: WeeklyPlanRow, meals: PlannedMeal[], recipes: Map<string, Recipe>): WeeklyPlan {
   return {
     // A slot needs both an id and a charge to be usable: charge 0 is a real
     // free collection slot, so only null means "not chosen".
@@ -177,6 +177,7 @@ export function toWeeklyPlan(row: WeeklyPlanRow, meals: PlannedMeal[]): WeeklyPl
     meals,
     // Derived, not stored — see findOverlapGaps() in overlaps.ts.
     overlaps: [],
+    recipes,
   };
 }
 

@@ -44,6 +44,7 @@ interface DemoRecipe {
   difficulty: 'easy' | 'medium' | 'hard';
   servings: number;
   tags: string[];
+  dietaryTags?: string[];
   instructions: string[];
   ingredients: DemoIngredient[];
 }

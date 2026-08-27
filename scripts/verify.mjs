@@ -11,7 +11,7 @@ import { spawnSync } from 'node:child_process';
 
 const steps = [
   ['typecheck', 'npx tsc --noEmit'],
-  ['lint', 'npm run lint'],
+  ['lint', 'npx eslint src'],
   ['build', 'npx next build'],
 ];
 

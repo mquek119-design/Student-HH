@@ -171,7 +171,7 @@ export async function seedDemoData(): Promise<SeedResult> {
         // fabricated price in the same column the app treats as real.
         cost_per_portion: 0,
         tags: recipe.tags,
-        dietary_tags: recipe.dietaryTags || [],
+        dietary_tags: [],
         instructions: recipe.instructions,
       })
       .select('id')
