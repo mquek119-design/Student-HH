@@ -1,0 +1,35 @@
+# Claude Code Permission Monitor Log
+# Project: Student HH (HouseGrocer)
+# Baseline audit: 2026-08-28
+
+## Audit Summary
+
+### Files Checked
+- Global: ~/.claude/settings.json
+- Project: .claude/settings.json
+- Local: .claude/settings.local.json
+
+### Initial Findings (2026-08-28 00:00)
+Patterns Added:
+- Bash(playwright *) — E2E testing via Playwright MCP (mentioned in CLAUDE.md)
+- Bash(supabase *) — Supabase CLI for type regeneration (supabase gen types)
+- Glob(*) — File pattern matching (was in global/local, missing from project)
+- Grep(*) — Code search tool (was in global/local, missing from project)
+
+Reason: Consistency across all three settings files and avoiding permission prompts for common agent workflows.
+
+### Patterns Baseline (Already Allowed)
+✓ Bash(npm *) — package scripts including verify, build, dev
+✓ Bash(npx *) — npx commands
+✓ Bash(node *) — Node.js execution
+✓ Bash(jest *) — Unit testing
+✓ Bash(git *) — Version control
+✓ Bash(curl *) — HTTP requests for API testing
+✓ Read(*), Write(*), Edit(*), Glob(*), Grep(*) — Core tools
+
+### Next Monitoring Checks
+- Watch for Bash(typescript *) or Bash(tsc *) patterns (if typecheck needs direct access)
+- Monitor for Docker commands (if containerization is added)
+- Track any new MCP tool requirements
+
+---

@@ -1,8 +1,8 @@
 /**
- * The four primary tabs.
+ * The five primary tabs.
  *
  * Screens the mockups showed as their own tabs (Recipes, "Fancy?") live inside
- * these four instead: "Fancy?" is the top section of Plan, Recipes is reachable
+ * these instead: "Fancy?" is the top section of Plan, Recipes is reachable
  * from the Plan search/add flow. `owns` lists the route prefixes each tab is
  * responsible for, so deep routes still light up the right tab.
  */
@@ -38,6 +38,12 @@ export const TABS: Tab[] = [
     label: 'Split',
     icon: 'ti-receipt',
     owns: ['/split'],
+  },
+  {
+    href: '/leftovers',
+    label: 'Leftovers',
+    icon: 'ti-plate',
+    owns: ['/leftovers'],
   },
 ];
 
