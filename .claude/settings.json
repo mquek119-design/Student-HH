@@ -3,8 +3,34 @@
 
   "permissions": {
     "allow": [
-      "Bash(*)",
-      "Read(*)"
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(jest *)",
+      "Bash(git *)",
+      "Bash(cd *)",
+      "Bash(ls *)",
+      "Bash(pwd)",
+      "Bash(cat *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(sed *)",
+      "Bash(grep -rn *)",
+      "Bash(curl *)",
+      "Bash(rm -rf *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(touch *)",
+      "Bash(echo *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(date)",
+      "Bash(pwd)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)"
     ],
     "deny": []
   }
