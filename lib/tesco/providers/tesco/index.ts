@@ -13,9 +13,21 @@ export class TescoProvider implements GroceryProvider {
   readonly name = 'tesco';
   private api: TescoAPI;
 
-  constructor() {
+  constructor(session?: any) {
     this.api = new TescoAPI();
-    this.loadSession();
+    if (session) {
+      // Use provided session
+      this.setSession(session);
+    } else {
+      // Fall back to loading from file system
+      this.loadSession();
+    }
+  }
+
+  private setSession(session: any): void {
+    if (session?.cookies && Array.isArray(session.cookies)) {
+      this.api.setAuthCookies(getCookieString(session));
+    }
   }
 
   private loadSession(): void {

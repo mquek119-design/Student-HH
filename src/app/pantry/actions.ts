@@ -91,8 +91,6 @@ export async function addPantryItem(
     return { status: 'error', message: resolved.error };
   }
   const ingredientId = resolved.id;
-  {
-  }
 
   const inserted = await supabase.from('pantry_items').insert({
     house_id: me.houseId,

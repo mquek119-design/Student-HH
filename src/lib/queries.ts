@@ -316,6 +316,7 @@ function emptyPlan(houseId: string, cutoffDay: string, cutoffTime: string): Week
     slot: null,
     meals: [],
     overlaps: [],
+    recipes: new Map(),
   };
 }
 
@@ -399,6 +400,7 @@ export const getWeeklyPlanFor = cache(
         : null,
     meals,
     overlaps: findOverlapGaps(meals, recipes, names),
+    recipes: recipeById,
   };
   }
 );

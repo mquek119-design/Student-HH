@@ -66,7 +66,7 @@ export async function createHouse(
         await seedStarterRecipes(profile.house_id, user.data.user.id);
       }
     }
-  } catch (err) {
+  } catch (_err) {
     // Don't fail the house creation if seeding fails
   }
 

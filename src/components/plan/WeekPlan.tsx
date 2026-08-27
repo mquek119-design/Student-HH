@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { Avatar } from '@/components/avatars/Avatar';
 import { MealOptionsSheet } from '@/components/plan/MealOptionsSheet';
+import { DietaryWarning } from '@/components/plan/DietaryWarning';
 import { FoodImage } from '@/components/media/FoodImage';
 import { Icon } from '@/components/media/Icon';
 import { Badge } from '@/components/ui/Badge';
@@ -12,7 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { clsx } from '@/lib/clsx';
 import { canSetCapacity, mealOwnerId, mouthsAt } from '@/lib/meals';
 import { joinMeal, leaveMeal, type PlanActionState } from '@/app/plan/actions';
-import type { PlannedMeal, User, Weekday, WeeklyPlan } from '@/lib/types';
+import type { PlannedMeal, Recipe, User, Weekday, WeeklyPlan } from '@/lib/types';
 import type { WeekChoice } from '@/lib/weeks';
 import { MEAL_TYPES, MEAL_TYPE_ICONS, MEAL_TYPE_LABELS, WEEKDAYS, WEEKDAY_LABELS } from '@/lib/types';
 
@@ -76,6 +77,7 @@ function MealRow({
   currentUser,
   locked,
   past,
+  recipe,
 }: {
   meal: PlannedMeal;
   housemates: User[];
@@ -88,6 +90,7 @@ function MealRow({
    * next morning.
    */
   past: boolean;
+  recipe?: Recipe;
 }) {
   const [, joinAction] = useFormState(joinMeal, INITIAL);
   const [, leaveAction] = useFormState(leaveMeal, INITIAL);
@@ -206,6 +209,14 @@ function MealRow({
             )}
           </div>
         </div>
+
+        {recipe && (
+          <DietaryWarning
+            recipe={recipe}
+            mealParticipantIds={meal.participants.map((p) => p.userId)}
+            housemates={housemates}
+          />
+        )}
 
         {!locked && (
           <div className="flex items-center gap-xs shrink-0">
@@ -352,6 +363,7 @@ export function WeekPlan({
                   currentUser={currentUser}
                   locked={locked}
                   past={isPast}
+                  recipe={plan.recipes.get(meal.recipeId)}
                 />
               ))}
 

@@ -4,7 +4,11 @@ import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 import { TescoProvider } from '../../../lib/tesco/providers/tesco/index';
-import { loadSession, saveSession, inferSessionExpiry, type TescoSession } from '../../../lib/tesco/providers/tesco/auth';
+import { inferSessionExpiry, type TescoSession } from '../../../lib/tesco/providers/tesco/auth';
+import {
+  saveTescoSessionToDb,
+  loadTescoSessionFromDb,
+} from '@/lib/supabase/tescoSession';
 
 export interface TescoActionState {
   status: 'idle' | 'success' | 'error';
@@ -17,16 +21,12 @@ export interface TescoActionState {
 
 const fail = (message: string): TescoActionState => ({ status: 'error', message });
 
-/** Checks if a valid Tesco session cookie file exists and is unexpired. */
+/** Checks if a valid Tesco session exists in the database and is unexpired. */
 export async function checkTescoSession(): Promise<TescoActionState> {
   try {
-    const session = loadSession();
+    const session = await loadTescoSessionFromDb();
     if (!session || !session.cookies || session.cookies.length === 0) {
       return { status: 'idle', authenticated: false, message: 'No active Tesco session.' };
-    }
-    const isExpired = new Date(session.expiresAt) < new Date();
-    if (isExpired) {
-      return { status: 'idle', authenticated: false, message: 'Tesco session expired.' };
     }
     return {
       status: 'success',
@@ -39,7 +39,7 @@ export async function checkTescoSession(): Promise<TescoActionState> {
   }
 }
 
-/** Imports exported browser cookies (JSON string or array) and saves session. */
+/** Imports exported browser cookies (JSON string or array) and saves to database. */
 export async function importTescoSession(cookiesJson: string): Promise<TescoActionState> {
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
@@ -58,7 +58,7 @@ export async function importTescoSession(cookiesJson: string): Promise<TescoActi
       lastLogin: new Date().toISOString(),
     };
 
-    saveSession(session);
+    await saveTescoSessionToDb(session);
 
     return {
       status: 'success',
@@ -100,7 +100,12 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
   }
 
   try {
-    const provider = new TescoProvider();
+    const session = await loadTescoSessionFromDb();
+    if (!session) {
+      return fail('Tesco session not found in database.');
+    }
+
+    const provider = new TescoProvider(session);
 
     let priceNote = '';
     let repricedCount = 0;
@@ -130,7 +135,7 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
             .eq('id', localMatch.id);
         }
       }
-    } catch (basketErr) {
+    } catch (_basketErr) {
       // Not fatal — the items are in the trolley either way. But the split now
       // rests on our own estimate rather than Tesco's figure, so say so instead
       // of only logging where nobody will look.
@@ -196,7 +201,12 @@ export async function startTescoCheckout(): Promise<TescoActionState> {
   }
 
   try {
-    const provider = new TescoProvider();
+    const session = await loadTescoSessionFromDb();
+    if (!session) {
+      return fail('Tesco session not found in database.');
+    }
+
+    const provider = new TescoProvider(session);
     // Run dry-run checkout with fulfillment options from database
     const orderResult = await provider.checkout(true, {
       fulfillmentMethod: house.fulfillment_method,

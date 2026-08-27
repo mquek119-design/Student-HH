@@ -112,6 +112,7 @@ export function toRecipe(row: RecipeRow, ingredients: RecipeIngredient[]): Recip
     servings: row.servings,
     costPerPortion: row.cost_per_portion,
     tags: row.tags,
+    dietaryTags: row.dietary_tags ?? [],
     instructions: row.instructions,
     proTip: row.pro_tip,
     ingredients,

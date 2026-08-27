@@ -139,6 +139,7 @@ export interface Recipe {
   servings: number;
   costPerPortion: Pence;
   tags: string[];
+  dietaryTags: string[];
   instructions: string[];
   proTip: string | null;
   ingredients: RecipeIngredient[];
@@ -233,6 +234,8 @@ export interface WeeklyPlan {
     endsAt: string | null;
     charge: Pence;
   } | null;
+  /** Map of recipe id to recipe, for accessing metadata like dietaryTags. */
+  recipes: Map<string, Recipe>;
 }
 
 /** How one basket line is divided. Shares are relative weights, not fractions. */

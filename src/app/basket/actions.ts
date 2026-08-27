@@ -381,7 +381,7 @@ export async function searchTescoProducts(query: string): Promise<any[]> {
       size: p.size || p.unit_price?.measure || 'each',
       imageUrl: p.image_url || null,
     }));
-  } catch (err) {
+  } catch (_err) {
     return [];
   }
 }

@@ -58,7 +58,7 @@ export function Avatar({ user, size = 'md', className, ring = 'none' }: AvatarPr
       title={user.name}
     >
       {user.avatarUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
+         
         <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
       ) : (
         initials

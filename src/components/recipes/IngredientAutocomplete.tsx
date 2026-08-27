@@ -39,7 +39,7 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
       setSuggestions(results);
       setSelectedIndex(-1);
       setIsOpen(true);
-    } catch (error) {
+    } catch (_error) {
       setSuggestions([]);
     } finally {
       setIsLoading(false);
@@ -158,7 +158,7 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
     inputRef.current?.focus();
   };
 
-  const highlightMatch = (text: string, query: string) => {
+  const _highlightMatch = (text: string, query: string) => {
     const canonical = canonicalName(query);
     if (!canonical) return text;
 

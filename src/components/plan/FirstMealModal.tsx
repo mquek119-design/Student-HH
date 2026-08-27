@@ -4,7 +4,6 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { useState } from 'react';
 import { Icon } from '@/components/media/Icon';
 import { FoodImage } from '@/components/media/FoodImage';
-import { Button } from '@/components/ui/Button';
 import { Reveal } from '@/components/motion/Reveal';
 import { addMealToPlan, type PlanActionState } from '@/app/plan/actions';
 import type { Recipe } from '@/lib/types';
@@ -141,7 +140,7 @@ interface AddMealButtonProps {
 }
 
 function AddMealButton({ recipeId }: AddMealButtonProps) {
-  const [state, formAction] = useFormState(addMealToPlan, INITIAL);
+  const [_state, formAction] = useFormState(addMealToPlan, INITIAL);
 
   return (
     <form

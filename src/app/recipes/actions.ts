@@ -172,6 +172,7 @@ export async function createRecipe(
       cost_per_portion: costPerPortion,
       difficulty: 'easy',
       tags,
+      dietary_tags: [],
       instructions,
       pro_tip: String(formData.get('proTip') ?? '').trim() || null,
     })

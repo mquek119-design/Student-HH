@@ -40,7 +40,7 @@ const STOPWORDS = new Set(['a', 'an', 'the', 'of', 'and', 'or', 'with', 'in', 'f
 function keywords(text: string): string[] {
   return text
     .toLowerCase()
-    .split(/[\s,\-]+/)
+    .split(/[\s,-]+/)
     .map((word) => word.replace(/[^a-z]/g, ''))
     .filter((word) => word.length >= 3 && !STOPWORDS.has(word));
 }

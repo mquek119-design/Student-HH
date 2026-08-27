@@ -103,6 +103,7 @@ type RecipeRow = {
   servings: number;
   cost_per_portion: number;
   tags: string[];
+  dietary_tags: string[];
   instructions: string[];
   pro_tip: string | null;
   created_at: string;

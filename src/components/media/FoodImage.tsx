@@ -38,7 +38,7 @@ interface FoodImageProps {
 export function FoodImage({ src, alt, seed, icon = 'restaurant', className }: FoodImageProps) {
   if (src) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
+       
       <img src={src} alt={alt} className={clsx('object-cover', className)} />
     );
   }

@@ -8,6 +8,7 @@ import { FoodImage } from '@/components/media/FoodImage';
 import { Icon } from '@/components/media/Icon';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
+import { RecipeFilterChips, matchesDietaryFilter, type DietaryTagKey } from '@/components/recipes/RecipeFilterChips';
 import { clsx } from '@/lib/clsx';
 import { formatPence } from '@/lib/money';
 import { addMealToPlan, type PlanActionState } from '@/app/plan/actions';
@@ -251,6 +252,7 @@ export function RecipeBrowser({
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState<ChipKey[]>([]);
+  const [dietaryFilters, setDietaryFilters] = useState<DietaryTagKey[]>([]);
   const [chosen, setChosen] = useState<Recipe | null>(null);
 
   const today = WEEKDAYS[(new Date().getDay() + 6) % 7];
@@ -259,6 +261,20 @@ export function RecipeBrowser({
   // like the house has no cheap meals rather than no recorded prices.
   const usable = useMemo(
     () => new Set(CHIPS.filter((chip) => recipes.some(chip.matches)).map((chip) => chip.key)),
+    [recipes]
+  );
+
+  // Determine which dietary tags are available in the recipe collection.
+  const usableDietary = useMemo(
+    () =>
+      new Set(
+        recipes
+          .flatMap((r) => r.dietaryTags)
+          .filter((tag): tag is DietaryTagKey => {
+            const keys = ['vegetarian', 'vegan', 'gluten-free', 'nut-free', 'dairy-free', 'egg-free'];
+            return keys.includes(tag.toLowerCase());
+          })
+      ),
     [recipes]
   );
 
@@ -271,9 +287,17 @@ export function RecipeBrowser({
           .join(' ')}`.toLowerCase();
         if (!haystack.includes(needle)) return false;
       }
-      return active.every((key) => CHIPS.find((chip) => chip.key === key)?.matches(recipe));
+      // Check regular filters
+      if (!active.every((key) => CHIPS.find((chip) => chip.key === key)?.matches(recipe))) {
+        return false;
+      }
+      // Check dietary filters
+      if (!matchesDietaryFilter(recipe, dietaryFilters)) {
+        return false;
+      }
+      return true;
     });
-  }, [recipes, query, active]);
+  }, [recipes, query, active, dietaryFilters]);
 
   function toggle(key: ChipKey) {
     setActive((current) =>
@@ -322,6 +346,16 @@ export function RecipeBrowser({
             );
           })}
         </div>
+
+        <RecipeFilterChips
+          active={dietaryFilters}
+          usable={usableDietary}
+          onToggle={(key) =>
+            setDietaryFilters((current) =>
+              current.includes(key) ? current.filter((tag) => tag !== key) : [...current, key]
+            )
+          }
+        />
       </div>
 
       {results.length === 0 ? (

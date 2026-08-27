@@ -23,6 +23,7 @@ export async function seedStarterRecipes(houseId: string, createdBy: string): Pr
         cook_time_mins: recipe.cookTimeMins,
         servings: recipe.servings,
         tags: recipe.tags,
+        dietary_tags: [],
         instructions: recipe.instructions,
         difficulty: 'easy',
         cost_per_portion: 0,
@@ -61,6 +62,7 @@ export async function seedStarterRecipes(houseId: string, createdBy: string): Pr
 
     const linkResult = await supabase.from('recipe_ingredients').insert(deduped);
     if (linkResult.error) {
+      // Error handled silently - ingredients may already exist
     }
   }
 }
