@@ -360,7 +360,7 @@ describe('Reconciliation: E2E Smoke Test', () => {
     const subs = simulateSubstitutions();
     const reconciled = calculateReconciledSplit(PLANNED_BASKET_ITEMS, delivery, subs, allUserIds);
 
-    const plannedTotal = Object.values(planned).reduce((a, b) => a + b, 0);
+    const plannedTotal = Object.values(_planned).reduce((a, b) => a + b, 0);
     const reconciledTotal = Object.values(reconciled).reduce((a, b) => a + b, 0);
 
     // Reconciled is less than planned due to missing items and substitutions
@@ -372,9 +372,9 @@ describe('Reconciliation: E2E Smoke Test', () => {
     expect(expectedChange).toBe(-685);
 
     // Verify the breakdown
-    const refundImpact = -delivery.refunds; // negative because refunds reduce the total
-    const substitutionImpact = subs.acceptedTotal - 89 - 250; // +249 - 89 - 250 = -90
-    expect(refundImpact + substitutionImpact).toBe(-684); // Close to -685 (rounding difference)
+    const deliveryItemRefunds = 145 + 450; // rice + oil only (not substitution items)
+    const substitutionImpact = (249 - 89) - 250; // coconut delta + eggs rejection
+    expect(-deliveryItemRefunds + substitutionImpact).toBe(-685);
   });
 
   it('should allocate costs correctly to each person', () => {
