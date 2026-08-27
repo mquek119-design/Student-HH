@@ -81,13 +81,14 @@ export default async function FeedPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
           <CountdownCard cutoffAt={plan.cutoffAt} />
 
-          <Card className="flex flex-col justify-between relative overflow-hidden">
-            {/* Subtle dot field, matching the mockup's primary action card. */}
+          <Card className="flex flex-col justify-between relative overflow-hidden animate-fade-in">
+            {/* Subtle dot field, matching the mockup's primary action card.
+                Forest (#1B4332) — was the retired #006b3f green. */}
             <div
               aria-hidden="true"
               className="absolute inset-0 opacity-10 pointer-events-none"
               style={{
-                backgroundImage: 'radial-gradient(circle at 1px 1px, #006b3f 1px, transparent 0)',
+                backgroundImage: 'radial-gradient(circle at 1px 1px, #1B4332 1px, transparent 0)',
                 backgroundSize: '20px 20px',
               }}
             />

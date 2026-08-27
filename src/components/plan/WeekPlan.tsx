@@ -278,7 +278,7 @@ export function WeekPlan({
     // Two abreast once there is room. A single column on a 1400px screen left
     // two thirds of the page empty and pushed Friday below the fold.
     <ul className="grid grid-cols-1 lg:grid-cols-2 gap-md items-start">
-      {days.map((day) => {
+      {days.map((day, dayIndex) => {
         const dayMeals = plan.meals
           .filter((meal) => meal.day === day)
           .sort((a, b) => MEAL_TYPES.indexOf(a.mealType) - MEAL_TYPES.indexOf(b.mealType));
@@ -290,13 +290,16 @@ export function WeekPlan({
         return (
           <li
             key={day}
+            // A gentle staggered load-in. Skipped on past days — their whole
+            // point is to recede, so they keep the flat opacity-70 rather than
+            // animating up to full and then dimming, which would fight itself.
+            // No meal figure lives on this card, so this breaks no money rule.
             className={clsx(
               'rounded-xl border bg-surface-container-lowest shadow-ambient-card overflow-hidden',
               isToday ? 'border-primary/40' : 'border-surface-container-highest',
-              // Receded rather than hidden — what you ate on Monday is still
-              // part of the week, it is just not a decision any more.
-              isPast && 'opacity-70'
+              isPast ? 'opacity-70' : 'animate-fade-in-up'
             )}
+            style={isPast ? undefined : { animationDelay: `${dayIndex * 60}ms` }}
           >
             <header
               className={clsx(

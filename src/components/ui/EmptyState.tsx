@@ -20,8 +20,11 @@ export function EmptyState({
   action?: { href: string; label: string };
 }) {
   return (
-    <Card className="flex flex-col items-center text-center gap-sm py-xl">
-      <Icon name={icon} className="text-[40px] text-outline-variant" />
+    <Card className="flex flex-col items-center text-center gap-sm py-xl animate-fade-in">
+      {/* The icon gets the small entrance flourish — a fresh house is the most
+          common empty state and it should feel intentional, not broken. It is
+          chrome, never a figure, so animating it breaks no rule. */}
+      <Icon name={icon} className="text-[40px] text-outline-variant animate-pop-in" />
       <h2 className="font-title-md text-title-md text-on-surface">{title}</h2>
       <p className="font-body-sm text-body-sm text-on-surface-variant max-w-sm">{body}</p>
       {action && (

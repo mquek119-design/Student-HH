@@ -10,7 +10,7 @@ import { ViewAsBanner } from './ViewAsBanner';
 import { RealtimeListener } from '../realtime/RealtimeListener';
 
 /** Routes that render bare — no tab bar, no app bar. */
-const BARE_PREFIXES = ['/onboarding', '/login', '/auth', '/setup'];
+const BARE_PREFIXES = ['/welcome', '/onboarding', '/login', '/auth', '/setup'];
 
 /**
  * Wraps every page in the app chrome, except the routes above.

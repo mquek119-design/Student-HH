@@ -26,22 +26,21 @@ export default function OnboardingWelcomePage() {
   return (
     <main className="min-h-screen flex flex-col justify-between px-margin-mobile py-xl max-w-md mx-auto">
       <div className="flex flex-col gap-xl">
-        <div className="flex flex-col gap-sm pt-xl">
+        <div className="flex flex-col gap-sm pt-xl animate-fade-in-up">
           <LogoMark className="h-16 w-auto" />
-          <h1
-            className="font-headline-lg text-headline-lg text-primary"
-            style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
-          >
-            Grub
-          </h1>
+          <h1 className="font-georgia font-bold text-headline-lg text-primary">Grub</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant">
             Plan meals together, buy one shop, split it fairly.
           </p>
         </div>
 
         <ul className="flex flex-col gap-md">
-          {BENEFITS.map((benefit) => (
-            <li key={benefit.title} className="flex items-start gap-md">
+          {BENEFITS.map((benefit, i) => (
+            <li
+              key={benefit.title}
+              className="flex items-start gap-md animate-fade-in-up"
+              style={{ animationDelay: `${120 + i * 90}ms` }}
+            >
               <span className="w-10 h-10 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center shrink-0">
                 <Icon name={benefit.icon} />
               </span>

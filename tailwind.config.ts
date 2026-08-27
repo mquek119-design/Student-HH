@@ -110,6 +110,42 @@ const config: Config = {
         'ambient-card': '0px 4px 20px rgba(0, 0, 0, 0.05)',
         'ambient-modal': '0px 12px 32px rgba(0, 0, 0, 0.12)',
       },
+      // Motion vocabulary — front-of-house only. These are entrance and ambient
+      // effects; nothing here is ever put on a price, a split or a countdown
+      // value. `globals.css` neutralises every one of them under
+      // `prefers-reduced-motion`, so a named utility is always safe to reach for.
+      keyframes: {
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'fade-in-up': {
+          from: { opacity: '0', transform: 'translateY(16px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'pop-in': {
+          '0%': { opacity: '0', transform: 'scale(0.94)' },
+          '60%': { opacity: '1', transform: 'scale(1.02)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
+        // Content is duplicated at the call site, so -50% lands the copy exactly
+        // where the original began — a seamless loop with no visible jump.
+        marquee: {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-50%)' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.5s ease-out both',
+        'fade-in-up': 'fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'pop-in': 'pop-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both',
+        float: 'float 6s ease-in-out infinite',
+        marquee: 'marquee 30s linear infinite',
+      },
     },
   },
   plugins: [],

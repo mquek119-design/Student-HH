@@ -3,7 +3,7 @@ import { createServerClient, type CookieMethodsServer } from '@supabase/ssr';
 import { SUPABASE_ANON_KEY, SUPABASE_URL, isSupabaseConfigured } from '@/lib/supabase/config';
 
 /** Routes reachable while signed out. */
-const PUBLIC_PREFIXES = ['/login', '/auth', '/onboarding'];
+const PUBLIC_PREFIXES = ['/welcome', '/login', '/auth', '/onboarding'];
 
 function isPublic(pathname: string): boolean {
   return PUBLIC_PREFIXES.some(
@@ -60,8 +60,16 @@ export async function middleware(request: NextRequest) {
 
   if (!user && !isPublic(pathname)) {
     const target = request.nextUrl.clone();
-    target.pathname = '/login';
-    target.searchParams.set('next', pathname);
+    // The bare root is the front door: a signed-out visitor there wants to be
+    // sold to, not shown a login form. Deep links still go to /login with a
+    // `next`, so nothing that needed auth is lost on the way.
+    if (pathname === '/') {
+      target.pathname = '/welcome';
+      target.search = '';
+    } else {
+      target.pathname = '/login';
+      target.searchParams.set('next', pathname);
+    }
     return NextResponse.redirect(target);
   }
 

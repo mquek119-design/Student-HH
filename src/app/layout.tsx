@@ -28,7 +28,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#006b3f',
+  // Forest — the live primary. Was the retired #006b3f green.
+  themeColor: '#1B4332',
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -42,8 +43,25 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     currentUser && realUser && currentUser.id !== realUser.id ? currentUser.name : null;
 
   return (
-    <html lang="en-GB" className={`${jakarta.variable} ${jetbrains.variable}`}>
+    <html
+      lang="en-GB"
+      className={`no-js ${jakarta.variable} ${jetbrains.variable}`}
+      // The inline script below rewrites this class (no-js → js) before React
+      // hydrates, so the server and client classNames intentionally differ.
+      // This is the one attribute allowed to; nothing else here is suppressed.
+      suppressHydrationWarning
+    >
       <head>
+        {/* Swap no-js → js before first paint, so the scroll-reveal styles
+            (gated on html.js in globals.css) only ever hide content when the
+            IntersectionObserver that reveals it is actually going to run.
+            Without JS the class never flips and everything renders visible —
+            which is what keeps the landing page crawlable and flash-free. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.documentElement.classList.remove('no-js');document.documentElement.classList.add('js');",
+          }}
+        />
         {/* Material Symbols. The no-page-custom-font rule warns that fonts
             outside pages/_document.js load per-page — that is a Pages Router
             concern. This is the App Router root layout, so the tag is shared by

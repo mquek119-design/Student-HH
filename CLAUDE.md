@@ -216,18 +216,59 @@ Onboarding renders without chrome — `AppChrome` checks the pathname and drops 
 
 `order_reconciliation_1` has **no `code.html` and a broken PNG** — there is no usable reference for it. The reconciliation screen was built from `order_reconciliation_2` plus the requirements below.
 
-### Visual identity — from `mockups/housegrocer/DESIGN.md`
+### Visual identity — the "Grub" warm palette
 
-The tokens in DESIGN.md are the source of truth and are ported verbatim into `tailwind.config.ts`. An earlier draft of this file quoted a different palette (`#00703C` green, `#F27D21` orange); **that was wrong** — use the tokens.
+**`tailwind.config.ts` is the source of truth for colour, not DESIGN.md.** The
+app migrated to the warm Grub identity (Forest / Clay / oat); the old
+HouseGrocer greens are retired. Earlier drafts of this file quoted `#00703C`,
+then `#006b3f` green with `#994700` orange — **all wrong now**. Read the tokens
+from the config. A stray retired-green hex (`#006b3f`) turned up in `layout.tsx`
+themeColor, the Feed dot field and this doc; if you find another, it is a bug.
 
-- **Primary green**: `#006b3f` (`primary`), `#008751` (`primary-container`)
-- **Accent orange**: `#994700` (`secondary`), `#fb7800` (`secondary-container`)
-- **Body background**: `#F0F9F4` — the `surface-0` token, applied as `bg-surface-0` on `<body>` in `layout.tsx`. It must be a utility on the element, not a rule in `globals.css`: any `bg-*` class on `<body>` beats an `@layer base` declaration, which silently left the app on `#f9f9fc` for a while. The `background` token is a separate, paler colour — don't reach for it on `<body>`.
+- **Primary — Forest**: `#1B4332` (`primary`), `#2D6A4F` (`primary-container`).
+  Text, headings, nav, the marquee band; never a full-page background.
+- **Secondary — Clay**: `#D4A574` (`secondary` / `secondary-container`). CTAs and
+  highlights, with Forest text on top.
+- **Body background — oat**: `#FAFAF7` — the `surface-0` token, applied as
+  `bg-surface-0` on `<body>` in `layout.tsx`. It must be a utility on the
+  element, not a rule in `globals.css`: any `bg-*` class on `<body>` beats an
+  `@layer base` declaration. The `background` token is a separate colour — don't
+  reach for it on `<body>`.
+- **Serif display — Georgia** (`font-georgia`): the wordmark and big front-of-house
+  headings only. Body stays Plus Jakarta Sans; money stays JetBrains Mono.
 - **Cards**: `surface-container-lowest` white, 1px `surface-container-highest` border, `shadow-ambient-card`
 - **Type**: **Plus Jakarta Sans** for text, **JetBrains Mono** (`font-numeric-data`, `font-label-caps`) for all money, quantities, dates and timers — columns of numbers must align
 - **Mobile-first**: 375px viewport. The mockups are also fully responsive with `md:` breakpoints and a desktop top-nav — that is built, not a stretch goal.
 
 **borderRadius caveat**: DESIGN.md's `rounded` frontmatter block and the scale the mockups actually rendered with disagree. `tailwind.config.ts` follows the mockups (`DEFAULT` 0.25rem / `lg` 0.5rem / `xl` 0.75rem), because the ported markup assumes `rounded-xl` on a card means 12px.
+
+### Motion — front of house only
+
+CSS-first, no animation dependency. Keyframes (`fade-in`, `fade-in-up`,
+`pop-in`, `float`, `marquee`) live in `tailwind.config.ts`; `globals.css`
+neutralises every one under `prefers-reduced-motion`.
+
+**One rule governs all of it: nothing is ever applied to a figure.** Prices,
+splits, balances and countdown values never animate as decoration — trust in
+the numbers rests on their stillness. Motion is for chrome: page entrances,
+scroll reveals, the landing marquee. (The button spinner is feedback, not
+decoration, so it is fine.) The money screens stay calm; the expressive work
+lives on `/welcome`, onboarding, empty states and the Feed's non-figure chrome.
+
+Two primitives in `src/components/motion/`:
+- **`<Reveal>`** — reveals children on scroll via `IntersectionObserver`, once.
+  The *hidden* state is CSS gated on `html.js` (set before paint in
+  `layout.tsx`, which carries `suppressHydrationWarning` for exactly that
+  pre-hydration class swap), so there is no flash and no-JS readers see
+  everything. Above the fold, prefer the raw `animate-fade-in-up` utility with a
+  staggered `animationDelay` — no observer needed.
+- **`<Marquee>`** — CSS-only infinite strip; content is rendered twice and the
+  track slides -50% for a seamless loop. Stays a server component.
+
+The public landing page is `/welcome` (the signed-out front door — middleware
+redirects a signed-out `/` there, and `AppChrome`/middleware both treat it as
+bare/public). It is the one surface where a figure like "£25 minimum" is safe,
+because nothing on it claims to be a real house's data.
 
 ### Imagery
 
@@ -798,3 +839,13 @@ rtk init --global       # Add RTK to ~/.claude/CLAUDE.md
 
 Overall average: **60-90% token reduction** on common development operations.
 <!-- /rtk-instructions -->
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

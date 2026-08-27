@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { LoginForm } from './LoginForm';
 import { LogoMark } from '@/components/brand/Logo';
 
@@ -40,6 +41,13 @@ export default function LoginPage({
       )}
 
       <LoginForm next={searchParams.next ?? '/'} />
+
+      <p className="text-center font-body-sm text-body-sm text-on-surface-variant">
+        New to Grub?{' '}
+        <Link href="/onboarding/signup" className="text-primary font-semibold hover:opacity-80">
+          Sign up
+        </Link>
+      </p>
     </main>
   );
 }

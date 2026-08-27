@@ -38,3 +38,52 @@
 .material-symbols-outlined.fill {
   font-variation-settings: 'FILL' 1;
 }
+
+/* --------------------------------------------------------------------------
+   Motion — front-of-house only
+   --------------------------------------------------------------------------
+   Two rules govern every animation in the app:
+     1. Nothing here is ever applied to a price, split, balance or countdown
+        value. Motion is for chrome; figures stay still. (See the plan.)
+     2. A reduced-motion preference wins over all of it, below.
+
+   Scroll reveal is progressive enhancement, gated on `html.js` (set before
+   paint in layout.tsx). Without JS the class is absent, so `[data-reveal]`
+   keeps its natural, visible styles — the landing page stays crawlable and
+   never flashes. With JS, content starts hidden and the <Reveal> island adds
+   `is-visible` when it scrolls into view. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    will-change: opacity, transform;
+  }
+
+  html.js [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+}
+
+/* The preference is absolute. Entrances collapse to instant, ambient loops
+   (float, marquee) stop, and the button spinner does a single turn rather than
+   spinning forever — its "Saving…" label is the real signal anyway. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html.js [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
