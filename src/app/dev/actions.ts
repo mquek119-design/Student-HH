@@ -36,7 +36,7 @@ export async function simulateDelivery(): Promise<DevResult> {
     return fail('Build the basket first — a delivery needs at least three priced items.');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Clear any previous simulation so re-running is idempotent rather than
   // stacking three substitutions onto the same tin of tomatoes.
@@ -111,7 +111,7 @@ export async function simulatePayments(
   const plan = await getWeeklyPlan();
   if (!plan?.id) return fail('No plan for this week yet.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const splits = await supabase.from('splits').select('id, from_user_id').eq('plan_id', plan.id);
   if (splits.error) return fail(splits.error.message);
 
@@ -176,7 +176,7 @@ export async function clearDelivery(): Promise<DevResult> {
   const [plan, items] = await Promise.all([getWeeklyPlan(), getBasketItems()]);
   if (!plan?.id) return fail('No plan for this week yet.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const itemIds = items.map((item) => item.id);
 
   if (itemIds.length > 0) {
@@ -204,7 +204,7 @@ export async function rotateCollector(): Promise<DevResult> {
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const [house, members] = await Promise.all([
     supabase.from('houses').select('collector_user_id').eq('id', me.houseId).maybeSingle(),
     supabase.from('profiles').select('id, name').eq('house_id', me.houseId).order('created_at'),

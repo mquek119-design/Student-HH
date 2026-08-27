@@ -17,7 +17,7 @@ export async function markPantryItemUsedUp(itemId: string): Promise<PantryAction
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('pantry_items')
     .update({ quantity_remaining: 0, low_stock: true })
@@ -38,7 +38,7 @@ export async function addPantryItemToBasket(itemId: string): Promise<PantryActio
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('pantry_items')
     .update({ low_stock: true })
@@ -78,7 +78,7 @@ export async function addPantryItem(
     return { status: 'error', message: 'Give a quantity above zero.' };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Reuse the catalogue row when one exists, so pantry stock and recipe
   // ingredients refer to the same thing and the optimiser can match them.

@@ -29,9 +29,10 @@ export const VIEW_AS_COOKIE = 'grub_view_as';
  * The demo-only guard below is the real safety property and holds everywhere,
  * but a testing affordance should not follow the app to a deployment at all.
  */
-export function readViewAsId(): string | null {
+export async function readViewAsId(): Promise<string | null> {
   if (process.env.NODE_ENV === 'production') return null;
-  return cookies().get(VIEW_AS_COOKIE)?.value ?? null;
+  const cookieStore = await cookies();
+  return cookieStore.get(VIEW_AS_COOKIE)?.value ?? null;
 }
 
 /**
@@ -50,7 +51,7 @@ export async function resolveViewAs(
   realUser: User,
   supabase: SupabaseClient<Database>
 ): Promise<User | null> {
-  const targetId = readViewAsId();
+  const targetId = await readViewAsId();
   if (!targetId || targetId === realUser.id) return null;
 
   const target = await supabase.from('profiles').select('*').eq('id', targetId).maybeSingle();
@@ -73,7 +74,7 @@ export async function resolveViewAs(
  * somebody else. Saying so is better than letting it be found by confusion.
  */
 export async function viewAsRefusal(what: string): Promise<string | null> {
-  const targetId = readViewAsId();
+  const targetId = await readViewAsId();
   if (!targetId) return null;
   return (
     `Nothing saved. ${what} is tied to whoever is really signed in, and you are ` +

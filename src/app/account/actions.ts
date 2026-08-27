@@ -87,8 +87,8 @@ export async function updatePaymentDetails(
 
   if (note.length > 300) return fail('Keep the note under 300 characters.');
 
-  const supabase = createClient();
-  const actingAs = readViewAsId();
+  const supabase = await createClient();
+  const actingAs = await readViewAsId();
 
   // `profiles_update` is `id = auth.uid()`, so the ordinary update matches
   // nothing at all while the app is rendering as a demo housemate — and setting
@@ -155,8 +155,8 @@ export async function updateDietaryPreferences(
 
   const merged = [...new Set([...preferences, ...custom])];
 
-  const supabase = createClient();
-  const actingAs = readViewAsId();
+  const supabase = await createClient();
+  const actingAs = await readViewAsId();
 
   // Same reasoning as the payment details above — see `demo_update_dietary`.
   if (actingAs) {
@@ -208,7 +208,7 @@ export async function leaveHouse(): Promise<AccountActionState> {
     );
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Hand over the collector role rather than leaving it pointing at nobody.
   if (house.collectorUserId === me.id) {
@@ -256,7 +256,7 @@ export async function leaveHouse(): Promise<AccountActionState> {
  */
 export async function deleteAccount(alsoDeleteHouse = false): Promise<AccountActionState> {
   const me = await getCurrentUser();
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // --- Money first. Everything else is recoverable; this is not. ------------
   const splits = await supabase

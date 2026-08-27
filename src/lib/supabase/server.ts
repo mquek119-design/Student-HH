@@ -7,10 +7,10 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL, assertSupabaseConfigured } from './con
  * Server-side Supabase client for server components, route handlers and
  * server actions.
  */
-export function createClient() {
+export async function createClient() {
   assertSupabaseConfigured();
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   // Annotated explicitly: `createServerClient` accepts a union of the current
   // and deprecated cookie shapes, so inference alone leaves these params `any`.

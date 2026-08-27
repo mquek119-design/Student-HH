@@ -81,7 +81,7 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
     return fail('Tesco session required. Please import cookies under My Account or Basket settings.');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Fetch basket items for this weekly plan
   const itemsResp = await supabase
@@ -136,7 +136,6 @@ export async function syncBasketToTesco(planId: string): Promise<TescoActionStat
       // of only logging where nobody will look.
       priceNote =
         ' Prices could not be reconciled against the Tesco trolley, so the split still uses estimates.';
-      console.warn('Failed to update local prices from Tesco trolley:', basketErr);
     }
 
     // Mark plan as ordered
@@ -179,7 +178,7 @@ export async function startTescoCheckout(): Promise<TescoActionState> {
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const houseResp = await supabase
     .from('houses')
     .select('fulfillment_method, delivery_postcode, click_collect_store')

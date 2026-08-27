@@ -45,7 +45,7 @@ export async function addLeftover(
   const eatBy = new Date(madeOn);
   eatBy.setDate(eatBy.getDate() + shelfLife);
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const added = await supabase.from('leftovers').insert({
     house_id: me.houseId,
     created_by: me.id,
@@ -85,7 +85,7 @@ export async function clearLeftover(
   const id = String(formData.get('leftoverId') ?? '');
   if (!id) return fail('Missing item.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const removed = await supabase
     .from('leftovers')
     .delete()

@@ -65,7 +65,7 @@ async function ensurePlanId(weekStart: string = currentWeekStart()): Promise<str
   const [plan, house] = await Promise.all([getWeeklyPlanFor(weekStart), getHouse()]);
   if (plan?.id) return plan.id;
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const inserted = await supabase
     .from('weekly_plans')
@@ -141,7 +141,7 @@ export async function addMealToPlan(
     return fail(`${WEEKDAY_LABELS[day]} has been and gone. Put it on a day still to come.`);
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const planId = await ensurePlanId(weekStart);
 
   const existing = await supabase
@@ -214,7 +214,7 @@ export async function leaveMeal(
     return fail('The shop for that week has gone in — your share is already bought.');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const removed = await supabase
     .from('meal_participants')
     .delete()
@@ -252,7 +252,7 @@ export async function saveConstraints(
     .map((value) => String(value).trim())
     .filter(Boolean);
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const result = await supabase
     .from('profiles')
     .update({ dietary_preferences: constraints })
@@ -285,7 +285,7 @@ export async function reopenPlanning(): Promise<PlanActionState> {
   if (!plan?.id) return fail('No plan for this week yet.');
   if (plan.status === 'planning') return OK;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const result = await supabase
     .from('weekly_plans')
     .update({ status: 'planning' })
@@ -345,7 +345,7 @@ export async function setMealStatus(
   const gate = await requireOrderedPlan();
   if (!gate.ok) return gate.state;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const updated = await supabase
     .from('planned_meals')
     .update({ status: raw as MealStatus })
@@ -385,7 +385,7 @@ export async function bailFromMeal(
   const gate = await requireOrderedPlan();
   if (!gate.ok) return gate.state;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const updated = await supabase
     .from('meal_participants')
     .update({ bailed: !undo })
@@ -460,7 +460,7 @@ export async function claimCook(
     return fail('Somebody is already cooking that one — ask them to hand it over.');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const updated = await supabase
     .from('planned_meals')
     .update({ cooked_by_user_id: me.id, cook_offer_to: null })
@@ -496,7 +496,7 @@ export async function offerCook(
     return fail('Only somebody eating the meal can cook it.');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const updated = await supabase
     .from('planned_meals')
     .update({ cook_offer_to: userId })
@@ -537,7 +537,7 @@ export async function respondToCookOffer(
     return fail('That offer is not yours to answer.');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const updated = await supabase
     .from('planned_meals')
     .update(
@@ -574,7 +574,7 @@ export async function standDownAsCook(
     return fail('You are not the one cooking that.');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const updated = await supabase
     .from('planned_meals')
     .update({ cooked_by_user_id: null, cook_offer_to: null })
@@ -626,7 +626,7 @@ export async function setMealCapacity(
     return fail('The shop is placed — the pan is already accounted for.');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const updated = await supabase
     .from('planned_meals')
     .update({ max_diners: max })
@@ -691,7 +691,7 @@ export async function setGuests(
     }
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const updated = await supabase
     .from('meal_participants')
     .update({ guests, guests_covered: covered })
@@ -753,7 +753,7 @@ export async function joinMeal(
     );
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const joined = await supabase
     .from('meal_participants')
     .upsert({ planned_meal_id: mealId, user_id: me.id, opted_out: false });
@@ -809,7 +809,7 @@ export async function removeFromMeal(
     );
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const removed = await supabase
     .from('meal_participants')
     .delete()

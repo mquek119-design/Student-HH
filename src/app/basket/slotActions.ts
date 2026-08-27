@@ -107,7 +107,7 @@ export async function chooseSlot(
     };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const saved = await supabase
     .from('weekly_plans')
     .update({

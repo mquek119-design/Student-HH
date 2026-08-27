@@ -13,7 +13,7 @@ export async function updateFulfillmentSettings(
   const me = await getCurrentUser();
   if (!me.houseId) return { status: 'error', message: 'Not in a house.' };
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('houses')
     .update({
@@ -76,7 +76,7 @@ export async function updateSlotPreference(formData: FormData) {
     return { status: 'error' as const, message: 'The window must end after it starts.' };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const result = await supabase
     .from('houses')
     .update({
@@ -129,7 +129,7 @@ export async function updateCutoff(formData: FormData) {
     return { status: 'error' as const, message: 'Pick a valid time.' };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const result = await supabase
     .from('houses')
     .update({ cutoff_day: day as Weekday, cutoff_time: time })
@@ -151,7 +151,7 @@ export async function updateCollector(formData: FormData) {
   const collectorId = String(formData.get('collectorId') ?? '').trim();
   if (!collectorId) return { status: 'error' as const, message: 'Pick a housemate.' };
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const result = await supabase
     .from('houses')
     .update({ collector_user_id: collectorId })

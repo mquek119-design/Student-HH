@@ -38,7 +38,7 @@ export async function createHouse(
   const cutoffTimeRaw = String(formData.get('cutoffTime') ?? '17:00');
   const cutoffTime = /^\d{2}:\d{2}$/.test(cutoffTimeRaw) ? cutoffTimeRaw : '17:00';
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.rpc('create_house', {
     p_name: name,
     p_delivery_day: asWeekday(formData.get('deliveryDay'), 'mon'),
@@ -48,6 +48,26 @@ export async function createHouse(
 
   if (error) {
     return { status: 'error', message: error.message };
+  }
+
+  // Seed starter recipes for the new house
+  try {
+    const user = await supabase.auth.getUser();
+    if (user.data.user?.id) {
+      // Get the user's new house
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('house_id')
+        .eq('id', user.data.user.id)
+        .single();
+
+      if (profile?.house_id) {
+        const { seedStarterRecipes } = await import('@/lib/seedStarterRecipes');
+        await seedStarterRecipes(profile.house_id, user.data.user.id);
+      }
+    }
+  } catch (err) {
+    // Don't fail the house creation if seeding fails
   }
 
   revalidatePath('/', 'layout');
@@ -74,7 +94,7 @@ export async function joinHouse(
     return { status: 'error', message: 'Enter the invite code your housemate shared.' };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.rpc('join_house', { p_invite_code: code });
 
   if (error) {
@@ -100,7 +120,7 @@ export async function joinHouse(
 
 export async function signOut(): Promise<void> {
   if (isSupabaseConfigured) {
-    const supabase = createClient();
+    const supabase = await createClient();
     await supabase.auth.signOut();
   }
   revalidatePath('/', 'layout');

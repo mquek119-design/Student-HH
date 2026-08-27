@@ -54,7 +54,7 @@ export async function buildBasket(): Promise<BasketActionState> {
   if (!plan?.id) return fail('No plan for this week yet.');
   if (plan.meals.length === 0) return fail('Plan some meals before building the basket.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const ingredientRows = await supabase.from('ingredients').select('*');
   if (ingredientRows.error) return fail(ingredientRows.error.message);
@@ -329,7 +329,7 @@ export async function saveIngredientPack(
   if (!unit) return fail('Give the pack a unit, e.g. g, ml, tin.');
   if (price === null || price < 0) return fail('Enter the pack price, e.g. 1.20.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const result = await supabase
     .from('ingredients')
     .update({ pack_size: size, pack_unit: unit, pack_price: price })
@@ -349,7 +349,7 @@ export async function updateBasketItemQuantity(
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   if (quantity <= 0) {
     const deleted = await supabase.from('basket_items').delete().eq('id', basketItemId);
@@ -382,7 +382,6 @@ export async function searchTescoProducts(query: string): Promise<any[]> {
       imageUrl: p.image_url || null,
     }));
   } catch (err) {
-    console.error('Tesco search error:', err);
     return [];
   }
 }
@@ -399,7 +398,7 @@ export async function updateIngredientProductMapping(
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const basketUpdate = await supabase
     .from('basket_items')
@@ -475,7 +474,7 @@ export async function addManualItem(
   if (!name) return fail('Pick a product to add.');
   if (!Number.isFinite(price) || price < 0) return fail('That product has no usable price.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const inserted = await supabase.from('basket_items').insert({
     plan_id: plan.id,
     ingredient_id: null,
@@ -509,7 +508,7 @@ export async function removeManualItem(itemId: string): Promise<BasketActionStat
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const removed = await supabase
     .from('basket_items')
     .delete()

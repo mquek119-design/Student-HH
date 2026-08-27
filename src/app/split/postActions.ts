@@ -63,7 +63,7 @@ export async function postSplit(): Promise<PostSplitState> {
       ? splitPence(plan.slot.charge, allUserIds.map(() => 1))
       : allUserIds.map(() => 0);
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const existing = await supabase
     .from('splits')
     .select('id, from_user_id, amount, status')

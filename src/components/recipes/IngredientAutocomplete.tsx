@@ -40,7 +40,6 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
       setSelectedIndex(-1);
       setIsOpen(true);
     } catch (error) {
-      console.error('Failed to search ingredients:', error);
       setSuggestions([]);
     } finally {
       setIsLoading(false);

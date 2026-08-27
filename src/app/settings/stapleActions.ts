@@ -50,7 +50,7 @@ export async function addStaple(
   if (!name) return fail('Give it a name.');
   if (name.length > 80) return fail('That name is too long.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const resolved = await findOrCreateIngredient(supabase, {
     name,
@@ -87,7 +87,7 @@ export async function updateStapleFrequency(
   if (!id) return fail('Missing staple.');
   if (!(rawFrequency in STAPLE_INTERVAL_DAYS)) return fail('Unknown frequency.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const updated = await supabase
     .from('house_staples')
     .update({ frequency: rawFrequency as StapleFrequency })
@@ -112,7 +112,7 @@ export async function removeStaple(
   const id = String(formData.get('stapleId') ?? '');
   if (!id) return fail('Missing staple.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const removed = await supabase
     .from('house_staples')
     .delete()
@@ -144,7 +144,7 @@ export async function updateSharedStaples(
 
   const enabled = String(formData.get('enabled') ?? '') === 'true';
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const updated = await supabase
     .from('houses')
     .update({ shared_staples_enabled: enabled })

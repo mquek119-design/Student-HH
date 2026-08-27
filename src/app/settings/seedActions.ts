@@ -43,7 +43,7 @@ export async function clearDemoData(): Promise<SeedResult> {
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Plans first: recipes are referenced by planned_meals with ON DELETE
   // RESTRICT, so deleting recipes while a plan still points at them fails.
@@ -103,7 +103,7 @@ export async function seedDemoData(): Promise<SeedResult> {
   const cleared = await clearDemoData();
   if (cleared.status === 'error') return cleared;
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // ---------------------------------------------------------------------
   // 1. Housemates — four demo profiles, five people counting the caller.
@@ -394,7 +394,7 @@ export async function removeDemoHousemates(): Promise<SeedResult> {
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const removed = await supabase.rpc('remove_demo_housemates');
 
   if (removed.error) return fail(removed.error.message);
@@ -424,7 +424,7 @@ export async function simulateOrderPlaced(placed: boolean): Promise<SeedResult> 
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const plan = await supabase
     .from('weekly_plans')
     .select('id')

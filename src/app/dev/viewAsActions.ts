@@ -30,7 +30,7 @@ export async function startViewingAs(profileId: string): Promise<DevResult> {
     );
   }
 
-  cookies().set(VIEW_AS_COOKIE, target.id, {
+  (await cookies()).set(VIEW_AS_COOKIE, target.id, {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
@@ -48,7 +48,7 @@ export async function startViewingAs(profileId: string): Promise<DevResult> {
 
 /** Back to your own account. */
 export async function stopViewingAs(): Promise<DevResult> {
-  cookies().delete(VIEW_AS_COOKIE);
+  (await cookies()).delete(VIEW_AS_COOKIE);
   revalidatePath('/', 'layout');
   return { status: 'success', message: 'Back to your own account.' };
 }

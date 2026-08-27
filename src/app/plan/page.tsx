@@ -5,6 +5,7 @@ import { OverlapHints } from '@/components/plan/OverlapHints';
 import { WeekPlan } from '@/components/plan/WeekPlan';
 import { WeekSwitcher } from '@/components/plan/WeekSwitcher';
 import { ReopenPlanningBanner } from '@/components/plan/ReopenPlanningBanner';
+import { FirstMealModal } from '@/components/plan/FirstMealModal';
 import { Icon } from '@/components/media/Icon';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Notice } from '@/components/ui/Notice';
@@ -144,14 +145,20 @@ export default async function PlanPage({
       </div>
 
       {recipes.length === 0 ? (
-        <EmptyState
-          icon="ti-soup"
-          title="No recipes, no plan"
-          body="The week is built out of the recipe book, and the book is empty. Write one out or paste a link — it takes a minute and then it's there forever."
-          action={{ href: '/recipes/new', label: 'Add a recipe' }}
-        />
+        <>
+          <EmptyState
+            icon="ti-soup"
+            title="No recipes, no plan"
+            body="The week is built out of the recipe book, and the book is empty. Write one out or paste a link — it takes a minute and then it's there forever."
+            action={{ href: '/recipes/new', label: 'Add a recipe' }}
+          />
+        </>
       ) : (
         <>
+          {/* Show first-meal nudge if this week is empty and we're on this week */}
+          {week === 'this' && plan.meals.length === 0 && (
+            <FirstMealModal recipes={recipes} />
+          )}
           <WeekPlan plan={plan} housemates={housemates} currentUser={currentUser} week={week} />
           <OverlapHints overlaps={plan.overlaps} />
         </>

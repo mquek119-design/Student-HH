@@ -28,7 +28,7 @@ export async function findDuplicateIngredients(): Promise<DuplicateCluster[]> {
   const me = await getCurrentUser();
   if (!me.houseId) return [];
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const rows = await supabase.from('ingredients').select('id, name');
   if (rows.error || !rows.data) return [];
 
@@ -80,7 +80,7 @@ export async function mergeIngredients(keepId: string, dropId: string): Promise<
   if (!me.houseId) return fail('Join a house first.');
   if (keepId === dropId) return fail('Those are the same ingredient.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const names = await supabase.from('ingredients').select('id, name').in('id', [keepId, dropId]);
   if (names.error) return fail(names.error.message);

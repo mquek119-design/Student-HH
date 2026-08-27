@@ -102,7 +102,7 @@ export async function logExpense(
     shares = parsed.map((entry) => ({ userId: entry.userId, amount: entry.amount ?? 0 }));
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const created = await supabase
     .from('expenses')
     .insert({
@@ -162,7 +162,7 @@ export async function settleExpenseShare(
   const settled = String(formData.get('settled') ?? 'true') === 'true';
   if (!expenseId || !userId) return fail('Missing share.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const updated = await supabase
     .from('expense_shares')
     .update({ settled })
@@ -192,7 +192,7 @@ export async function deleteExpense(
   const expenseId = String(formData.get('expenseId') ?? '');
   if (!expenseId) return fail('Missing purchase.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const removed = await supabase
     .from('expenses')
     .delete()

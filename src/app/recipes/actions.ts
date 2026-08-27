@@ -38,7 +38,7 @@ function asCategory(value: FormDataEntryValue | null): IngredientCategory {
 export async function searchIngredients(query: string): Promise<IngredientSuggestion[]> {
   if (!query.trim()) return [];
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const searchCanonical = canonicalName(query);
 
   // Search by canonical name, case-insensitive prefix match.
@@ -53,7 +53,6 @@ export async function searchIngredients(query: string): Promise<IngredientSugges
     .limit(50);
 
   if (result.error) {
-    console.error('Ingredient search error:', result.error);
     return [];
   }
 
@@ -81,7 +80,7 @@ export async function searchIngredients(query: string): Promise<IngredientSugges
  * Shared by create and update so the catalogue stays consistent.
  */
 async function resolveIngredientIds(
-  supabase: ReturnType<typeof createClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   lines: ParsedIngredient[],
   category: IngredientCategory
 ): Promise<{ ids: string[] } | { error: string }> {
@@ -141,7 +140,7 @@ export async function createRecipe(
     .map((tag) => tag.trim())
     .filter(Boolean);
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const category = asCategory(formData.get('category'));
 
   // Ingredients are a shared catalogue matched on their canonical name, so
@@ -243,7 +242,7 @@ export async function updateRecipe(
     return { status: 'error', message: 'Add at least one ingredient, e.g. "500 g Penne pasta".' };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const category = asCategory(formData.get('category'));
 
   const updated = await supabase
@@ -302,7 +301,7 @@ export async function deleteRecipe(recipeId: string): Promise<RecipeFormState> {
   const me = await getCurrentUser();
   if (!me.houseId) return { status: 'error', message: 'Join a house first.' };
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const planned = await supabase
     .from('planned_meals')

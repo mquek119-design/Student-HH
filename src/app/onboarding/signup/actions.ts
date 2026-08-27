@@ -33,8 +33,8 @@ export async function sendSignupLink(
     return { status: 'error', message: 'Enter a valid email address.' };
   }
 
-  const origin = headers().get('origin') ?? '';
-  const supabase = createClient();
+  const origin = (await headers()).get('origin') ?? '';
+  const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithOtp({
     email,

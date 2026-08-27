@@ -96,7 +96,7 @@ const ACCENTS = ['green', 'orange', 'blue', 'purple'] as const;
  * go through `getCurrentUser()` so the whole screen agrees on who it is for.
  */
 export const getRealUser = cache(async (): Promise<User | null> => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -107,7 +107,7 @@ export const getRealUser = cache(async (): Promise<User | null> => {
 });
 
 export const getCurrentUserOrNull = cache(async (): Promise<User | null> => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -156,7 +156,7 @@ export const getHouseOrNull = cache(async (): Promise<House | null> => {
   const me = await getCurrentUser();
   if (!me.houseId) return null;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase.from('houses').select('*').eq('id', me.houseId).maybeSingle();
   return data ? toHouse(data) : null;
 });
@@ -171,7 +171,7 @@ export const getHousemates = cache(async (): Promise<User[]> => {
   const me = await getCurrentUser();
   if (!me.houseId) return [];
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const result = await supabase
     .from('profiles')
     .select('*')
@@ -206,7 +206,7 @@ export const getCollector = cache(async (): Promise<User | null> => {
  * costs real latency, so these must not each fetch their own copy.
  */
 const getIngredientRows = cache(async () => {
-  const supabase = createClient();
+  const supabase = await createClient();
   return unwrap(await supabase.from('ingredients').select('*'), 'ingredients');
 });
 
@@ -215,7 +215,7 @@ const getIngredientRows = cache(async () => {
 // ---------------------------------------------------------------------------
 
 async function loadRecipes(ids?: string[]): Promise<Recipe[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let query = supabase.from('recipes').select('*').order('title');
   if (ids) {
@@ -333,7 +333,7 @@ export const getWeeklyPlanFor = cache(
   const house = await getHouseOrNull();
   if (!house) return null;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const planResult = await supabase
     .from('weekly_plans')
     .select('*')
@@ -430,7 +430,7 @@ export const getMealContext = cache(
     const house = await getHouseOrNull();
     if (!house) return null;
 
-    const supabase = createClient();
+    const supabase = await createClient();
     const mealRow = await supabase
       .from('planned_meals')
       .select('*')
@@ -472,7 +472,7 @@ export const getBasketItems = cache(async (): Promise<BasketItem[]> => {
   const plan = await getWeeklyPlan();
   if (!plan || !plan.id) return [];
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const itemRows = unwrap(
     await supabase.from('basket_items').select('*').eq('plan_id', plan.id).order('category'),
     'getBasketItems'
@@ -589,7 +589,7 @@ export const getCurrentSplit = cache(async (): Promise<Split | null> => {
     return null;
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const allUserIds = housemates.map((user) => user.id);
   const totals = perPersonTotals(items, allUserIds);
@@ -702,7 +702,7 @@ export const getPostedSplits = cache(
     const [plan, housemates] = await Promise.all([getWeeklyPlan(), getHousemates()]);
     if (!plan?.id) return [];
 
-    const supabase = createClient();
+    const supabase = await createClient();
     const rows = await supabase.from('splits').select('*').eq('plan_id', plan.id);
     if (rows.error) return [];
 
@@ -724,7 +724,7 @@ export const getLedger = cache(async (): Promise<LedgerEntry[]> => {
   const house = await getHouseOrNull();
   if (!house) return [];
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const plans = unwrap(
     await supabase.from('weekly_plans').select('id, week_number').eq('house_id', house.id),
     'ledger plans'
@@ -781,7 +781,7 @@ export const getExpenses = cache(async (): Promise<Expense[]> => {
   const me = await getCurrentUserOrNull();
   if (!me?.houseId) return [];
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const expenses = await supabase
     .from('expenses')
     .select('*')
@@ -843,7 +843,7 @@ export const getPantryItems = cache(async (): Promise<PantryItem[]> => {
   const me = await getCurrentUserOrNull();
   if (!me?.houseId) return [];
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const [itemsResult, ingredientRows] = await Promise.all([
     supabase.from('pantry_items').select('*').eq('house_id', me.houseId),
     getIngredientRows(),
@@ -874,7 +874,7 @@ export const getHouseStaples = cache(async (): Promise<HouseStaple[]> => {
   const me = await getCurrentUserOrNull();
   if (!me?.houseId) return [];
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const [result, ingredientRows] = await Promise.all([
     supabase.from('house_staples').select('*').eq('house_id', me.houseId),
     getIngredientRows(),
@@ -916,7 +916,7 @@ export const getLeftovers = cache(async (): Promise<Leftover[]> => {
   const me = await getCurrentUserOrNull();
   if (!me?.houseId) return [];
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const result = await supabase
     .from('leftovers')
     .select('*')
@@ -953,7 +953,7 @@ export const getSubstitutions = cache(async (): Promise<Substitution[]> => {
   const items = await getBasketItems();
   if (items.length === 0) return [];
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const rows = unwrap(
     await supabase
       .from('substitutions')
@@ -968,7 +968,7 @@ export const getReconciliationItems = cache(async (): Promise<ReconciliationItem
   const items = await getBasketItems();
   if (items.length === 0) return [];
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const receipts = unwrap(
     await supabase
       .from('delivery_receipts')
@@ -1009,7 +1009,7 @@ export const getSavings = cache(async (): Promise<Savings> => {
   const house = await getHouseOrNull();
   if (!house) return { totalAllTime: 0, thisWeek: 0, ownBrandSwaps: [] };
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const plans = unwrap(
     await supabase
       .from('weekly_plans')

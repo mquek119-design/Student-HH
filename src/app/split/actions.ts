@@ -29,8 +29,8 @@ async function writeSplitStatus(
   status: SplitStatus,
   scope: { column: 'from_user_id' | 'to_user_id'; userId: string }
 ): Promise<{ changed: number } | { error: string }> {
-  const supabase = createClient();
-  const actingAs = readViewAsId();
+  const supabase = await createClient();
+  const actingAs = await readViewAsId();
 
   if (actingAs) {
     const { data, error } = await supabase.rpc('demo_set_split_status', {
@@ -155,7 +155,7 @@ export async function updateSubstitutionDecision(
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('substitutions')
     .update({ decision })
@@ -178,7 +178,7 @@ export async function updateItemReceived(
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from('delivery_receipts').upsert({
     basket_item_id: basketItemId,
     received,
@@ -199,7 +199,7 @@ export async function finaliseReconciliation(planId: string): Promise<SplitActio
   const me = await getCurrentUser();
   if (!me.houseId) return fail('Join a house first.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('weekly_plans')
     .update({ status: 'delivered' })
