@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import { AppChrome } from '@/components/nav/AppChrome';
+import { PushNotificationSetup } from '@/components/PushNotificationSetup';
 import { getCurrentUserOrNull, getRealUser } from '@/lib/queries';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import './globals.css';
@@ -81,6 +82,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           A utility here beats any @layer base rule, so it must be set on the
           element rather than in globals.css. */}
       <body className="bg-surface-0 text-on-background font-body-lg text-body-lg antialiased min-h-screen selection:bg-primary selection:text-on-primary">
+        <PushNotificationSetup />
         <AppChrome currentUser={currentUser} viewingAsName={viewingAsName}>
           {children}
         </AppChrome>
