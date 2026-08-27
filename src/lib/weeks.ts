@@ -101,3 +101,14 @@ export function isoWeekNumber(date: Date): number {
   firstThursday.setUTCDate(firstThursday.getUTCDate() - firstDayNumber + 3);
   return 1 + Math.round((target.getTime() - firstThursday.getTime()) / (7 * 86_400_000));
 }
+
+/**
+ * Has the cutoff time for planning passed?
+ *
+ * Takes an ISO 8601 datetime string (e.g., from `weeklyPlans.cutoffAt`) and
+ * returns true if the current time is at or past that moment.
+ */
+export function isCutoffPassed(cutoffAtIso: string, now: Date = new Date()): boolean {
+  const cutoffTime = new Date(cutoffAtIso).getTime();
+  return now.getTime() >= cutoffTime;
+}

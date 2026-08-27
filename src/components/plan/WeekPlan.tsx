@@ -15,6 +15,7 @@ import { canSetCapacity, mealOwnerId, mouthsAt } from '@/lib/meals';
 import { joinMeal, leaveMeal, type PlanActionState } from '@/app/plan/actions';
 import type { PlannedMeal, Recipe, User, Weekday, WeeklyPlan } from '@/lib/types';
 import type { WeekChoice } from '@/lib/weeks';
+import { isCutoffPassed } from '@/lib/weeks';
 import { MEAL_TYPES, MEAL_TYPE_ICONS, MEAL_TYPE_LABELS, WEEKDAYS, WEEKDAY_LABELS } from '@/lib/types';
 
 /**
@@ -41,8 +42,28 @@ function dayDate(weekStartDate: string, day: Weekday): string {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 }
 
-function JoinToggle({ joined, full }: { joined: boolean; full: boolean }) {
+function JoinToggle({
+  joined,
+  full,
+  cutoffPassed,
+}: {
+  joined: boolean;
+  full: boolean;
+  cutoffPassed: boolean;
+}) {
   const { pending } = useFormStatus();
+
+  if (cutoffPassed && !joined) {
+    return (
+      <span
+        title="Planning is closed for this week"
+        className="shrink-0 inline-flex items-center gap-xs px-sm h-9 rounded-full border border-outline-variant text-on-surface-variant/70 text-[13px] font-semibold"
+      >
+        <Icon name="lock" className="text-[16px]" />
+        Closed
+      </span>
+    );
+  }
 
   if (full && !joined) {
     return (
@@ -65,6 +86,7 @@ function JoinToggle({ joined, full }: { joined: boolean; full: boolean }) {
       variant={joined ? 'outline' : 'primary'}
       icon={joined ? 'logout' : 'add'}
       className="shrink-0"
+      disabled={cutoffPassed}
     >
       {joined ? 'Leave' : 'Join'}
     </Button>
@@ -78,6 +100,7 @@ function MealRow({
   locked,
   past,
   recipe,
+  cutoffPassed,
 }: {
   meal: PlannedMeal;
   housemates: User[];
@@ -91,6 +114,11 @@ function MealRow({
    */
   past: boolean;
   recipe?: Recipe;
+  /**
+   * Cutoff time has passed. Closes planning — you cannot join or leave meals
+   * after the order cutoff, even if the day is still in the future.
+   */
+  cutoffPassed: boolean;
 }) {
   const [, joinAction] = useFormState(joinMeal, INITIAL);
   const [, leaveAction] = useFormState(leaveMeal, INITIAL);
@@ -137,10 +165,11 @@ function MealRow({
               <Icon name={MEAL_TYPE_ICONS[meal.mealType]} className="text-[13px]" />
               {MEAL_TYPE_LABELS[meal.mealType]}
             </span>
-            <Link href={`/recipes/${meal.recipeId}`} className="min-w-0 hover:underline">
+            <Link href={`/recipes/${meal.recipeId}`} className="min-w-0 hover:underline flex items-center gap-xs">
               <h4 className="font-title-md text-title-md text-on-surface leading-tight truncate">
                 {meal.recipeTitle}
               </h4>
+              {full && <Badge tone="error">FULL</Badge>}
             </Link>
           </div>
 
@@ -239,12 +268,15 @@ function MealRow({
                 <Icon name={askedMe ? 'notifications' : 'tune'} className="text-[18px]" />
               </button>
             )}
-            {/* Gone days keep the sheet and lose the toggle. */}
-            {!past && (
+            {/* Gone days and post-cutoff periods keep the sheet and lose the toggle. */}
+            {!past && !cutoffPassed && (
               <form action={joined ? leaveAction : joinAction}>
                 <input type="hidden" name="mealId" value={meal.id} />
-                <JoinToggle joined={joined} full={full} />
+                <JoinToggle joined={joined} full={full} cutoffPassed={false} />
               </form>
+            )}
+            {!past && cutoffPassed && (
+              <JoinToggle joined={joined} full={full} cutoffPassed={true} />
             )}
           </div>
         )}
@@ -257,6 +289,12 @@ function MealRow({
           currentUser={currentUser}
           onClose={() => setOptionsOpen(false)}
         />
+      )}
+
+      {full && !joined && (
+        <p className="font-body-sm text-body-sm text-on-surface-variant px-md pb-sm italic">
+          This meal is full. Add your own meal for {WEEKDAY_LABELS[meal.day].toLowerCase()} if you want to eat.
+        </p>
       )}
     </article>
   );
@@ -275,6 +313,7 @@ export function WeekPlan({
   week: WeekChoice;
 }) {
   const locked = plan.status !== 'planning';
+  const cutoffPassed = isCutoffPassed(plan.cutoffAt);
   // Only this week has a today, and only this week has a past. Next week is all
   // still ahead of you, so greying Monday there would be pointing at a day that
   // has not happened.
@@ -317,7 +356,9 @@ export function WeekPlan({
                 'flex items-center justify-between gap-sm px-md py-sm border-b',
                 isToday
                   ? 'bg-primary-fixed border-primary/20'
-                  : 'bg-surface-container-low/60 border-surface-container-highest'
+                  : cutoffPassed && !locked
+                    ? 'bg-surface-container-low/40 border-surface-container-highest opacity-70'
+                    : 'bg-surface-container-low/60 border-surface-container-highest'
               )}
             >
               <div className="flex items-baseline gap-sm min-w-0">
@@ -326,7 +367,7 @@ export function WeekPlan({
                     'font-title-md text-title-md',
                     isToday
                       ? 'text-on-primary-fixed'
-                      : isPast
+                      : isPast || (cutoffPassed && !locked)
                         ? 'text-on-surface-variant'
                         : 'text-on-surface'
                   )}
@@ -364,10 +405,11 @@ export function WeekPlan({
                   locked={locked}
                   past={isPast}
                   recipe={plan.recipes.get(meal.recipeId)}
+                  cutoffPassed={cutoffPassed}
                 />
               ))}
 
-              {!locked && !isPast && (
+              {!locked && !isPast && !cutoffPassed && (
                 <Link
                   href={`/recipes?day=${day}${week === 'next' ? '&week=next' : ''}`}
                   className={clsx(
@@ -381,6 +423,12 @@ export function WeekPlan({
                     {dayMeals.length === 0 ? 'Put something on' : 'Add another'}
                   </span>
                 </Link>
+              )}
+
+              {!locked && !isPast && cutoffPassed && dayMeals.length === 0 && (
+                <p className="font-body-sm text-body-sm text-on-surface-variant text-center py-md italic opacity-70">
+                  Planning closed for this week.
+                </p>
               )}
 
               {(locked || isPast) && dayMeals.length === 0 && (
