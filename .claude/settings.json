@@ -28,9 +28,13 @@
       "Bash(wc *)",
       "Bash(date)",
       "Bash(pwd)",
+      "Bash(playwright *)",
+      "Bash(supabase *)",
       "Read(*)",
       "Write(*)",
-      "Edit(*)"
+      "Edit(*)",
+      "Glob(*)",
+      "Grep(*)"
     ],
     "deny": []
   }
