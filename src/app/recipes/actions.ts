@@ -8,6 +8,7 @@ import { getCurrentUser } from '@/lib/queries';
 import { parsePounds } from '@/lib/money';
 import { parseIngredientLine, type ParsedIngredient } from '@/lib/parseIngredient';
 import { parseRecipeFromHtml } from '@/lib/recipeImport';
+import { canonicalName } from '@/lib/ingredients';
 import type { IngredientCategory } from '@/lib/types';
 
 export interface RecipeFormState {
@@ -15,11 +16,63 @@ export interface RecipeFormState {
   message: string;
 }
 
+export interface IngredientSuggestion {
+  id: string;
+  name: string;
+  canonicalName: string;
+  imageUrl: string | null;
+}
+
 const CATEGORIES: IngredientCategory[] = ['fresh', 'cupboard', 'frozen', 'household'];
 
 function asCategory(value: FormDataEntryValue | null): IngredientCategory {
   const raw = String(value ?? '');
   return (CATEGORIES as string[]).includes(raw) ? (raw as IngredientCategory) : 'cupboard';
+}
+
+/**
+ * Search for ingredients by canonical name, for autocomplete suggestions.
+ * Returns distinct canonical names (one suggestion per unique ingredient),
+ * ordered alphabetically, limited to 10 results.
+ */
+export async function searchIngredients(query: string): Promise<IngredientSuggestion[]> {
+  if (!query.trim()) return [];
+
+  const supabase = createClient();
+  const searchCanonical = canonicalName(query);
+
+  // Search by canonical name, case-insensitive prefix match.
+  // Group by canonical_name to avoid showing duplicates, but preserve
+  // the original typed name from the most recently created row.
+  const result = await supabase
+    .from('ingredients')
+    .select('id, name, canonical_name, image_url')
+    .ilike('canonical_name', `${searchCanonical}%`)
+    .order('canonical_name')
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (result.error) {
+    console.error('Ingredient search error:', result.error);
+    return [];
+  }
+
+  // Deduplicate by canonical_name, keeping the first (most recent) name per canonical
+  const seen = new Set<string>();
+  return result.data
+    .filter((row) => {
+      const canonical = row.canonical_name || row.name;
+      if (seen.has(canonical)) return false;
+      seen.add(canonical);
+      return true;
+    })
+    .slice(0, 10)
+    .map((row) => ({
+      id: row.id,
+      name: row.name,
+      canonicalName: row.canonical_name || row.name,
+      imageUrl: row.image_url || null,
+    }));
 }
 
 

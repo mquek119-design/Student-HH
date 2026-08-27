@@ -5,7 +5,8 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { SubmitButton as FormSubmitButton } from '@/components/ui/SubmitButton';
 import { createRecipe, updateRecipe, type RecipeFormState } from '../actions';
-import { parseIngredientLine } from '@/lib/parseIngredient';
+import { parseIngredientLine, type ParsedIngredient } from '@/lib/parseIngredient';
+import { IngredientAutocomplete } from '@/components/recipes/IngredientAutocomplete';
 
 const INITIAL: RecipeFormState = { status: 'idle', message: '' };
 
@@ -54,6 +55,12 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
   const parsed = lines.map((line) => ({ line, result: parseIngredientLine(line) }));
   const unparseable = parsed.filter((p) => p.line.trim() && p.result === null);
   const good = parsed.filter((p) => p.result !== null);
+
+  // Add ingredient from autocomplete to the textarea
+  const handleAddIngredient = (ingredient: ParsedIngredient & { ingredientId?: string }) => {
+    const line = `${ingredient.quantity} ${ingredient.unit} ${ingredient.name}`;
+    setIngredientsText((prev) => (prev ? `${prev}\n${line}` : line));
+  };
 
   return (
     <form action={formAction} className="flex flex-col gap-md">
@@ -128,21 +135,25 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
         </label>
       </div>
 
-      <label className="flex flex-col gap-xs">
-        <span className="font-body-sm text-body-sm font-semibold">Ingredients</span>
-        <span className="font-body-sm text-[12px] text-on-surface-variant">
-          One per line, quantity first — <code className="font-numeric-data">500 g Penne pasta</code>
-        </span>
-        <textarea
-          name="ingredients"
-          required
-          rows={7}
-          value={ingredientsText}
-          onChange={(event) => setIngredientsText(event.target.value)}
-          placeholder={'500 g Penne pasta\n2 tins Chopped tomatoes\n3 cloves Garlic\n1 Lime'}
-          className={`${FIELD} resize-y font-numeric-data text-[14px]`}
-        />
-      </label>
+      <div className="flex flex-col gap-md">
+        <IngredientAutocomplete onAdd={handleAddIngredient} />
+
+        <label className="flex flex-col gap-xs">
+          <span className="font-body-sm text-body-sm font-semibold">Ingredients</span>
+          <span className="font-body-sm text-[12px] text-on-surface-variant">
+            One per line, quantity first — <code className="font-numeric-data">500 g Penne pasta</code>
+          </span>
+          <textarea
+            name="ingredients"
+            required
+            rows={7}
+            value={ingredientsText}
+            onChange={(event) => setIngredientsText(event.target.value)}
+            placeholder={'500 g Penne pasta\n2 tins Chopped tomatoes\n3 cloves Garlic\n1 Lime'}
+            className={`${FIELD} resize-y font-numeric-data text-[14px]`}
+          />
+        </label>
+      </div>
 
       {(good.length > 0 || unparseable.length > 0) && (
         <Card className="flex flex-col gap-xs">
