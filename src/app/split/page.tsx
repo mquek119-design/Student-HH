@@ -180,6 +180,7 @@ export default async function SplitPage() {
               that updates nothing — so it is only offered once posted. */}
           <PayPanel
             collectorName={collector.name}
+            collectorRoom={collector.room}
             payment={collector.payment}
             splitId={split.isPosted ? split.id : undefined}
             isNotified={split.status === 'notified' || split.status === 'confirmed'}

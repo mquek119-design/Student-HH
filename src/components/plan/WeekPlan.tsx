@@ -198,7 +198,9 @@ function MealRow({
 
             <span className={clsx('flex items-center gap-0.5', !cook && 'italic opacity-70')}>
               <Icon name="skillet" className="text-[13px]" />
-              {cook ? `${cook.name} cooks` : 'No cook yet'}
+              {cook
+                ? `${cook.name}${cook.room ? ` (Room ${cook.room})` : ''} cooks`
+                : 'No cook yet'}
             </span>
 
             {/* A pending hand-over is worth seeing from the week: it is the one

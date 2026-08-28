@@ -69,7 +69,10 @@ export default async function BalancesPage() {
                   <Card className="flex items-center gap-md">
                     <Avatar user={user} size="md" />
                     <div className="flex-grow min-w-0">
-                      <p className="font-title-md text-title-md truncate">{user.name}</p>
+                      <p className="font-title-md text-title-md truncate">
+                        {user.name}
+                        {user.room && <span className="text-on-surface-variant"> (Room {user.room})</span>}
+                      </p>
                       <p className="font-body-sm text-body-sm text-on-surface-variant">
                         {net === 0 ? 'Settled up' : net > 0 ? 'Is owed' : 'Owes the house'}
                       </p>
@@ -116,9 +119,11 @@ export default async function BalancesPage() {
                   <div className="flex-grow min-w-0">
                     <p className="font-body-lg text-body-lg truncate">
                       <span className="font-semibold">
-                        {entry.fromUserId === currentUser.id ? 'You' : (from?.name ?? 'Someone')}
+                        {entry.fromUserId === currentUser.id
+                          ? 'You'
+                          : `${from?.name ?? 'Someone'}${from?.room ? ` (Room ${from.room})` : ''}`}
                       </span>{' '}
-                      → {entry.toUserId === currentUser.id ? 'you' : (to?.name ?? 'someone')}
+                      → {entry.toUserId === currentUser.id ? 'you' : `${to?.name ?? 'someone'}${to?.room ? ` (Room ${to.room})` : ''}`}
                     </p>
                     <p className="font-body-sm text-body-sm text-on-surface-variant truncate">
                       {/* A weekly split is derived from the basket; a one-off

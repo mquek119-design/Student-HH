@@ -20,12 +20,14 @@ import type { User } from '@/lib/types';
  */
 export function PayPanel({
   collectorName,
+  collectorRoom,
   payment,
   splitId,
   isNotified = false,
   isPosted = true,
 }: {
   collectorName: string;
+  collectorRoom?: string | null;
   payment: User['payment'];
   splitId?: string;
   isNotified?: boolean;
@@ -71,6 +73,7 @@ export function PayPanel({
         />
         <h3 className="font-title-md text-title-md text-on-background relative z-10">
           Pay {collectorName}
+          {collectorRoom && <span className="text-on-surface-variant"> (Room {collectorRoom})</span>}
         </h3>
 
         {rows.length > 0 ? (
