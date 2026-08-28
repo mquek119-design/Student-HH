@@ -35,7 +35,7 @@ export async function updateFulfillmentSettings(
 
   revalidatePath('/settings');
   revalidatePath('/basket');
-  return { status: 'success', message: 'Fulfillment settings updated successfully!' };
+  return { status: 'success', message: 'Fulfillment settings updated' };
 }
 
 /**
