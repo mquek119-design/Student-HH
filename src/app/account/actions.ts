@@ -98,11 +98,11 @@ export async function updatePaymentDetails(
   if (actingAs) {
     const { data, error } = await supabase.rpc('demo_update_payment_details', {
       p_target: actingAs,
-      p_bank_name: bankName || null,
-      p_sort_code: sortCode,
-      p_account_number: accountNumber,
-      p_payment_link: link || null,
-      p_note: note || null,
+      p_bank_name: (bankName || null) as string,
+      p_sort_code: sortCode as string,
+      p_account_number: accountNumber as string,
+      p_payment_link: (link || null) as string,
+      p_note: (note || null) as string,
     });
 
     if (error) return fail(`${error.message}${migrationHint(error.code)}`);

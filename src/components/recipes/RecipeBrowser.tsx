@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { FoodImage } from '@/components/media/FoodImage';
@@ -241,6 +241,7 @@ export function RecipeBrowser({
   locked,
   planningForDay,
   week = 'this',
+  initialDietaryFilters = [],
 }: {
   recipes: Recipe[];
   locked: boolean;
@@ -248,12 +249,51 @@ export function RecipeBrowser({
   planningForDay?: Weekday;
   /** Which week a pick lands on. */
   week?: WeekChoice;
+  /** Initial dietary filters from URL params. */
+  initialDietaryFilters?: string[];
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState<ChipKey[]>([]);
-  const [dietaryFilters, setDietaryFilters] = useState<DietaryTagKey[]>([]);
+
+  // Initialize dietary filters from URL or prop; sync with URL on changes
+  const [dietaryFilters, setDietaryFiltersState] = useState<DietaryTagKey[]>(() => {
+    const urlDietary = searchParams.get('dietary');
+    if (urlDietary) {
+      return urlDietary.split(',').map((f) => f.trim()) as DietaryTagKey[];
+    }
+    return initialDietaryFilters as DietaryTagKey[];
+  });
+
   const [chosen, setChosen] = useState<Recipe | null>(null);
+
+  // Sync dietary filters with URL when searchParams change
+  useEffect(() => {
+    const urlDietary = searchParams.get('dietary');
+    const urlFilters = urlDietary
+      ? urlDietary.split(',').map((f) => f.trim()) as DietaryTagKey[]
+      : [];
+
+    // Only update if different from current state to avoid unnecessary updates
+    if (JSON.stringify(urlFilters) !== JSON.stringify(dietaryFilters)) {
+      setDietaryFiltersState(urlFilters);
+    }
+  }, [searchParams, dietaryFilters]);
+
+  // Helper to update dietary filters and URL
+  function setDietaryFilters(filters: DietaryTagKey[]) {
+    setDietaryFiltersState(filters);
+
+    // Update URL with new dietary filters
+    const params = new URLSearchParams(searchParams);
+    if (filters.length > 0) {
+      params.set('dietary', filters.join(','));
+    } else {
+      params.delete('dietary');
+    }
+    router.push(`?${params.toString()}`, { scroll: false });
+  }
 
   const today = WEEKDAYS[(new Date().getDay() + 6) % 7];
 
@@ -350,11 +390,12 @@ export function RecipeBrowser({
         <RecipeFilterChips
           active={dietaryFilters}
           usable={usableDietary}
-          onToggle={(key) =>
-            setDietaryFilters((current) =>
-              current.includes(key) ? current.filter((tag) => tag !== key) : [...current, key]
-            )
-          }
+          onToggle={(key: DietaryTagKey) => {
+            const newFilters = dietaryFilters.includes(key)
+              ? dietaryFilters.filter((tag) => tag !== key)
+              : [...dietaryFilters, key];
+            setDietaryFilters(newFilters);
+          }}
         />
       </div>
 

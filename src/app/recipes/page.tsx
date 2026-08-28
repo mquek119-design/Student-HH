@@ -27,7 +27,7 @@ export const dynamic = 'force-dynamic';
 export default async function RecipesPage({
   searchParams,
 }: {
-  searchParams?: { day?: string; week?: string };
+  searchParams?: { day?: string; week?: string; dietary?: string };
 }) {
   const currentUser = await getCurrentUser();
   if (!currentUser.houseId) redirect('/onboarding');
@@ -40,6 +40,12 @@ export default async function RecipesPage({
     : undefined;
 
   const week = parseWeekChoice(searchParams?.week);
+
+  // Parse dietary filters from the URL (comma-separated list)
+  const dietaryParam = String(searchParams?.dietary ?? '');
+  const initialDietaryFilters = dietaryParam
+    ? dietaryParam.split(',').map((f) => f.trim())
+    : [];
 
   // Next week is always open; only the week being eaten can be locked by an
   // order that has already gone in.
@@ -80,6 +86,7 @@ export default async function RecipesPage({
           locked={locked}
           planningForDay={planningForDay}
           week={week}
+          initialDietaryFilters={initialDietaryFilters}
         />
       )}
 

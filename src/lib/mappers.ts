@@ -48,9 +48,9 @@ export function toHouse(row: HouseRow): House {
     cutoffTime: row.cutoff_time.slice(0, 5),
     collectorUserId: row.collector_user_id ?? '',
     sharedStaplesEnabled: row.shared_staples_enabled,
-    fulfillmentMethod: row.fulfillment_method,
+    fulfillmentMethod: row.fulfillment_method as 'collect' | 'delivery',
     slotPreference: {
-      method: row.preferred_fulfillment_method,
+      method: row.preferred_fulfillment_method as 'delivery' | 'collect' | null,
       day: row.preferred_day,
       // Postgres `time` returns HH:MM:SS; the UI and matcher work in HH:MM.
       windowStart: row.preferred_window_start ? row.preferred_window_start.slice(0, 5) : null,
@@ -161,7 +161,7 @@ export function toWeeklyPlan(row: WeeklyPlanRow, meals: PlannedMeal[], recipes: 
       row.slot_id && row.slot_charge !== null
         ? {
             id: row.slot_id,
-            method: row.slot_method ?? 'delivery',
+            method: (row.slot_method ?? 'delivery') as 'delivery' | 'collect',
             startsAt: row.slot_starts_at,
             endsAt: row.slot_ends_at,
             charge: row.slot_charge,
