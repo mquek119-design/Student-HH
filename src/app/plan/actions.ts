@@ -339,11 +339,16 @@ async function requireOrderedPlan(): Promise<
  * planned for them. `swapped` means someone cooked something else out of the
  * same food — worth distinguishing, since a swapped meal is a success and a
  * skipped one is food at risk.
+ *
+ * Only the meal's cook can mark it as cooked. Others can mark it skipped or
+ * swapped (kitchen facts), but the decision to claim it was cooked is the
+ * cook's responsibility.
  */
 export async function setMealStatus(
   _prev: PlanActionState,
   formData: FormData
 ): Promise<PlanActionState> {
+  const me = await getCurrentUser();
   const mealId = String(formData.get('mealId') ?? '');
   const raw = String(formData.get('status') ?? '');
   if (!mealId) return fail('Missing meal.');
@@ -351,6 +356,14 @@ export async function setMealStatus(
 
   const gate = await requireOrderedPlan();
   if (!gate.ok) return gate.state;
+
+  const context = await getMealContext(mealId);
+  if (!context) return fail('That meal is not in your house.');
+
+  // Only the cook can mark a meal as cooked. Others can mark it skipped/swapped.
+  if (raw === 'cooked' && context.meal.cookedByUserId !== me.id) {
+    return fail('Only the cook can mark this as cooked.');
+  }
 
   const supabase = await createClient();
   const updated = await supabase
@@ -368,6 +381,7 @@ export async function setMealStatus(
   }
 
   revalidatePath('/plan');
+  revalidatePath('/leftovers');
   revalidatePath('/');
   return OK;
 }
