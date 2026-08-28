@@ -64,7 +64,7 @@ export async function importTescoSession(cookiesJson: string): Promise<TescoActi
       status: 'success',
       authenticated: true,
       expiresAt: session.expiresAt,
-      message: `Tesco session imported successfully with ${cookies.length} cookies.`,
+      message: `Tesco session imported with ${cookies.length} cookies`,
     };
   } catch (err: any) {
     return fail(`Failed to import session: ${err?.message || 'Invalid JSON format'}`);
@@ -217,7 +217,7 @@ export async function startTescoCheckout(): Promise<TescoActionState> {
     return {
       status: 'success',
       totalCost: Math.round(orderResult.total * 100),
-      message: `Checkout preview fetched successfully. Total: £${orderResult.total.toFixed(2)}.`,
+      message: `Checkout preview fetched. Total: £${orderResult.total.toFixed(2)}`,
     };
   } catch (err: any) {
     return fail(`Checkout preview error: ${err?.message || 'Could not fetch checkout preview'}`);

@@ -249,8 +249,7 @@ const MealRow = memo(function MealRow({
         {recipe && (
           <DietaryWarning
             recipe={recipe}
-            mealParticipantIds={meal.participants.map((p) => p.userId)}
-            housemates={housemates}
+            currentUser={currentUser}
           />
         )}
 
