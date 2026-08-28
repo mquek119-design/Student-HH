@@ -65,10 +65,12 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
   const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    checkTescoSession().then((res) => {
-      setSessionAuth(Boolean(res.authenticated));
-      setSessionExpiry(res.expiresAt);
-    });
+    checkTescoSession()
+      .then((res) => {
+        setSessionAuth(Boolean(res.authenticated));
+        setSessionExpiry(res.expiresAt);
+      })
+      .catch((err) => console.error('Tesco session check failed:', err));
   }, []);
 
   const byId = new Map(housemates.map((user) => [user.id, user]));
@@ -413,7 +415,7 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
                           type="button"
                           aria-label={`Decrease ${item.name}`}
                           onClick={() => setQuantity(item.id, item.quantity - 1)}
-                          className="w-6 h-6 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded"
+                          className="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
                           <Icon name={item.quantity === 1 ? 'delete' : 'remove'} className="text-[16px]" />
                         </button>
@@ -424,7 +426,7 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
                           type="button"
                           aria-label={`Increase ${item.name}`}
                           onClick={() => setQuantity(item.id, item.quantity + 1)}
-                          className="w-6 h-6 flex items-center justify-center text-primary hover:bg-primary-container hover:text-on-primary-container rounded"
+                          className="w-11 h-11 flex items-center justify-center text-primary hover:bg-primary-container hover:text-on-primary-container rounded focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
                           <Icon name="add" className="text-[16px]" />
                         </button>

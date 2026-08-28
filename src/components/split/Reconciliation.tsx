@@ -202,7 +202,7 @@ export function Reconciliation({
                             Math.max(0, (quantities[item.basketItemId] ?? 0) - 1)
                           )
                         }
-                        className="w-6 h-6 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded"
+                        className="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest rounded focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                       >
                         <Icon name="remove" className="text-[16px]" />
                       </button>
@@ -218,7 +218,7 @@ export function Reconciliation({
                             (quantities[item.basketItemId] ?? 0) + 1
                           )
                         }
-                        className="w-6 h-6 flex items-center justify-center text-primary hover:bg-primary-container hover:text-on-primary-container rounded"
+                        className="w-11 h-11 flex items-center justify-center text-primary hover:bg-primary-container hover:text-on-primary-container rounded focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                       >
                         <Icon name="add" className="text-[16px]" />
                       </button>
@@ -289,7 +289,7 @@ export function Reconciliation({
                         type="button"
                         onClick={() => handleDecision(sub.id, 'accepted')}
                         className={clsx(
-                          'flex-1 h-10 rounded-lg font-semibold text-[14px] flex items-center justify-center gap-xs transition-colors',
+                          'flex-1 h-11 md:h-10 rounded-lg font-semibold text-[14px] flex items-center justify-center gap-xs transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                           decision === 'accepted'
                             ? 'bg-primary text-on-primary'
                             : 'border border-primary text-primary hover:bg-primary/10'
@@ -302,7 +302,7 @@ export function Reconciliation({
                         type="button"
                         onClick={() => handleDecision(sub.id, 'rejected')}
                         className={clsx(
-                          'flex-1 h-10 rounded-lg font-semibold text-[14px] flex items-center justify-center gap-xs transition-colors',
+                          'flex-1 h-11 md:h-10 rounded-lg font-semibold text-[14px] flex items-center justify-center gap-xs transition-colors focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2',
                           decision === 'rejected'
                             ? 'bg-error text-on-error'
                             : 'border border-error text-error hover:bg-error-container'
