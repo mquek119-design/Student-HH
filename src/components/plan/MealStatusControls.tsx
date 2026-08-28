@@ -5,7 +5,8 @@ import { Icon } from '@/components/media/Icon';
 import { useSubmitState } from '@/components/ui/SubmitButton';
 import { clsx } from '@/lib/clsx';
 import { bailFromMeal, setMealStatus, type PlanActionState } from '@/app/plan/actions';
-import type { MealStatus } from '@/lib/types';
+import { isDayPast } from '@/lib/weeks';
+import type { MealStatus, Weekday } from '@/lib/types';
 
 /**
  * What happened to a meal, recorded after the shop arrived.
@@ -86,14 +87,24 @@ export function MealStatusControls({
   mealId,
   status,
   bailed,
+  day,
+  weekStartDate,
 }: {
   mealId: string;
   status: MealStatus;
   bailed: boolean;
+  day: Weekday;
+  weekStartDate: string;
 }) {
   const [statusState, statusAction] = useFormState(setMealStatus, INITIAL);
   const [bailState, bailAction] = useFormState(bailFromMeal, INITIAL);
   const error = [statusState, bailState].find((state) => state.status === 'error');
+  const dayIsPast = isDayPast(weekStartDate, day);
+
+  // Only show status controls for past days
+  if (!dayIsPast) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col gap-xs">

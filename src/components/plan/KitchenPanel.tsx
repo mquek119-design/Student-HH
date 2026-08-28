@@ -103,6 +103,8 @@ export function KitchenPanel({
               mealId={meal.id}
               status={meal.status}
               bailed={Boolean(mine?.bailed)}
+              day={meal.day}
+              weekStartDate={plan.weekStartDate}
             />
 
             {skipped && recipe && (
