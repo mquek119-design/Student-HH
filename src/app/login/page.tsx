@@ -4,15 +4,16 @@ import { LogoMark } from '@/components/brand/Logo';
 
 export const metadata = { title: 'Sign in · Grub' };
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { next?: string; error?: string };
+  searchParams: Promise<{ next?: string; error?: string }>;
 }) {
+  const params = await searchParams;
   const errorMessage =
-    searchParams.error === 'exchange_failed'
+    params.error === 'exchange_failed'
       ? 'That link has expired or was already used. Request a new one.'
-      : searchParams.error === 'missing_code'
+      : params.error === 'missing_code'
         ? 'That sign-in link was incomplete. Request a new one.'
         : null;
 
@@ -40,7 +41,7 @@ export default function LoginPage({
         </p>
       )}
 
-      <LoginForm next={searchParams.next ?? '/'} />
+      <LoginForm next={params.next ?? '/'} />
 
       <p className="text-center font-body-sm text-body-sm text-on-surface-variant">
         New to Grub?{' '}

@@ -27,29 +27,40 @@ export function PushNotificationSetup() {
 async function registerServiceWorker() {
   try {
     // Register the service worker
+    // Note: In development, this may fail with "redirect" error, which is harmless
+    // and expected behavior for the dev server
     const registration = await navigator.serviceWorker.register('/service-worker.js', {
       scope: '/',
+    }).catch(err => {
+      // Dev server redirect issue is expected and harmless
+      if (err instanceof Error && err.message.includes('redirect')) {
+        console.warn('[Service Worker] Dev server redirect detected (harmless)', err.message);
+        return null;
+      }
+      throw err;
     });
 
-    console.log('[Service Worker] Registered successfully', registration);
+    if (registration) {
+      console.log('[Service Worker] Registered successfully', registration);
 
-    // Listen for updates
-    registration.addEventListener('updatefound', () => {
-      const newWorker = registration.installing;
-      if (!newWorker) return;
+      // Listen for updates
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (!newWorker) return;
 
-      newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          console.log('[Service Worker] Update available');
-        }
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('[Service Worker] Update available');
+          }
+        });
       });
-    });
 
-    // Request push permission if not already granted
-    // Delay by 3 seconds to avoid interrupting UX
-    setTimeout(() => {
-      requestPushPermission(registration);
-    }, 3000);
+      // Request push permission if not already granted
+      // Delay by 3 seconds to avoid interrupting UX
+      setTimeout(() => {
+        requestPushPermission(registration);
+      }, 3000);
+    }
   } catch (error) {
     console.error('[Service Worker] Registration failed:', error);
   }

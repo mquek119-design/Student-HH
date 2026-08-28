@@ -1,7 +1,8 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Icon } from '@/components/media/Icon';
 import { InviteLink } from '@/components/settings/InviteLink';
-import { getHouse } from '@/lib/queries';
+import { getCurrentUserOrNull, getHouse } from '@/lib/queries';
 
 export const metadata = { title: 'Invite Housemates · Grub' };
 
@@ -9,6 +10,11 @@ export const metadata = { title: 'Invite Housemates · Grub' };
 export const dynamic = 'force-dynamic';
 
 export default async function InvitePage() {
+  const user = await getCurrentUserOrNull();
+  if (!user) {
+    redirect('/login?next=/onboarding/invite');
+  }
+
   const house = await getHouse();
 
   return (

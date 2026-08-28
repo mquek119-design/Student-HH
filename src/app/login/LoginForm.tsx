@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState } from 'react-dom';
+import { useActionState } from 'react';
 import { Icon } from '@/components/media/Icon';
 import { SubmitButton } from '@/components/ui/SubmitButton';
 import { sendMagicLink, type LoginState } from './actions';
@@ -8,7 +8,7 @@ import { sendMagicLink, type LoginState } from './actions';
 const INITIAL: LoginState = { status: 'idle', message: '' };
 
 export function LoginForm({ next }: { next: string }) {
-  const [state, formAction] = useFormState(sendMagicLink, INITIAL);
+  const [state, formAction] = useActionState(sendMagicLink, INITIAL);
 
   if (state.status === 'sent') {
     return (
