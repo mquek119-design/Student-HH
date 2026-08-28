@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState } from 'react-dom';
+import { useActionState } from 'react';
 import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { SubmitButton as FormSubmitButton } from '@/components/ui/SubmitButton';
@@ -48,7 +48,7 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
   // component means a change to the ingredient syntax cannot drift between
   // creating and editing.
   const isEdit = Boolean(prefill?.recipeId);
-  const [state, formAction] = useFormState(isEdit ? updateRecipe : createRecipe, INITIAL);
+  const [state, formAction] = useActionState(isEdit ? updateRecipe : createRecipe, INITIAL);
   const [ingredientsText, setIngredientsText] = useState(prefill?.ingredients ?? '');
   const [servings, setServings] = useState(prefill?.servings?.toString() ?? '4');
   const [cookTime, setCookTime] = useState(prefill?.cookTimeMins?.toString() ?? '30');
