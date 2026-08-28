@@ -97,7 +97,7 @@ async function requestPushPermission(registration: ServiceWorkerRegistration) {
     if (vapidKey) {
       subscriptionOptions.applicationServerKey = urlBase64ToUint8Array(
         vapidKey
-      ) as any;
+      ) as BufferSource;
     }
 
     const subscription = await registration.pushManager.subscribe(
@@ -108,11 +108,15 @@ async function requestPushPermission(registration: ServiceWorkerRegistration) {
 
     // Send subscription to server (if NEXT_PUBLIC_VAPID_PUBLIC_KEY is set)
     if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
-      await fetch('/api/push/subscribe', {
+      const subscribeResponse = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(subscription),
       });
+
+      if (!subscribeResponse.ok) {
+        console.error('[Push] Server subscription failed:', subscribeResponse.status, subscribeResponse.statusText);
+      }
     }
   } catch (error) {
     console.error('[Push] Permission request failed:', error);

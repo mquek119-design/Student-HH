@@ -15,10 +15,16 @@ export function TescoSessionPanel() {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    checkTescoSession().then((res) => {
-      setIsAuthenticated(Boolean(res.authenticated));
-      setExpiresAt(res.expiresAt);
-    });
+    checkTescoSession()
+      .then((res) => {
+        setIsAuthenticated(Boolean(res.authenticated));
+        setExpiresAt(res.expiresAt);
+      })
+      .catch((err) => {
+        console.error('Tesco session check failed:', err);
+        setIsError(true);
+        setMessage('Failed to check Tesco session status. Please try again later.');
+      });
   }, []);
 
   function handleImport() {
@@ -37,10 +43,16 @@ export function TescoSessionPanel() {
         setMessage('Tesco session successfully imported!');
         setIsError(false);
         setCookieInput('');
-        checkTescoSession().then((resCheck) => {
-          setIsAuthenticated(Boolean(resCheck.authenticated));
-          setExpiresAt(resCheck.expiresAt);
-        });
+        checkTescoSession()
+          .then((resCheck) => {
+            setIsAuthenticated(Boolean(resCheck.authenticated));
+            setExpiresAt(resCheck.expiresAt);
+          })
+          .catch((err) => {
+            console.error('Tesco session refresh failed:', err);
+            setMessage('Session imported, but failed to refresh status.');
+            setIsError(true);
+          });
       }
     });
   }

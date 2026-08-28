@@ -107,6 +107,9 @@ self.addEventListener('notificationclick', (event) => {
           return clients.openWindow(target);
         }
       })
+      .catch((error) => {
+        console.error('[Notification Click] Failed to handle click:', error);
+      })
   );
 });
 
@@ -136,6 +139,9 @@ self.addEventListener('message', (event) => {
       .getNotifications({ tag })
       .then((notifications) => {
         notifications.forEach((notification) => notification.close());
+      })
+      .catch((error) => {
+        console.error('[Service Worker] Failed to clear notifications:', error);
       });
   }
 });
