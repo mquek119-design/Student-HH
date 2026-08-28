@@ -118,6 +118,46 @@ export async function joinHouse(
   redirect('/');
 }
 
+/**
+ * Saves the user's room number and continues to the next step.
+ */
+export async function setRoomAndContinue(
+  _prev: OnboardingState,
+  formData: FormData
+): Promise<OnboardingState> {
+  if (!isSupabaseConfigured) {
+    return { status: 'error', message: 'Supabase is not configured yet.' };
+  }
+
+  const room = String(formData.get('room') ?? '').trim();
+  if (room.length > 60) {
+    return { status: 'error', message: 'Room number must be 60 characters or less.' };
+  }
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { status: 'error', message: 'You must be signed in.' };
+    }
+
+    if (room) {
+      const { error } = await supabase.from('profiles').update({ room }).eq('id', user.id);
+      if (error) {
+        return { status: 'error', message: error.message };
+      }
+    }
+  } catch (_err) {
+    return { status: 'error', message: 'Failed to save room number.' };
+  }
+
+  revalidatePath('/', 'layout');
+  redirect('/onboarding/invite');
+}
+
 export async function signOut(): Promise<void> {
   if (isSupabaseConfigured) {
     const supabase = await createClient();
