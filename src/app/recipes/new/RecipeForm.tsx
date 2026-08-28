@@ -13,7 +13,7 @@ const INITIAL: RecipeFormState = { status: 'idle', message: '' };
 const FIELD =
   'w-full px-3 py-3 rounded-lg bg-surface-container-lowest border border-surface-container-highest focus:ring-2 focus:ring-primary focus:border-primary text-body-lg';
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton({ label, disabled }: { label: string; disabled?: boolean }) {
   return (
     <FormSubmitButton
       variant="secondary"
@@ -21,6 +21,7 @@ function SubmitButton({ label }: { label: string }) {
       fullWidth
       icon="save"
       pendingLabel="Saving…"
+      disabled={disabled}
     >
       {label}
     </FormSubmitButton>
@@ -65,26 +66,66 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
     setIngredientsText((prev) => (prev ? `${prev}\n${line}` : line));
   };
 
-  // Validate servings and cook time before submission
+  // Validate a single field and return error message if invalid
+  const validateField = (field: 'servings' | 'cookTime', value: string): string | undefined => {
+    const num = parseInt(value, 10);
+
+    if (field === 'servings') {
+      if (!num || num < 1) {
+        return 'Needs at least 1';
+      }
+      if (num > 20) {
+        return 'Maximum 20 servings';
+      }
+    }
+
+    if (field === 'cookTime') {
+      if (!num || num < 5) {
+        return 'Needs at least 5 minutes';
+      }
+    }
+
+    return undefined;
+  };
+
+  // Check if form is valid
+  const isFormValid = () => {
+    const servingsError = validateField('servings', servings);
+    const cookTimeError = validateField('cookTime', cookTime);
+    return !servingsError && !cookTimeError;
+  };
+
+  // Real-time validation on field change
+  const handleServingsChange = (value: string) => {
+    setServings(value);
+    const error = validateField('servings', value);
+    setValidationErrors((prev) => {
+      if (error) {
+        return { ...prev, servings: error };
+      }
+      const { servings: _, ...rest } = prev;
+      return rest;
+    });
+  };
+
+  const handleCookTimeChange = (value: string) => {
+    setCookTime(value);
+    const error = validateField('cookTime', value);
+    setValidationErrors((prev) => {
+      if (error) {
+        return { ...prev, cookTime: error };
+      }
+      const { cookTime: _, ...rest } = prev;
+      return rest;
+    });
+  };
+
+  // Validate on submit (safety check)
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    const servingsNum = parseInt(servings, 10);
-    const cookTimeNum = parseInt(cookTime, 10);
-    const errors: { servings?: string; cookTime?: string } = {};
-
-    if (!servingsNum || servingsNum < 1) {
-      errors.servings = 'Must be at least 1';
-    }
-    if (!cookTimeNum || cookTimeNum < 1) {
-      errors.cookTime = 'Must be at least 1';
-    }
-
-    if (Object.keys(errors).length > 0) {
+    if (!isFormValid()) {
       e.preventDefault();
-      setValidationErrors(errors);
       return;
     }
-
-    setValidationErrors({});
   };
 
   return (
@@ -119,14 +160,9 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
             type="number"
             name="servings"
             min={1}
+            max={20}
             value={servings}
-            onChange={(e) => {
-              setServings(e.target.value);
-              setValidationErrors((prev) => {
-                const { servings: _, ...rest } = prev;
-                return rest;
-              });
-            }}
+            onChange={(e) => handleServingsChange(e.target.value)}
             className={`${FIELD} font-numeric-data`}
           />
           {validationErrors.servings && (
@@ -138,15 +174,9 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
           <input
             type="number"
             name="cookTimeMins"
-            min={1}
+            min={5}
             value={cookTime}
-            onChange={(e) => {
-              setCookTime(e.target.value);
-              setValidationErrors((prev) => {
-                const { cookTime: _, ...rest } = prev;
-                return rest;
-              });
-            }}
+            onChange={(e) => handleCookTimeChange(e.target.value)}
             className={`${FIELD} font-numeric-data`}
           />
           {validationErrors.cookTime && (
@@ -266,7 +296,7 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
         </p>
       )}
 
-      <SubmitButton label={isEdit ? 'Save changes' : 'Save Recipe'} />
+      <SubmitButton label={isEdit ? 'Save changes' : 'Save Recipe'} disabled={!isFormValid()} />
     </form>
   );
 }
