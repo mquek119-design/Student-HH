@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { Avatar } from '@/components/avatars/Avatar';
 import { Card } from '@/components/ui/Card';
@@ -95,7 +96,8 @@ export function LeftoversBoard({
   housemates: User[];
 }) {
   const [state, action] = useFormState(addLeftover, INITIAL);
-  const byId = new Map(housemates.map((user) => [user.id, user]));
+  // Memoize housemates lookup Map to avoid recreation on every render
+  const byId = useMemo(() => new Map(housemates.map((user) => [user.id, user])), [housemates]);
 
   return (
     <Card className="flex flex-col gap-sm">

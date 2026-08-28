@@ -21,6 +21,7 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [error, setError] = useState<string>('');
   const debounceTimer = useRef<NodeJS.Timeout>();
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -48,6 +49,7 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
 
   const handleInputChange = useCallback((value: string) => {
     setInput(value);
+    setError('');
 
     // Clear previous timer
     if (debounceTimer.current) {
@@ -128,6 +130,7 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
       ingredientId: suggestion.id,
     });
     setInput('');
+    setError('');
     setSuggestions([]);
     setIsOpen(false);
     setSelectedIndex(-1);
@@ -136,13 +139,16 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
 
   const handleAddNew = () => {
     const trimmed = input.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      setError('Enter an ingredient name');
+      return;
+    }
 
     // Simple validation: must have at least quantity and ingredient name
     // For now, create with quantity 1 whole and name as typed
     const canonical = canonicalName(trimmed);
     if (!canonical) {
-      alert('An ingredient needs a name.');
+      setError('An ingredient needs a name.');
       return;
     }
 
@@ -152,6 +158,7 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
       name: trimmed,
     });
     setInput('');
+    setError('');
     setSuggestions([]);
     setIsOpen(false);
     setSelectedIndex(-1);
@@ -189,9 +196,12 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
           className="w-full px-3 py-3 rounded-lg bg-surface-container-lowest border border-surface-container-highest focus:ring-2 focus:ring-primary focus:border-primary text-body-lg"
           autoComplete="off"
         />
-        <span className="font-body-sm text-[12px] text-on-surface-variant">
-          Type to see suggestions, or just type a new ingredient name and press Enter.
-        </span>
+        {error && <p className="font-body-sm text-[12px] text-error">{error}</p>}
+        {!error && (
+          <span className="font-body-sm text-[12px] text-on-surface-variant">
+            Type to see suggestions, or just type a new ingredient name and press Enter.
+          </span>
+        )}
       </label>
 
       {isOpen && suggestions.length > 0 && (
