@@ -222,6 +222,7 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
                   >
                     {suggestion.imageUrl && (
                       <img
+                        loading="lazy"
                         src={suggestion.imageUrl}
                         alt=""
                         className="w-6 h-6 rounded object-cover flex-shrink-0"

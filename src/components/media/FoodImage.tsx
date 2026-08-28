@@ -39,7 +39,7 @@ export function FoodImage({ src, alt, seed, icon = 'restaurant', className }: Fo
   if (src) {
     return (
        
-      <img src={src} alt={alt} className={clsx('object-cover', className)} />
+      <img loading="lazy" src={src} alt={alt} className={clsx('object-cover', className)} />
     );
   }
 

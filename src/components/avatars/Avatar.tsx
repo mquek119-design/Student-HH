@@ -59,7 +59,7 @@ export function Avatar({ user, size = 'md', className, ring = 'none' }: AvatarPr
     >
       {user.avatarUrl ? (
          
-        <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+        <img loading="lazy" src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
       ) : (
         initials
       )}
