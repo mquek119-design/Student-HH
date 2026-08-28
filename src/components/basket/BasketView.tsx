@@ -73,7 +73,8 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
       .catch((err) => console.error('Tesco session check failed:', err));
   }, []);
 
-  const byId = new Map(housemates.map((user) => [user.id, user]));
+  // Memoize housemates lookup Map to avoid recreation on every render
+  const byId = useMemo(() => new Map(housemates.map((user) => [user.id, user])), [housemates]);
 
   const liveItems = useMemo(
     () =>
