@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Avatar } from '@/components/avatars/Avatar';
 import { Icon } from '@/components/media/Icon';
 import { Card } from '@/components/ui/Card';
@@ -26,8 +27,11 @@ export const metadata = { title: 'My Account · Grub' };
 export const dynamic = 'force-dynamic';
 
 export default async function AccountPage() {
+  const currentUser = await getCurrentUser();
+  if (!currentUser.houseId) redirect('/onboarding');
+
   const [user, house, ledger, savings, plan] = await Promise.all([
-    getCurrentUser(),
+    Promise.resolve(currentUser),
     getHouse(),
     getLedger(),
     getSavings(),

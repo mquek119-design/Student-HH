@@ -1,10 +1,11 @@
+import { redirect } from 'next/navigation';
 import { Avatar } from '@/components/avatars/Avatar';
 import { InviteLink } from '@/components/settings/InviteLink';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageShell } from '@/components/ui/PageShell';
-import { getCollector, getHouse, getHouseStaples, getHousemates } from '@/lib/queries';
+import { getCollector, getCurrentUser, getHouse, getHouseStaples, getHousemates } from '@/lib/queries';
 import { FulfillmentSettingsPanel } from '@/components/settings/FulfillmentSettingsPanel';
 import { TescoSessionPanel } from '@/components/settings/TescoSessionPanel';
 import { SlotPreferencePanel } from '@/components/settings/SlotPreferencePanel';
@@ -18,6 +19,9 @@ export const metadata = { title: 'House Settings · Grub' };
 export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
+  const currentUser = await getCurrentUser();
+  if (!currentUser.houseId) redirect('/onboarding');
+
   const [house, housemates, collector, staples] = await Promise.all([
     getHouse(),
     getHousemates(),
