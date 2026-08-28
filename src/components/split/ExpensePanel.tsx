@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { Avatar } from '@/components/avatars/Avatar';
 import { Icon } from '@/components/media/Icon';
@@ -94,7 +94,8 @@ function ExpenseRow({
 }) {
   const [, settleAction] = useFormState(settleExpenseShare, INITIAL);
   const [deleteState, deleteAction] = useFormState(deleteExpense, INITIAL);
-  const byId = new Map(housemates.map((user) => [user.id, user]));
+  // Memoize housemates lookup Map to avoid recreation on every render
+  const byId = useMemo(() => new Map(housemates.map((user) => [user.id, user])), [housemates]);
   const payer = byId.get(expense.paidByUserId);
   const owing = expense.shares.filter(
     (share) => share.userId !== expense.paidByUserId && share.amount > 0
