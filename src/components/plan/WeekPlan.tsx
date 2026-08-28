@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { Avatar } from '@/components/avatars/Avatar';
 import { MealOptionsSheet } from '@/components/plan/MealOptionsSheet';
@@ -93,7 +93,7 @@ function JoinToggle({
   );
 }
 
-function MealRow({
+const MealRow = memo(function MealRow({
   meal,
   housemates,
   currentUser,
@@ -124,10 +124,15 @@ function MealRow({
   const [, leaveAction] = useFormState(leaveMeal, INITIAL);
   const [optionsOpen, setOptionsOpen] = useState(false);
 
-  const byId = new Map(housemates.map((user) => [user.id, user]));
-  const diners = meal.participants
-    .map((participant) => ({ user: byId.get(participant.userId), guests: participant.guests ?? 0 }))
-    .filter((entry): entry is { user: User; guests: number } => Boolean(entry.user));
+  // Memoize housemates lookup Map to avoid recreation on every render
+  const byId = useMemo(() => new Map(housemates.map((user) => [user.id, user])), [housemates]);
+  const diners = useMemo(
+    () =>
+      meal.participants
+        .map((participant) => ({ user: byId.get(participant.userId), guests: participant.guests ?? 0 }))
+        .filter((entry): entry is { user: User; guests: number } => Boolean(entry.user)),
+    [meal.participants, byId]
+  );
 
   const mine = meal.participants.find((participant) => participant.userId === currentUser.id);
   const joined = Boolean(mine);
@@ -300,7 +305,7 @@ function MealRow({
       )}
     </article>
   );
-}
+});
 
 export function WeekPlan({
   plan,
