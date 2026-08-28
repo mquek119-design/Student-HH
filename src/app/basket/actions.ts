@@ -442,7 +442,7 @@ export async function updateIngredientProductMapping(
   revalidatePath('/split');
   revalidatePath('/');
 
-  return { status: 'built', message: 'Brand successfully swapped!' };
+  return { status: 'built', message: 'Brand swapped' };
 }
 
 
