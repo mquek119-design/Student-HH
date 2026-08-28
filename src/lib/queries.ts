@@ -392,7 +392,7 @@ export const getWeeklyPlanFor = cache(
       planRow.slot_id && planRow.slot_charge !== null
         ? {
             id: planRow.slot_id,
-            method: planRow.slot_method ?? 'delivery',
+            method: (planRow.slot_method ?? 'delivery') as 'delivery' | 'collect',
             startsAt: planRow.slot_starts_at,
             endsAt: planRow.slot_ends_at,
             charge: planRow.slot_charge,
@@ -428,6 +428,8 @@ export const getMealContext = cache(
     /** The plan's own Monday, so callers can date the meal's day without
      *  assuming which week it belongs to. */
     weekStartDate: string;
+    /** ISO 8601 datetime string when planning closes. */
+    cutoffAt: string | null;
   } | null> => {
     const house = await getHouseOrNull();
     if (!house) return null;
@@ -443,7 +445,7 @@ export const getMealContext = cache(
 
     const planRow = await supabase
       .from('weekly_plans')
-      .select('id, status, house_id, week_start_date')
+      .select('id, status, house_id, week_start_date, cutoff_at')
       .eq('id', mealRow.data.plan_id)
       .maybeSingle();
 
@@ -462,6 +464,7 @@ export const getMealContext = cache(
       planId: planRow.data.id,
       planStatus: planRow.data.status,
       weekStartDate: planRow.data.week_start_date,
+      cutoffAt: planRow.data.cutoff_at,
     };
   }
 );

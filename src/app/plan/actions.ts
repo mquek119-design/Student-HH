@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/server';
 import { canSetCapacity } from '@/lib/meals';
 import {
   currentWeekStart,
+  isCutoffPassed,
   isDayPast,
   isoWeekNumber,
   parseWeekChoice,
@@ -134,6 +135,9 @@ export async function addMealToPlan(
   if (plan && plan.id && plan.status !== 'planning') {
     return fail('The shop for that week has gone in — nothing more can be added to it.');
   }
+  if (plan && plan.cutoffAt && isCutoffPassed(plan.cutoffAt)) {
+    return fail('Planning has closed for this week. No more changes allowed.');
+  }
 
   // The day card hides the link once a day has gone, but the UI cannot be the
   // only thing enforcing it — a stale tab still posts to this action.
@@ -212,6 +216,9 @@ export async function leaveMeal(
   if (!context) return fail('That meal is not in your house.');
   if (context.planStatus !== 'planning') {
     return fail('The shop for that week has gone in — your share is already bought.');
+  }
+  if (context.cutoffAt && isCutoffPassed(context.cutoffAt)) {
+    return fail('Planning has closed for this week. No more changes allowed.');
   }
 
   const supabase = await createClient();
@@ -436,6 +443,9 @@ async function cookContext(mealId: string): Promise<CookContext> {
   if (!context) return { ok: false, state: fail('That meal is not in your house.') };
   if (context.planStatus !== 'planning') {
     return { ok: false, state: fail('The shop has gone in — the week is settled.') };
+  }
+  if (context.cutoffAt && isCutoffPassed(context.cutoffAt)) {
+    return { ok: false, state: fail('Planning has closed for this week. No more changes allowed.') };
   }
   const isDiner = context.meal.participants.some(
     (participant) => participant.userId === me.id
@@ -733,6 +743,9 @@ export async function joinMeal(
   if (!context) return fail('That meal is not in your house.');
   if (context.planStatus !== 'planning') {
     return fail('The shop for that week has gone in.');
+  }
+  if (context.cutoffAt && isCutoffPassed(context.cutoffAt)) {
+    return fail('Planning has closed for this week. No more changes allowed.');
   }
   const meal = context.meal;
 
