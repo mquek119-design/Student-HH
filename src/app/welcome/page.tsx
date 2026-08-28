@@ -202,71 +202,79 @@ export default async function WelcomePage() {
       </Marquee>
 
       {/* ---- Why Grub ------------------------------------------------------ */}
-      <section className="px-margin-mobile md:px-margin-desktop py-[4rem] max-w-5xl mx-auto">
-        <Reveal as="h2" className="font-georgia text-headline-lg-mobile md:text-headline-lg text-primary mb-lg">
-          Why Grub
-        </Reveal>
-        <Reveal className="max-w-3xl">
-          <p className="font-body-lg text-body-lg md:text-[1.1rem] md:leading-relaxed text-on-surface-variant">
-            Every student house has the same conversation: four bags of pasta, nobody&apos;s sure who&apos;s paying for
-            what, someone&apos;s cooking for one when they could be cooking for four. Grub is what we actually call
-            dinner — not a &quot;meal solution,&quot; just grub — built so your house plans together, shops once, and
-            splits it fair without the group chat argument. The mark is two shapes overlapping on purpose: your food is
-            never really just your food when you live with other people.
-          </p>
-        </Reveal>
+      <section className="w-full px-margin-mobile md:px-margin-desktop py-[4rem]">
+        <div className="mx-auto max-w-5xl">
+          <Reveal as="h2" className="font-georgia text-headline-lg-mobile md:text-headline-lg text-primary mb-lg">
+            Why Grub
+          </Reveal>
+          <Reveal className="max-w-3xl">
+            <p className="font-body-lg text-body-lg md:text-[1.1rem] md:leading-relaxed text-on-surface-variant">
+              Every student house has the same conversation: four bags of pasta, nobody&apos;s sure who&apos;s paying for
+              what, someone&apos;s cooking for one when they could be cooking for four. Grub is what we actually call
+              dinner — not a &quot;meal solution,&quot; just grub — built so your house plans together, shops once, and
+              splits it fair without the group chat argument. The mark is two shapes overlapping on purpose: your food is
+              never really just your food when you live with other people.
+            </p>
+          </Reveal>
+        </div>
       </section>
 
       {/* ---- Benefits ------------------------------------------------------ */}
-      <section className="px-margin-mobile md:px-margin-desktop py-[4rem] max-w-5xl mx-auto">
-        <Reveal as="h2" className="font-georgia text-headline-lg-mobile md:text-headline-lg text-primary max-w-2xl">
-          The buying unit is the household, not the student.
-        </Reveal>
-        <div className="mt-xl grid gap-md md:grid-cols-3">
-          {BENEFITS.map((benefit, i) => (
-            <Reveal
-              key={benefit.title}
-              delay={i * 90}
-              className="flex flex-col gap-sm p-lg rounded-xl bg-surface-container-lowest border border-surface-container-highest shadow-ambient-card"
-            >
-              <span className="w-11 h-11 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center">
-                <Icon name={benefit.icon} />
-              </span>
-              <h3 className="font-title-md text-title-md text-on-surface">{benefit.title}</h3>
-              <p className="font-body-sm text-body-sm text-on-surface-variant">{benefit.body}</p>
-            </Reveal>
-          ))}
+      <section className="w-full px-margin-mobile md:px-margin-desktop py-[4rem]">
+        <div className="mx-auto max-w-5xl">
+          <Reveal as="h2" className="font-georgia text-headline-lg-mobile md:text-headline-lg text-primary max-w-2xl">
+            The buying unit is the household, not the student.
+          </Reveal>
+          <div className="mt-xl grid gap-md md:grid-cols-3">
+            {BENEFITS.map((benefit, i) => (
+              <Reveal
+                key={benefit.title}
+                delay={i * 90}
+                className="flex flex-col gap-sm p-lg rounded-xl bg-surface-container-lowest border border-surface-container-highest shadow-ambient-card"
+              >
+                <span className="w-11 h-11 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center">
+                  <Icon name={benefit.icon} />
+                </span>
+                <h3 className="font-title-md text-title-md text-on-surface">{benefit.title}</h3>
+                <p className="font-body-sm text-body-sm text-on-surface-variant">{benefit.body}</p>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ---- How it works -------------------------------------------------- */}
-      <section className="px-margin-mobile md:px-margin-desktop py-[4rem] max-w-5xl mx-auto">
-        <Reveal as="h2" className="font-georgia text-headline-lg-mobile md:text-headline-lg text-primary">
-          How a week runs
-        </Reveal>
-        <div className="mt-xl grid gap-md md:grid-cols-3">
-          {STEPS.map((step, i) => (
-            <Reveal key={step.n} delay={i * 90} className="flex flex-col gap-xs">
-              <span className="font-numeric-data text-secondary text-title-md">{step.n}</span>
-              <h3 className="font-title-md text-title-md text-on-surface">{step.title}</h3>
-              <p className="font-body-sm text-body-sm text-on-surface-variant">{step.body}</p>
-            </Reveal>
-          ))}
+      <section className="w-full px-margin-mobile md:px-margin-desktop py-[4rem]">
+        <div className="mx-auto max-w-5xl">
+          <Reveal as="h2" className="font-georgia text-headline-lg-mobile md:text-headline-lg text-primary">
+            How a week runs
+          </Reveal>
+          <div className="mt-xl grid gap-md md:grid-cols-3">
+            {STEPS.map((step, i) => (
+              <Reveal key={step.n} delay={i * 90} className="flex flex-col gap-xs">
+                <span className="font-numeric-data text-secondary text-title-md">{step.n}</span>
+                <h3 className="font-title-md text-title-md text-on-surface">{step.title}</h3>
+                <p className="font-body-sm text-body-sm text-on-surface-variant">{step.body}</p>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ---- Closing CTA --------------------------------------------------- */}
-      <section className="px-margin-mobile md:px-margin-desktop pb-[4rem] max-w-5xl mx-auto">
-        <Reveal className="rounded-xl bg-primary text-on-primary p-xl md:p-[3rem] flex flex-col items-start gap-md">
-          <h2 className="font-georgia text-headline-lg-mobile md:text-headline-lg text-secondary max-w-2xl">
-            Get the house in before someone buys another four pints of milk.
-          </h2>
-          {closingCta}
-        </Reveal>
+      <section className="w-full px-margin-mobile md:px-margin-desktop pb-[4rem]">
+        <div className="mx-auto max-w-5xl">
+          <Reveal className="rounded-xl bg-primary text-on-primary p-xl md:p-[3rem] flex flex-col items-start gap-md">
+            <h2 className="font-georgia text-headline-lg-mobile md:text-headline-lg text-secondary max-w-2xl">
+              Get the house in before someone buys another four pints of milk.
+            </h2>
+            {closingCta}
+          </Reveal>
 
-        <p className="mt-xl text-center font-body-sm text-body-sm text-on-surface-variant">
-          <span className="font-georgia text-primary">Grub</span> · one house, one shop, split fair
-        </p>
+          <p className="mt-xl text-center font-body-sm text-body-sm text-on-surface-variant">
+            <span className="font-georgia text-primary">Grub</span> · one house, one shop, split fair
+          </p>
+        </div>
       </section>
     </main>
   );
