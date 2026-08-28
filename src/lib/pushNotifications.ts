@@ -148,8 +148,8 @@ export function createDeliveryNotification(): PushNotificationPayload {
  */
 export function createSettlementCompleteNotification(): PushNotificationPayload {
   return {
-    title: 'All Settled!',
-    body: 'Balances cleared. Great week!',
+    title: 'All settled',
+    body: 'Balances cleared',
     tag: 'settlement-complete',
     badge: '✓',
     icon: '/badge-settled.png',
