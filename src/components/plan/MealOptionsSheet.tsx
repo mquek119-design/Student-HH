@@ -156,7 +156,7 @@ function AskCookChip({ user, asked }: { user: User; asked: boolean }) {
       ) : (
         <Avatar user={user} size="xs" />
       )}
-      {asked ? `Asked ${user.name}` : `Ask ${user.name}`}
+      {asked ? `Asked ${user.name}${user.room ? ` (Room ${user.room})` : ''}` : `Ask ${user.name}${user.room ? ` (Room ${user.room})` : ''}`}
     </button>
   );
 }
@@ -204,7 +204,8 @@ function CookChoice({
           <input type="hidden" name="mealId" value={meal.id} />
           <p className="font-body-sm text-body-sm text-on-surface-variant">
             <strong className="text-on-surface font-semibold">
-              {cook?.name ?? 'Somebody'} has asked you to cook this.
+              {cook?.name ?? 'Somebody'}
+              {cook?.room && <span> (Room {cook.room})</span>} has asked you to cook this.
             </strong>{' '}
             Until you say yes, they are still down for it.
           </p>
@@ -222,9 +223,9 @@ function CookChoice({
           {cook ? (
             <>
               <strong className="text-on-surface font-semibold">
-                {iAmCook ? 'You are' : `${cook.name} is`} cooking.
+                {iAmCook ? 'You are' : `${cook.name}${cook.room ? ` (Room ${cook.room})` : ''} is`} cooking.
               </strong>
-              {offeree && ` Waiting on ${offeree.name} to answer.`}
+              {offeree && ` Waiting on ${offeree.name}${offeree.room ? ` (Room ${offeree.room})` : ''} to answer.`}
             </>
           ) : (
             <span className="italic">Nobody is cooking this yet.</span>
@@ -436,6 +437,7 @@ function DinerList({
               <span className="min-w-0">
                 <span className="block font-body-lg text-body-lg font-semibold truncate">
                   {user.id === currentUser.id ? 'You' : user.name}
+                  {user.id !== currentUser.id && user.room && <span className="text-on-surface-variant text-[13px]"> (Room {user.room})</span>}
                 </span>
                 {guests > 0 && (
                   <span className="block font-body-sm text-[12px] text-on-surface-variant">

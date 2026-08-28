@@ -32,7 +32,7 @@ export function ViewAsBanner({ name }: { name: string }) {
           type="button"
           disabled={isPending}
           onClick={() => startTransition(async () => void (await stopViewingAs()))}
-          className="shrink-0 px-sm h-7 rounded-full bg-on-secondary-fixed/10 text-on-secondary-fixed text-[12px] font-bold hover:bg-on-secondary-fixed/20 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-secondary-fixed"
+          className="shrink-0 px-sm h-11 rounded-full bg-on-secondary-fixed/10 text-on-secondary-fixed text-[12px] font-bold hover:bg-on-secondary-fixed/20 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-secondary-fixed flex items-center justify-center"
         >
           {isPending ? '…' : 'Back to me'}
         </button>

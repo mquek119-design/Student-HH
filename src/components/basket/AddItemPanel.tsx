@@ -89,7 +89,7 @@ export function AddItemPanel() {
           type="button"
           onClick={() => setOpen(false)}
           aria-label="Close"
-          className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container"
+          className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container"
         >
           <Icon name="close" className="text-[18px]" />
         </button>

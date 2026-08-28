@@ -48,14 +48,14 @@ export function TopAppBar({ currentUser }: TopAppBarProps) {
         <Link
           href="/dev"
           aria-label="Testing and development"
-          className="w-10 h-10 rounded-full flex items-center justify-center text-[#A3C4A8] hover:text-secondary hover:bg-white/5 transition-colors active:scale-95"
+          className="w-11 h-11 rounded-full flex items-center justify-center text-[#A3C4A8] hover:text-secondary hover:bg-white/5 transition-colors active:scale-95"
         >
           <Icon name="science" />
         </Link>
         <Link
           href="/settings"
           aria-label="House settings"
-          className="w-10 h-10 rounded-full flex items-center justify-center text-[#A3C4A8] hover:text-secondary hover:bg-white/5 transition-colors active:scale-95"
+          className="w-11 h-11 rounded-full flex items-center justify-center text-[#A3C4A8] hover:text-secondary hover:bg-white/5 transition-colors active:scale-95"
         >
           <Icon name="settings" />
         </Link>

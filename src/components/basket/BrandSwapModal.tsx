@@ -82,7 +82,7 @@ export function BrandSwapModal({ isOpen, onClose, basketItemId, ingredientId, it
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container"
+            className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-container"
           >
             <Icon name="close" className="text-on-surface-variant" />
           </button>

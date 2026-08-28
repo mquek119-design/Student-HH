@@ -197,7 +197,7 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
           <button
             type="button"
             onClick={() => setSyncStatusMsg(null)}
-            className="text-on-surface-variant hover:text-on-surface text-xs font-bold shrink-0"
+            className="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface text-xs font-bold shrink-0 rounded focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             Dismiss
           </button>
@@ -205,7 +205,7 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
         {syncStatusMsg.toLowerCase().includes('session') && (
           <a
             href="/settings"
-            className="mt-xs inline-flex items-center justify-center gap-xs px-sm h-9 bg-primary text-on-primary rounded-lg font-semibold text-xs self-start hover:opacity-90 transition-opacity"
+            className="mt-xs inline-flex items-center justify-center gap-xs px-sm h-11 bg-primary text-on-primary rounded-lg font-semibold text-xs self-start hover:opacity-90 transition-opacity"
           >
             <Icon name="settings" className="text-sm" />
             Go to House Settings
@@ -279,7 +279,7 @@ export function BasketView({ items, housemates, isCollector, collectorName, plan
                   return next;
                 })
               }
-              className="w-full flex items-center gap-sm py-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+              className="w-full min-h-11 flex items-center gap-sm py-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
             >
               <Icon name={meta.icon} className={meta.tone} />
               <h3 className="font-title-md text-title-md text-on-surface">{meta.label}</h3>

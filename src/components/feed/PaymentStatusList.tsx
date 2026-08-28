@@ -42,6 +42,7 @@ export function PaymentStatusList({ entries, currentUserId }: PaymentStatusListP
                 <Avatar user={user} size="md" ring={isYou ? 'primary' : 'none'} />
                 <span className="font-numeric-data text-numeric-data text-on-surface truncate">
                   {isYou ? 'You' : user.name}
+                  {!isYou && user.room && <span className="text-on-surface-variant"> (Room {user.room})</span>}
                 </span>
               </div>
               {paid ? (

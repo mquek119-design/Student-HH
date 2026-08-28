@@ -164,7 +164,7 @@ export function Reconciliation({
                     aria-label={`${item.name} received`}
                     onClick={() => toggleItemReceived(item.basketItemId)}
                     className={clsx(
-                      'w-6 h-6 border-2 rounded flex items-center justify-center shrink-0 transition-colors',
+                      'w-11 h-11 border-2 rounded flex items-center justify-center shrink-0 transition-colors',
                       isReceived ? 'bg-primary border-primary' : 'border-outline'
                     )}
                   >
@@ -289,7 +289,7 @@ export function Reconciliation({
                         type="button"
                         onClick={() => handleDecision(sub.id, 'accepted')}
                         className={clsx(
-                          'flex-1 h-11 md:h-10 rounded-lg font-semibold text-[14px] flex items-center justify-center gap-xs transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+                          'flex-1 h-11 md:h-11 rounded-lg font-semibold text-[14px] flex items-center justify-center gap-xs transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                           decision === 'accepted'
                             ? 'bg-primary text-on-primary'
                             : 'border border-primary text-primary hover:bg-primary/10'
@@ -302,7 +302,7 @@ export function Reconciliation({
                         type="button"
                         onClick={() => handleDecision(sub.id, 'rejected')}
                         className={clsx(
-                          'flex-1 h-11 md:h-10 rounded-lg font-semibold text-[14px] flex items-center justify-center gap-xs transition-colors focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2',
+                          'flex-1 h-11 md:h-11 rounded-lg font-semibold text-[14px] flex items-center justify-center gap-xs transition-colors focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2',
                           decision === 'rejected'
                             ? 'bg-error text-on-error'
                             : 'border border-error text-error hover:bg-error-container'
