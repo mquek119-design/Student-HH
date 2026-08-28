@@ -49,6 +49,9 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
   const isEdit = Boolean(prefill?.recipeId);
   const [state, formAction] = useFormState(isEdit ? updateRecipe : createRecipe, INITIAL);
   const [ingredientsText, setIngredientsText] = useState(prefill?.ingredients ?? '');
+  const [servings, setServings] = useState(prefill?.servings?.toString() ?? '4');
+  const [cookTime, setCookTime] = useState(prefill?.cookTimeMins?.toString() ?? '30');
+  const [validationErrors, setValidationErrors] = useState<{ servings?: string; cookTime?: string }>({});
 
   // Live preview so a mis-parsed line is obvious before saving, not after.
   const lines = ingredientsText.split('\n');
@@ -63,7 +66,7 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
   };
 
   return (
-    <form action={formAction} className="flex flex-col gap-md">
+    <form action={formAction} onSubmit={handleSubmit} className="flex flex-col gap-md">
       {prefill?.recipeId && <input type="hidden" name="recipeId" value={prefill.recipeId} />}
 
       {prefill?.unparsed && prefill.unparsed.length > 0 && (
@@ -94,9 +97,19 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
             type="number"
             name="servings"
             min={1}
-            defaultValue={prefill?.servings ?? 4}
+            value={servings}
+            onChange={(e) => {
+              setServings(e.target.value);
+              setValidationErrors((prev) => {
+                const { servings: _, ...rest } = prev;
+                return rest;
+              });
+            }}
             className={`${FIELD} font-numeric-data`}
           />
+          {validationErrors.servings && (
+            <p className="font-body-sm text-[12px] text-error">{validationErrors.servings}</p>
+          )}
         </label>
         <label className="flex flex-col gap-xs">
           <span className="font-body-sm text-body-sm font-semibold">Cook time (min)</span>
@@ -104,9 +117,19 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
             type="number"
             name="cookTimeMins"
             min={1}
-            defaultValue={prefill?.cookTimeMins ?? 30}
+            value={cookTime}
+            onChange={(e) => {
+              setCookTime(e.target.value);
+              setValidationErrors((prev) => {
+                const { cookTime: _, ...rest } = prev;
+                return rest;
+              });
+            }}
             className={`${FIELD} font-numeric-data`}
           />
+          {validationErrors.cookTime && (
+            <p className="font-body-sm text-[12px] text-error">{validationErrors.cookTime}</p>
+          )}
         </label>
       </div>
 
