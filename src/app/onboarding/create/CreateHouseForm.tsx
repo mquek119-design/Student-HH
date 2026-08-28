@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState } from 'react-dom';
+import { useActionState } from 'react';
 import { SubmitButton } from '@/components/ui/SubmitButton';
 import { WEEKDAYS, WEEKDAY_LABELS } from '@/lib/types';
 import { createHouse, type OnboardingState } from '../actions';
@@ -11,7 +11,7 @@ const FIELD =
   'h-12 px-3 rounded-lg bg-surface-container-lowest border border-surface-container-highest focus:ring-2 focus:ring-primary focus:border-primary text-body-lg';
 
 export function CreateHouseForm() {
-  const [state, formAction] = useFormState(createHouse, INITIAL);
+  const [state, formAction] = useActionState(createHouse, INITIAL);
 
   return (
     <form action={formAction} className="flex flex-col gap-md">

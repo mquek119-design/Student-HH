@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
 import { FoodImage } from '@/components/media/FoodImage';
 import { Icon } from '@/components/media/Icon';
 import { Button, ButtonLink } from '@/components/ui/Button';
@@ -123,7 +124,7 @@ function QuickAddSheet({
   initialDay: Weekday;
   week: WeekChoice;
 }) {
-  const [state, action] = useFormState(addMealToPlan, INITIAL);
+  const [state, action] = useActionState(addMealToPlan, INITIAL);
   const [day, setDay] = useState<Weekday>(initialDay);
   const [mealType, setMealType] = useState<MealType>('dinner');
 
