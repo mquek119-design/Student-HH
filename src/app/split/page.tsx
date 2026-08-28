@@ -2,8 +2,8 @@ import { redirect } from 'next/navigation';
 import { Icon } from '@/components/media/Icon';
 import { PayPanel } from '@/components/split/PayPanel';
 import { ExpensePanel } from '@/components/split/ExpensePanel';
-import { Notice } from '@/components/ui/Notice';
 import { CollectorPanel } from '@/components/split/CollectorPanel';
+import { Notice } from '@/components/ui/Notice';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatPence } from '@/lib/money';
 import {
@@ -79,6 +79,7 @@ export default async function SplitPage() {
   // What the breakdown actually adds up to. Equal to `split.amount` in the
   // ordinary case; they part company when the basket moves after posting.
   const breakdownTotal = split.lines.reduce((sum, line) => sum + line.amount, 0);
+  const isCollector = collector?.id === currentUser.id;
 
   return (
     <>
@@ -86,7 +87,9 @@ export default async function SplitPage() {
         <p className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider mb-xs">
           Week {plan?.weekNumber ?? ''} Settlement
         </p>
-        <h1 className="font-display-lg text-display-lg text-primary mb-sm">Total You Owe</h1>
+        <h1 className="font-display-lg text-display-lg text-primary mb-sm">
+          {isCollector ? 'Total Owed to You' : 'Total You Owe'}
+        </h1>
         <div className="font-numeric-data text-[56px] leading-[64px] font-bold text-on-background mb-lg tabular-nums">
           {formatPence(split.amount)}
         </div>
@@ -176,17 +179,26 @@ export default async function SplitPage() {
         </div>
 
         <div className="lg:col-span-5 flex flex-col gap-md">
-          {/* splitId is the posted row. Without one, "I've Paid" is a button
-              that updates nothing — so it is only offered once posted. */}
-          <PayPanel
-            collectorName={collector.name}
-            collectorRoom={collector.room}
-            payment={collector.payment}
-            splitId={split.isPosted ? split.id : undefined}
-            isNotified={split.status === 'notified' || split.status === 'confirmed'}
-            isPosted={split.isPosted}
-          />
-          {purchases}
+          {isCollector ? (
+            <>
+              <CollectorPanel splits={postedSplits} basketIsEmpty={basket.length === 0} />
+              {purchases}
+            </>
+          ) : (
+            <>
+              {/* splitId is the posted row. Without one, "I've Paid" is a button
+                  that updates nothing — so it is only offered once posted. */}
+              <PayPanel
+                collectorName={collector.name}
+                collectorRoom={collector.room}
+                payment={collector.payment}
+                splitId={split.isPosted ? split.id : undefined}
+                isNotified={split.status === 'notified' || split.status === 'confirmed'}
+                isPosted={split.isPosted}
+              />
+              {purchases}
+            </>
+          )}
         </div>
       </div>
     </>
