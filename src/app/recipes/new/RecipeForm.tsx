@@ -65,6 +65,28 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
     setIngredientsText((prev) => (prev ? `${prev}\n${line}` : line));
   };
 
+  // Validate servings and cook time before submission
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const servingsNum = parseInt(servings, 10);
+    const cookTimeNum = parseInt(cookTime, 10);
+    const errors: { servings?: string; cookTime?: string } = {};
+
+    if (!servingsNum || servingsNum < 1) {
+      errors.servings = 'Must be at least 1';
+    }
+    if (!cookTimeNum || cookTimeNum < 1) {
+      errors.cookTime = 'Must be at least 1';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      e.preventDefault();
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors({});
+  };
+
   return (
     <form action={formAction} onSubmit={handleSubmit} className="flex flex-col gap-md">
       {prefill?.recipeId && <input type="hidden" name="recipeId" value={prefill.recipeId} />}
