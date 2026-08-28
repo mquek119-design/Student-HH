@@ -1,20 +1,60 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/media/Icon';
+import { Button } from '@/components/ui/Button';
 import { SubmitButton } from '@/components/ui/SubmitButton';
 import { sendSignupLink, type SignupState } from './actions';
 
 const INITIAL: SignupState = { status: 'idle', message: '' };
+const REDIRECT_DELAY_MS = 3000;
 
 /**
  * Sign up form using magic-link email verification.
+ *
+ * After successful submission, displays "Check your inbox" message for 3 seconds
+ * before auto-redirecting to instructions. User can click the button to skip the wait.
  *
  * Reuses the same OTP flow as login but always redirects to /onboarding/instructions
  * after the user verifies their email.
  */
 export function SignupForm() {
   const [state, formAction] = useActionState(sendSignupLink, INITIAL);
+  const [redirecting, setRedirecting] = useState(false);
+  const [countdownSeconds, setCountdownSeconds] = useState(3);
+  const router = useRouter();
+
+  // Auto-redirect to instructions after 3 seconds when signup succeeds
+  useEffect(() => {
+    if (state.status === 'sent') {
+      const interval = setInterval(() => {
+        setCountdownSeconds((prev) => {
+          if (prev <= 1) {
+            setRedirecting(true);
+            router.push('/onboarding/instructions');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      const timer = setTimeout(() => {
+        setRedirecting(true);
+        router.push('/onboarding/instructions');
+      }, REDIRECT_DELAY_MS);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timer);
+      };
+    }
+  }, [state.status, router]);
+
+  const handleContinue = () => {
+    setRedirecting(true);
+    router.push('/onboarding/instructions');
+  };
 
   if (state.status === 'sent') {
     return (
@@ -22,6 +62,19 @@ export function SignupForm() {
         <Icon name="mark_email_read" filled className="text-[40px] text-primary" />
         <p className="font-title-md text-title-md">Check your inbox</p>
         <p className="font-body-sm text-body-sm text-on-surface-variant">{state.message}</p>
+        <Button
+          onClick={handleContinue}
+          variant="secondary"
+          size="lg"
+          fullWidth
+          pending={redirecting}
+          className="mt-sm"
+        >
+          I've verified my email
+        </Button>
+        <p className="font-body-xs text-body-xs text-on-surface-variant mt-sm">
+          Or continue in {countdownSeconds}s…
+        </p>
       </div>
     );
   }
