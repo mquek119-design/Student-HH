@@ -40,7 +40,7 @@ export function TescoSessionPanel() {
         setMessage(res.message);
         setIsError(true);
       } else {
-        setMessage('Tesco session successfully imported!');
+        setMessage('Tesco session imported');
         setIsError(false);
         setCookieInput('');
         checkTescoSession()
