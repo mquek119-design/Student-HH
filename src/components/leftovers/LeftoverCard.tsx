@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { FoodImage } from '@/components/media/FoodImage';
 import { Icon } from '@/components/media/Icon';
@@ -14,7 +15,7 @@ interface LeftoverCardProps {
   cook?: User | null;
 }
 
-export function LeftoverCard({ meal, recipe, cook }: LeftoverCardProps) {
+export const LeftoverCard = memo(function LeftoverCard({ meal, recipe, cook }: LeftoverCardProps) {
   return (
     <Card padded={false} className="flex flex-col overflow-hidden hover:shadow-md transition-shadow">
       {/* Image */}
@@ -83,4 +84,4 @@ export function LeftoverCard({ meal, recipe, cook }: LeftoverCardProps) {
       </div>
     </Card>
   );
-}
+});
