@@ -25,7 +25,7 @@ export function FulfillmentSettingsPanel({ house }: FulfillmentSettingsPanelProp
         if (res.status === 'error') {
           setSaveStatus(`Error: ${res.message}`);
         } else {
-          setSaveStatus('Fulfillment settings updated successfully!');
+          setSaveStatus('Fulfillment settings updated');
         }
       } catch (err: any) {
         setSaveStatus(`Error: ${err?.message || 'Failed to save settings'}`);
