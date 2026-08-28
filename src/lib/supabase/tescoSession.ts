@@ -24,8 +24,8 @@ export async function saveTescoSessionToDb(session: TescoSession): Promise<void>
 
   const supabase = await createClient();
 
-  const { error } = await (supabase
-    .from('tesco_sessions' as any)
+  const { error } = await supabase
+    .from('tesco_sessions')
     .upsert(
       {
         user_id: user.id,
@@ -41,7 +41,7 @@ export async function saveTescoSessionToDb(session: TescoSession): Promise<void>
       {
         onConflict: 'user_id,house_id',
       }
-    ) as any);
+    );
 
   if (error) {
     throw new Error(`Failed to save Tesco session: ${error.message}`);
@@ -60,12 +60,12 @@ export async function loadTescoSessionFromDb(): Promise<TescoSession | null> {
 
   const supabase = await createClient();
 
-  const { data, error } = await (supabase
-    .from('tesco_sessions' as any)
+  const { data, error } = await supabase
+    .from('tesco_sessions')
     .select('session_data, expires_at')
     .eq('user_id', user.id)
     .eq('house_id', user.houseId)
-    .single() as any);
+    .single();
 
   if (error || !data) {
     return null;
@@ -78,15 +78,20 @@ export async function loadTescoSessionFromDb(): Promise<TescoSession | null> {
   }
 
   // Extract session from session_data JSONB
-  const sessionData = data.session_data as any;
-  if (!sessionData || !sessionData.cookies || !Array.isArray(sessionData.cookies)) {
+  const sessionData = data.session_data;
+  if (
+    !sessionData ||
+    typeof sessionData !== 'object' ||
+    !('cookies' in sessionData) ||
+    !Array.isArray(sessionData.cookies)
+  ) {
     return null;
   }
 
   return {
     cookies: sessionData.cookies,
-    expiresAt: sessionData.expiresAt,
-    lastLogin: sessionData.lastLogin,
+    expiresAt: sessionData.expiresAt as string,
+    lastLogin: sessionData.lastLogin as string,
   };
 }
 
@@ -101,11 +106,11 @@ export async function expireTescoSessionFromDb(): Promise<void> {
 
   const supabase = await createClient();
 
-  const { error } = await (supabase
-    .from('tesco_sessions' as any)
+  const { error } = await supabase
+    .from('tesco_sessions')
     .delete()
     .eq('user_id', user.id)
-    .eq('house_id', user.houseId) as any);
+    .eq('house_id', user.houseId);
 
   if (error) {
     throw new Error(`Failed to expire Tesco session: ${error.message}`);

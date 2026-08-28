@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useFormState } from 'react-dom';
 import { Avatar } from '@/components/avatars/Avatar';
 import { Icon } from '@/components/media/Icon';
@@ -181,7 +182,8 @@ function CookChoice({
   const [claimState, claimAction] = useFormState(claimCook, INITIAL);
   const [standDownState, standDownAction] = useFormState(standDownAsCook, INITIAL);
 
-  const byId = new Map(diners.map((user) => [user.id, user]));
+  // Memoize diners lookup Map to avoid recreation on every render
+  const byId = useMemo(() => new Map(diners.map((user) => [user.id, user])), [diners]);
   const cook = meal.cookedByUserId ? byId.get(meal.cookedByUserId) : undefined;
   const offeree = meal.cookOfferTo ? byId.get(meal.cookOfferTo) : undefined;
 

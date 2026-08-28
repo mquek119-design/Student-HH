@@ -271,6 +271,26 @@ type DeliveryReceiptRow = {
   recorded_at: string;
 }
 
+
+type PushSubscriptionRow = {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  auth: string | null;
+  p256dh: string | null;
+  active: boolean;
+  registered_at: string;
+  updated_at: string;
+}
+
+type TescoSessionRow = {
+  id: string;
+  user_id: string;
+  house_id: string;
+  session_data: { [key: string]: unknown };
+  last_updated: string;
+  expires_at: string;
+}
 /** Insert/Update shapes: generated columns and defaults become optional. */
 type Insertable<T, Optional extends keyof T> = Omit<T, Optional> & Partial<Pick<T, Optional>>;
 
@@ -313,6 +333,8 @@ export type Database = {
       pantry_items: TableDef<PantryItemRow, Insertable<PantryItemRow, 'id' | 'quantity_remaining' | 'unit' | 'added_date' | 'is_shared' | 'owner_user_id' | 'low_stock'>>;
       substitutions: TableDef<SubstitutionRow, Insertable<SubstitutionRow, 'id' | 'decision'>>;
       delivery_receipts: TableDef<DeliveryReceiptRow, Insertable<DeliveryReceiptRow, 'received' | 'received_quantity' | 'recorded_at'>>;
+      push_subscriptions: TableDef<PushSubscriptionRow, Insertable<PushSubscriptionRow, 'id' | 'registered_at' | 'updated_at' | 'active'>>;
+      tesco_sessions: TableDef<TescoSessionRow, Insertable<TescoSessionRow, 'id' | 'last_updated'>>;
     };
     Functions: {
       join_house: { Args: { p_invite_code: string }; Returns: string | null };

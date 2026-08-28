@@ -59,8 +59,8 @@ describe('TescoAPI.bookSlot()', () => {
    */
   it('should handle 401 unauthorized (session expired)', async () => {
     const slotId = 'slot-id-456';
-    const error = new Error('Unauthorized');
-    (error as any).statusCode = 401;
+    const error = new Error('Unauthorized') as Error & { statusCode?: number };
+    error.statusCode = 401;
 
     tescoAPI.bookSlot.mockRejectedValueOnce(error);
 

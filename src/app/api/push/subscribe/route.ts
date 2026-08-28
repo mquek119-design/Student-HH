@@ -47,13 +47,12 @@ export async function POST(request: NextRequest) {
     // Store subscription in database
     const supabase = await createClient();
 
-    // Note: 'push_subscriptions' is added by migration 0021
-    // Type definition will be available after running: npx supabase gen types typescript
-    const { error } = await (supabase as any).from('push_subscriptions').insert({
+    // Note: 'push_subscriptions' is added by migration 0022
+    const { error } = await supabase.from('push_subscriptions').insert({
       user_id: user.id,
       endpoint: subscription.endpoint,
-      auth: subscription.keys?.auth,
-      p256dh: subscription.keys?.p256dh,
+      auth: subscription.keys?.auth ?? null,
+      p256dh: subscription.keys?.p256dh ?? null,
       active: true,
       registered_at: new Date().toISOString(),
     });
