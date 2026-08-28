@@ -14,25 +14,27 @@ const REDIRECT_DELAY_MS = 3000;
  * Sign up form using magic-link email verification.
  *
  * After successful submission, displays "Check your inbox" message for 3 seconds
- * before auto-redirecting to instructions. User can click the button to skip the wait.
+ * before auto-redirecting to the specified next URL. User can click the button to skip the wait.
  *
- * Reuses the same OTP flow as login but always redirects to /onboarding/instructions
- * after the user verifies their email.
+ * Reuses the same OTP flow as login. By default redirects to /onboarding/instructions
+ * after the user verifies their email, unless overridden by the `next` prop
+ * (e.g., /onboarding/join?code=XXX for invite flows).
  */
-export function SignupForm() {
+export function SignupForm({ next = '/onboarding/instructions' }: { next?: string }) {
   const [state, formAction] = useActionState(sendSignupLink, INITIAL);
+  const [email, setEmail] = useState('');
   const [redirecting, setRedirecting] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState(3);
   const router = useRouter();
 
-  // Auto-redirect to instructions after 3 seconds when signup succeeds
+  // Auto-redirect to next URL after 3 seconds when signup succeeds
   useEffect(() => {
     if (state.status === 'sent') {
       const interval = setInterval(() => {
         setCountdownSeconds((prev) => {
           if (prev <= 1) {
             setRedirecting(true);
-            router.push('/onboarding/instructions');
+            router.push(next);
             return 0;
           }
           return prev - 1;
@@ -41,7 +43,7 @@ export function SignupForm() {
 
       const timer = setTimeout(() => {
         setRedirecting(true);
-        router.push('/onboarding/instructions');
+        router.push(next);
       }, REDIRECT_DELAY_MS);
 
       return () => {
@@ -49,11 +51,11 @@ export function SignupForm() {
         clearTimeout(timer);
       };
     }
-  }, [state.status, router]);
+  }, [state.status, router, next]);
 
   const handleContinue = () => {
     setRedirecting(true);
-    router.push('/onboarding/instructions');
+    router.push(next);
   };
 
   if (state.status === 'sent') {
@@ -81,11 +83,15 @@ export function SignupForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-md">
+      <input type="hidden" name="next" value={next} />
+
       <label className="flex flex-col gap-xs">
         <span className="font-body-sm text-body-sm font-semibold">Email</span>
         <input
           type="email"
           name="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
           placeholder="you@university.ac.uk"

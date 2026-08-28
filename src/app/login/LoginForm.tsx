@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { Icon } from '@/components/media/Icon';
 import { SubmitButton } from '@/components/ui/SubmitButton';
 import { sendMagicLink, type LoginState } from './actions';
@@ -9,6 +9,7 @@ const INITIAL: LoginState = { status: 'idle', message: '' };
 
 export function LoginForm({ next }: { next: string }) {
   const [state, formAction] = useActionState(sendMagicLink, INITIAL);
+  const [email, setEmail] = useState('');
 
   if (state.status === 'sent') {
     return (
@@ -29,6 +30,8 @@ export function LoginForm({ next }: { next: string }) {
         <input
           type="email"
           name="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
           placeholder="you@university.ac.uk"

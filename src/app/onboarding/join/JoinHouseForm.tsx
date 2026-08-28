@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState } from 'react-dom';
+import { useActionState, useState } from 'react';
 import { SubmitButton } from '@/components/ui/SubmitButton';
 import { joinHouse, type OnboardingState } from '../actions';
 
@@ -10,7 +10,9 @@ const FIELD =
   'h-12 px-3 rounded-lg bg-surface-container-lowest border border-surface-container-highest focus:ring-2 focus:ring-primary focus:border-primary text-body-lg';
 
 export function JoinHouseForm({ defaultCode }: { defaultCode: string }) {
-  const [state, formAction] = useFormState(joinHouse, INITIAL);
+  const [state, formAction] = useActionState(joinHouse, INITIAL);
+  const [code, setCode] = useState(defaultCode);
+  const [name, setName] = useState('');
 
   return (
     <form action={formAction} className="flex flex-col gap-md">
@@ -18,8 +20,9 @@ export function JoinHouseForm({ defaultCode }: { defaultCode: string }) {
         <span className="font-body-sm text-body-sm font-semibold">Invite code</span>
         <input
           name="code"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
           required
-          defaultValue={defaultCode}
           placeholder="ELLE-4482"
           autoCapitalize="characters"
           autoComplete="off"
@@ -29,7 +32,15 @@ export function JoinHouseForm({ defaultCode }: { defaultCode: string }) {
 
       <label className="flex flex-col gap-xs">
         <span className="font-body-sm text-body-sm font-semibold">Your name</span>
-        <input name="name" required maxLength={60} placeholder="e.g. Maya" className={FIELD} />
+        <input
+          name="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          maxLength={60}
+          placeholder="e.g. Maya"
+          className={FIELD}
+        />
       </label>
 
       {state.status === 'error' && (

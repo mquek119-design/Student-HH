@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { SubmitButton } from '@/components/ui/SubmitButton';
 import { WEEKDAYS, WEEKDAY_LABELS } from '@/lib/types';
 import { createHouse, type OnboardingState } from '../actions';
@@ -12,17 +12,29 @@ const FIELD =
 
 export function CreateHouseForm() {
   const [state, formAction] = useActionState(createHouse, INITIAL);
+  const [houseName, setHouseName] = useState('');
+  const [deliveryDay, setDeliveryDay] = useState('mon');
+  const [cutoffDay, setCutoffDay] = useState('sun');
+  const [cutoffTime, setCutoffTime] = useState('17:00');
 
   return (
     <form action={formAction} className="flex flex-col gap-md">
       <label className="flex flex-col gap-xs">
         <span className="font-body-sm text-body-sm font-semibold">House name</span>
-        <input name="name" required maxLength={60} placeholder="e.g. Ellesmere Road" className={FIELD} />
+        <input
+          name="name"
+          value={houseName}
+          onChange={(e) => setHouseName(e.target.value)}
+          required
+          maxLength={60}
+          placeholder="e.g. Ellesmere Road"
+          className={FIELD}
+        />
       </label>
 
       <label className="flex flex-col gap-xs">
         <span className="font-body-sm text-body-sm font-semibold">Delivery day</span>
-        <select name="deliveryDay" defaultValue="mon" className={FIELD}>
+        <select name="deliveryDay" value={deliveryDay} onChange={(e) => setDeliveryDay(e.target.value)} className={FIELD}>
           {WEEKDAYS.map((day) => (
             <option key={day} value={day}>
               {WEEKDAY_LABELS[day]}
@@ -34,7 +46,7 @@ export function CreateHouseForm() {
       <div className="grid grid-cols-2 gap-md">
         <label className="flex flex-col gap-xs">
           <span className="font-body-sm text-body-sm font-semibold">Cutoff day</span>
-          <select name="cutoffDay" defaultValue="sun" className={FIELD}>
+          <select name="cutoffDay" value={cutoffDay} onChange={(e) => setCutoffDay(e.target.value)} className={FIELD}>
             {WEEKDAYS.map((day) => (
               <option key={day} value={day}>
                 {WEEKDAY_LABELS[day]}
@@ -48,7 +60,8 @@ export function CreateHouseForm() {
           <input
             type="time"
             name="cutoffTime"
-            defaultValue="17:00"
+            value={cutoffTime}
+            onChange={(e) => setCutoffTime(e.target.value)}
             className={`${FIELD} font-numeric-data`}
           />
         </label>

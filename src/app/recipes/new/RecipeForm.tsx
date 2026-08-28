@@ -49,9 +49,16 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
   // creating and editing.
   const isEdit = Boolean(prefill?.recipeId);
   const [state, formAction] = useActionState(isEdit ? updateRecipe : createRecipe, INITIAL);
-  const [ingredientsText, setIngredientsText] = useState(prefill?.ingredients ?? '');
+  const [title, setTitle] = useState(prefill?.title ?? '');
   const [servings, setServings] = useState(prefill?.servings?.toString() ?? '4');
   const [cookTime, setCookTime] = useState(prefill?.cookTimeMins?.toString() ?? '30');
+  const [costPerPortion, setCostPerPortion] = useState(prefill?.costPerPortion ?? '');
+  const [category, setCategory] = useState('cupboard');
+  const [ingredientsText, setIngredientsText] = useState(prefill?.ingredients ?? '');
+  const [instructions, setInstructions] = useState(prefill?.instructions ?? '');
+  const [tags, setTags] = useState(prefill?.tags ?? '');
+  const [sourceUrl, setSourceUrl] = useState(prefill?.sourceUrl ?? '');
+  const [proTip, setProTip] = useState(prefill?.proTip ?? '');
   const [validationErrors, setValidationErrors] = useState<{ servings?: string; cookTime?: string }>({});
 
   // Live preview so a mis-parsed line is obvious before saving, not after.
@@ -150,7 +157,15 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
       )}
       <label className="flex flex-col gap-xs">
         <span className="font-body-sm text-body-sm font-semibold">Title</span>
-        <input name="title" required maxLength={120} defaultValue={prefill?.title ?? ''} placeholder="e.g. Creamy Tomato Pasta" className={FIELD} />
+        <input
+          name="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          maxLength={120}
+          placeholder="e.g. Creamy Tomato Pasta"
+          className={FIELD}
+        />
       </label>
 
       <div className="grid grid-cols-2 gap-md">
@@ -190,8 +205,9 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
           <span className="font-body-sm text-body-sm font-semibold">Cost per portion (£)</span>
           <input
             name="costPerPortion"
+            value={costPerPortion}
+            onChange={(e) => setCostPerPortion(e.target.value)}
             inputMode="decimal"
-            defaultValue={prefill?.costPerPortion ?? ''}
             placeholder="1.80"
             className={`${FIELD} font-numeric-data`}
           />
@@ -201,7 +217,7 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
         </label>
         <label className="flex flex-col gap-xs">
           <span className="font-body-sm text-body-sm font-semibold">Mostly</span>
-          <select name="category" defaultValue="cupboard" className={FIELD}>
+          <select name="category" value={category} onChange={(e) => setCategory(e.target.value)} className={FIELD}>
             <option value="fresh">Fresh</option>
             <option value="cupboard">Cupboard</option>
             <option value="frozen">Frozen</option>
@@ -262,8 +278,9 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
         <span className="font-body-sm text-[12px] text-on-surface-variant">One step per line.</span>
         <textarea
           name="instructions"
+          value={instructions}
+          onChange={(e) => setInstructions(e.target.value)}
           rows={6}
-          defaultValue={prefill?.instructions ?? ''}
           placeholder={'Boil the pasta until al dente.\nSoften the garlic in oil.\nAdd the tomatoes and simmer.'}
           className={`${FIELD} resize-y`}
         />
@@ -271,20 +288,34 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
 
       <label className="flex flex-col gap-xs">
         <span className="font-body-sm text-body-sm font-semibold">Tags</span>
-        <input name="tags" defaultValue={prefill?.tags ?? ''} placeholder="Vegetarian, 15-min meals" className={FIELD} />
+        <input
+          name="tags"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="Vegetarian, 15-min meals"
+          className={FIELD}
+        />
       </label>
 
       <label className="flex flex-col gap-xs">
         <span className="font-body-sm text-body-sm font-semibold">Source URL</span>
-        <input type="url" name="sourceUrl" defaultValue={prefill?.sourceUrl ?? ''} placeholder="https://…" className={FIELD} />
+        <input
+          type="url"
+          name="sourceUrl"
+          value={sourceUrl}
+          onChange={(e) => setSourceUrl(e.target.value)}
+          placeholder="https://…"
+          className={FIELD}
+        />
       </label>
 
       <label className="flex flex-col gap-xs">
         <span className="font-body-sm text-body-sm font-semibold">Pro tip</span>
         <textarea
           name="proTip"
+          value={proTip}
+          onChange={(e) => setProTip(e.target.value)}
           rows={2}
-          defaultValue={prefill?.proTip ?? ''}
           placeholder="The one thing that makes this work."
           className={`${FIELD} resize-y`}
         />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState } from 'react-dom';
+import { useActionState, useState } from 'react';
 import { Icon } from '@/components/media/Icon';
 import { Card } from '@/components/ui/Card';
 import { SubmitButton } from '@/components/ui/SubmitButton';
@@ -35,7 +35,10 @@ export function PackDataForm({
   name: string;
   suggestedUnit: string;
 }) {
-  const [state, formAction] = useFormState(saveIngredientPack, INITIAL);
+  const [state, formAction] = useActionState(saveIngredientPack, INITIAL);
+  const [packSize, setPackSize] = useState('');
+  const [packUnit, setPackUnit] = useState(suggestedUnit);
+  const [packPrice, setPackPrice] = useState('');
 
   return (
     <Card accent="secondary" className="flex flex-col gap-sm">
@@ -57,7 +60,15 @@ export function PackDataForm({
           <span className="font-label-caps text-label-caps uppercase text-on-surface-variant">
             Pack size
           </span>
-          <input name="packSize" inputMode="decimal" placeholder="500" required className={FIELD} />
+          <input
+            name="packSize"
+            value={packSize}
+            onChange={(e) => setPackSize(e.target.value)}
+            inputMode="decimal"
+            placeholder="500"
+            required
+            className={FIELD}
+          />
         </label>
 
         <label className="flex flex-col gap-xs flex-1 min-w-[80px]">
@@ -66,7 +77,8 @@ export function PackDataForm({
           </span>
           <input
             name="packUnit"
-            defaultValue={suggestedUnit}
+            value={packUnit}
+            onChange={(e) => setPackUnit(e.target.value)}
             placeholder="g"
             required
             className={FIELD}
@@ -77,7 +89,15 @@ export function PackDataForm({
           <span className="font-label-caps text-label-caps uppercase text-on-surface-variant">
             Price (£)
           </span>
-          <input name="packPrice" inputMode="decimal" placeholder="1.20" required className={FIELD} />
+          <input
+            name="packPrice"
+            value={packPrice}
+            onChange={(e) => setPackPrice(e.target.value)}
+            inputMode="decimal"
+            placeholder="1.20"
+            required
+            className={FIELD}
+          />
         </label>
 
         <SaveButton />
