@@ -12,9 +12,10 @@ export interface SignupState {
 /**
  * Send signup magic link.
  *
- * Identical to login but always redirects to /onboarding/instructions after
- * email verification, so new users see the "how Grub works" education page
- * before creating their house.
+ * Redirects to the `next` URL after email verification (default: /onboarding/instructions).
+ * This allows signup to be chained with other flows like invites.
+ *
+ * Example: /onboarding/signup?next=/onboarding/join?code=ABC123
  */
 export async function sendSignupLink(
   _prev: SignupState,
@@ -28,6 +29,7 @@ export async function sendSignupLink(
   }
 
   const email = String(formData.get('email') ?? '').trim();
+  const next = String(formData.get('next') ?? '/onboarding/instructions');
 
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return { status: 'error', message: 'Enter a valid email address.' };
@@ -39,7 +41,7 @@ export async function sendSignupLink(
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent('/onboarding/instructions')}`,
+      emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
 

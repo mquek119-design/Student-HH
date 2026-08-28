@@ -1,14 +1,28 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Icon } from '@/components/media/Icon';
+import { getCurrentUserOrNull } from '@/lib/queries';
 import { JoinHouseForm } from './JoinHouseForm';
 
 export const metadata = { title: 'Join a House · Grub' };
 
-export default function JoinHousePage({
+export const dynamic = 'force-dynamic';
+
+export default async function JoinHousePage({
   searchParams,
 }: {
-  searchParams: { code?: string };
+  searchParams: Promise<{ code?: string }>;
 }) {
+  const user = await getCurrentUserOrNull();
+  const params = await searchParams;
+
+  // If user is not authenticated, redirect to signup with the invite code preserved
+  if (!user) {
+    const code = params.code ?? '';
+    const inviteUrl = code ? `/onboarding/join?code=${encodeURIComponent(code)}` : '/onboarding/join';
+    redirect(`/onboarding/signup?next=${encodeURIComponent(inviteUrl)}`);
+  }
+
   return (
     <main className="min-h-screen flex flex-col px-margin-mobile py-lg max-w-md mx-auto gap-lg">
       <Link
@@ -26,7 +40,7 @@ export default function JoinHousePage({
         </p>
       </div>
 
-      <JoinHouseForm defaultCode={searchParams.code ?? ''} />
+      <JoinHouseForm defaultCode={params.code ?? ''} />
     </main>
   );
 }

@@ -8,10 +8,18 @@ export const metadata = {
 /**
  * Sign up page for new users.
  *
- * Sends a magic link to the user's email, which redirects to /onboarding/instructions
- * after auth succeeds. The form is the same as login but with a hardcoded redirect.
+ * Sends a magic link to the user's email. By default redirects to
+ * /onboarding/instructions after auth succeeds, unless a ?next= parameter
+ * specifies an alternative redirect (e.g., /onboarding/join?code=XXX).
  */
-export default function SignupPage() {
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const params = await searchParams;
+  const next = params.next ?? '/onboarding/instructions';
+
   return (
     <main className="min-h-screen flex flex-col justify-between px-margin-mobile py-xl max-w-md mx-auto">
       <div className="flex flex-col gap-xl">
@@ -22,7 +30,7 @@ export default function SignupPage() {
           </p>
         </div>
 
-        <SignupForm />
+        <SignupForm next={next} />
       </div>
 
       <p className="text-center font-body-sm text-body-sm text-on-surface-variant">
