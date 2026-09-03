@@ -54,6 +54,15 @@ export function AppChrome({
 
   return (
     <>
+      {/* First focusable thing on the page: lets a keyboard user jump past the
+          app bar and bottom nav straight to the content, rather than tabbing
+          through the whole chrome on every navigation. Hidden until focused. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-md focus:py-sm focus:rounded-lg focus:bg-primary focus:text-on-primary focus:font-semibold focus:shadow-ambient-card"
+      >
+        Skip to content
+      </a>
       <RealtimeListener houseId={currentUser.houseId} />
       <TopAppBar currentUser={currentUser} />
       {viewingAsName && <ViewAsBanner name={viewingAsName} />}
