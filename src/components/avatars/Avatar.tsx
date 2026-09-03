@@ -48,6 +48,12 @@ export function Avatar({ user, size = 'md', className, ring = 'none' }: AvatarPr
 
   return (
     <span
+      // role=img + aria-label so the avatar announces as the person whether it
+      // renders initials or a photo. title alone (a span tooltip) is only shown
+      // on hover and inconsistently read by screen readers, and the photo's alt
+      // is empty because the name lives here, on the whole avatar.
+      role="img"
+      aria-label={user.name}
       className={clsx(
         'inline-flex items-center justify-center rounded-full font-bold shrink-0 overflow-hidden select-none',
         SIZE_CLASSES[size],
@@ -58,7 +64,7 @@ export function Avatar({ user, size = 'md', className, ring = 'none' }: AvatarPr
       title={user.name}
     >
       {user.avatarUrl ? (
-         
+
         <img loading="lazy" src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
       ) : (
         initials
