@@ -156,12 +156,15 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
         </Card>
       )}
       <label className="flex flex-col gap-xs">
-        <span className="font-body-sm text-body-sm font-semibold">Title</span>
+        <span className="font-body-sm text-body-sm font-semibold">
+          Title <span aria-hidden="true" className="text-error">*</span>
+        </span>
         <input
           name="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
+          aria-required="true"
           maxLength={120}
           placeholder="e.g. Creamy Tomato Pasta"
           className={FIELD}
@@ -178,10 +181,14 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
             max={20}
             value={servings}
             onChange={(e) => handleServingsChange(e.target.value)}
+            aria-required="true"
+            aria-describedby={validationErrors.servings ? 'servings-error' : undefined}
             className={`${FIELD} font-numeric-data`}
           />
           {validationErrors.servings && (
-            <p className="font-body-sm text-[12px] text-error">{validationErrors.servings}</p>
+            <p id="servings-error" role="alert" className="font-body-sm text-[12px] text-error">
+              {validationErrors.servings}
+            </p>
           )}
         </label>
         <label className="flex flex-col gap-xs">
@@ -192,10 +199,14 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
             min={5}
             value={cookTime}
             onChange={(e) => handleCookTimeChange(e.target.value)}
+            aria-required="true"
+            aria-describedby={validationErrors.cookTime ? 'cooktime-error' : undefined}
             className={`${FIELD} font-numeric-data`}
           />
           {validationErrors.cookTime && (
-            <p className="font-body-sm text-[12px] text-error">{validationErrors.cookTime}</p>
+            <p id="cooktime-error" role="alert" className="font-body-sm text-[12px] text-error">
+              {validationErrors.cookTime}
+            </p>
           )}
         </label>
       </div>
@@ -230,13 +241,16 @@ export function RecipeForm({ prefill }: { prefill?: RecipePrefill }) {
         <IngredientAutocomplete onAdd={handleAddIngredient} />
 
         <label className="flex flex-col gap-xs">
-          <span className="font-body-sm text-body-sm font-semibold">Ingredients</span>
+          <span className="font-body-sm text-body-sm font-semibold">
+            Ingredients <span aria-hidden="true" className="text-error">*</span>
+          </span>
           <span className="font-body-sm text-[12px] text-on-surface-variant">
             One per line, quantity first — <code className="font-numeric-data">500 g Penne pasta</code>
           </span>
           <textarea
             name="ingredients"
             required
+            aria-required="true"
             rows={7}
             value={ingredientsText}
             onChange={(event) => setIngredientsText(event.target.value)}

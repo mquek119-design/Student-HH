@@ -1,6 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
 import { useState } from 'react';
 import { Icon } from '@/components/media/Icon';
 import { FoodImage } from '@/components/media/FoodImage';
@@ -36,13 +37,18 @@ export function FirstMealModal({ recipes }: FirstMealModalProps) {
       <div className="fixed inset-0 bg-black/40 z-40" />
 
       {/* Modal */}
-      <div className="fixed inset-x-0 bottom-0 z-50 flex items-end justify-center">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="first-meal-title"
+        className="fixed inset-x-0 bottom-0 z-50 flex items-end justify-center"
+      >
         <div className="w-full max-w-md rounded-t-xl bg-surface-0 p-md shadow-lg animate-fade-in-up">
           <Reveal>
             <div className="flex flex-col gap-md">
               {/* Header */}
               <div className="flex flex-col gap-xs">
-                <h2 className="font-title-lg text-title-lg text-on-surface">
+                <h2 id="first-meal-title" className="font-title-lg text-title-lg text-on-surface">
                   Add your first meal
                 </h2>
                 <p className="font-body-sm text-body-sm text-on-surface-variant">
@@ -140,7 +146,7 @@ interface AddMealButtonProps {
 }
 
 function AddMealButton({ recipeId }: AddMealButtonProps) {
-  const [_state, formAction] = useFormState(addMealToPlan, INITIAL);
+  const [_state, formAction] = useActionState(addMealToPlan, INITIAL);
 
   return (
     <form

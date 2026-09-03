@@ -17,12 +17,15 @@ export function JoinHouseForm({ defaultCode }: { defaultCode: string }) {
   return (
     <form action={formAction} className="flex flex-col gap-md">
       <label className="flex flex-col gap-xs">
-        <span className="font-body-sm text-body-sm font-semibold">Invite code</span>
+        <span className="font-body-sm text-body-sm font-semibold">
+          Invite code <span aria-hidden="true" className="text-error">*</span>
+        </span>
         <input
           name="code"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           required
+          aria-required="true"
           placeholder="ELLE-4482"
           autoCapitalize="characters"
           autoComplete="off"
@@ -31,12 +34,15 @@ export function JoinHouseForm({ defaultCode }: { defaultCode: string }) {
       </label>
 
       <label className="flex flex-col gap-xs">
-        <span className="font-body-sm text-body-sm font-semibold">Your name</span>
+        <span className="font-body-sm text-body-sm font-semibold">
+          Your name <span aria-hidden="true" className="text-error">*</span>
+        </span>
         <input
           name="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          aria-required="true"
           maxLength={60}
           placeholder="e.g. Maya"
           className={FIELD}

@@ -142,6 +142,7 @@ export function WeekRunner({ status }: { status: PlanStatus }) {
 
   return (
     <div className="flex flex-col gap-md">
+      <h2 className="font-title-md text-title-md">Walk the week</h2>
       <Notice tone="good" icon="science" title="Everything here writes to your real house">
         Nothing contacts Tesco, no card is touched and no price is invented — each step writes
         exactly the rows the real event would. Step 2 is the only one you do yourself.

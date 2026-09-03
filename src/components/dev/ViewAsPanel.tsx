@@ -40,7 +40,7 @@ export function ViewAsPanel({
   return (
     <Card className="flex flex-col gap-md">
       <div className="min-w-0">
-        <h3 className="font-title-md text-title-md">See it as somebody else</h3>
+        <h2 className="font-title-md text-title-md">See it as somebody else</h2>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
           Renders the whole app as a demo housemate. Real accounts can never be
           impersonated — only the seeded ones, and only in this house.

@@ -1,13 +1,23 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import { clsx } from '@/lib/clsx';
 import type { User } from '@/lib/types';
 import { BottomNav } from './BottomNav';
 import { TopAppBar } from './TopAppBar';
 import { ViewAsBanner } from './ViewAsBanner';
-import { RealtimeListener } from '../realtime/RealtimeListener';
+
+// The Supabase realtime client (postgrest, auth, websocket) is a meaningful
+// chunk of JS that every other component on this chrome does without. Code-split
+// it so it loads after hydration instead of sitting in the page's critical path —
+// the subscription attaching a beat late is invisible; a bigger First Load JS on
+// every route is not.
+const RealtimeListener = dynamic(
+  () => import('../realtime/RealtimeListener').then((mod) => mod.RealtimeListener),
+  { ssr: false }
+);
 
 /** Routes that render bare — no tab bar, no app bar. */
 const BARE_PREFIXES = ['/welcome', '/onboarding', '/login', '/auth', '/setup'];

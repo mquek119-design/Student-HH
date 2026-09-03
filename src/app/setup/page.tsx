@@ -3,7 +3,7 @@ import { SetupRequired } from '@/components/SetupRequired';
 export const metadata = { title: 'Connect a database · Grub' };
 
 /**
- * Where middleware sends every request while Supabase is unconfigured.
+ * Where proxy.ts sends every request while Supabase is unconfigured.
  *
  * This has to be a real route rather than a branch inside the root layout: Next
  * renders the page component *before* handing it to the layout as `children`,

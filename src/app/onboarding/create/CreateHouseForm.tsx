@@ -20,12 +20,15 @@ export function CreateHouseForm() {
   return (
     <form action={formAction} className="flex flex-col gap-md">
       <label className="flex flex-col gap-xs">
-        <span className="font-body-sm text-body-sm font-semibold">House name</span>
+        <span className="font-body-sm text-body-sm font-semibold">
+          House name <span aria-hidden="true" className="text-error">*</span>
+        </span>
         <input
           name="name"
           value={houseName}
           onChange={(e) => setHouseName(e.target.value)}
           required
+          aria-required="true"
           maxLength={60}
           placeholder="e.g. Ellesmere Road"
           className={FIELD}

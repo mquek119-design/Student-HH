@@ -82,7 +82,7 @@ export default async function DevPage() {
       <Card className="flex items-start gap-sm">
         <Icon name="database" className="text-on-surface-variant mt-0.5 shrink-0" />
         <div className="min-w-0">
-          <h3 className="font-title-md text-title-md">Migrations these need</h3>
+          <h2 className="font-title-md text-title-md">Migrations these need</h2>
           <p className="font-body-sm text-body-sm text-on-surface-variant">
             <span className="font-numeric-data">0012</span>–<span className="font-numeric-data">0019</span>{' '}
             in the Supabase SQL editor. Each step degrades legibly without them — a missing table

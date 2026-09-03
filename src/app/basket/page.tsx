@@ -88,6 +88,7 @@ export default async function BasketPage() {
           for the leftovers — an ingredient with no sensible product match. */}
       {unpriced.length > 0 && (
         <section className="flex flex-col gap-sm">
+          <h2 className="sr-only">Items needing pack data</h2>
           <Notice
             tone="info"
             icon="search_off"

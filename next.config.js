@@ -25,17 +25,16 @@ const nextConfig = {
       { protocol: 'https', hostname: 'digitalcontent.api.tesco.com' },
     ],
   },
-  experimental: {
-    // Playwright + the vendored Tesco provider must never be bundled for the
-    // client or the edge runtime. Keep them external to the server bundle.
-    // (Renamed to `serverExternalPackages` in Next 15 — update on upgrade.)
-    serverComponentsExternalPackages: [
-      'playwright',
-      'playwright-core',
-      'playwright-extra',
-      'puppeteer-extra-plugin-stealth',
-    ],
-  },
+  // Playwright + the vendored Tesco provider must never be bundled for the
+  // client or the edge runtime. Keep them external to the server bundle.
+  // Top-level since Next 15.0.0 — the old `experimental.serverComponentsExternalPackages`
+  // key this project is on Next 16 was silently a no-op.
+  serverExternalPackages: [
+    'playwright',
+    'playwright-core',
+    'playwright-extra',
+    'puppeteer-extra-plugin-stealth',
+  ],
 };
 
 module.exports = nextConfig;

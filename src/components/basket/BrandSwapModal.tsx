@@ -68,11 +68,18 @@ export function BrandSwapModal({ isOpen, onClose, basketItemId, ingredientId, it
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-md">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="brand-swap-title"
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-md"
+    >
       <Card className="w-full max-w-lg flex flex-col gap-md max-h-[85vh] overflow-y-auto">
         <div className="flex items-start justify-between gap-sm">
           <div className="min-w-0">
-            <h3 className="font-title-md text-title-md text-on-surface">Swap this for something else</h3>
+            <h3 id="brand-swap-title" className="font-title-md text-title-md text-on-surface">
+              Swap this for something else
+            </h3>
             {/* The box below starts empty, so this is where you see what you
                 are replacing. */}
             <p className="font-body-sm text-body-sm text-on-surface-variant truncate">
@@ -82,6 +89,7 @@ export function BrandSwapModal({ isOpen, onClose, basketItemId, ingredientId, it
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close"
             className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-container"
           >
             <Icon name="close" className="text-on-surface-variant" />
@@ -95,6 +103,7 @@ export function BrandSwapModal({ isOpen, onClose, basketItemId, ingredientId, it
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             placeholder="Search Tesco — e.g. free range eggs"
+            aria-label="Search Tesco products"
             className="flex-grow h-11 px-sm rounded-lg bg-surface-container border border-surface-container-highest text-on-surface font-body-md focus:outline-none focus:border-primary"
           />
           <button

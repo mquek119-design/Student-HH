@@ -26,13 +26,16 @@ export function LoginForm({ next }: { next: string }) {
       <input type="hidden" name="next" value={next} />
 
       <label className="flex flex-col gap-xs">
-        <span className="font-body-sm text-body-sm font-semibold">Email</span>
+        <span className="font-body-sm text-body-sm font-semibold">
+          Email <span aria-hidden="true" className="text-error">*</span>
+        </span>
         <input
           type="email"
           name="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          aria-required="true"
           autoComplete="email"
           placeholder="you@university.ac.uk"
           className="h-12 px-3 rounded-lg bg-surface-container-lowest border border-surface-container-highest focus:ring-2 focus:ring-primary focus:border-primary text-body-lg"

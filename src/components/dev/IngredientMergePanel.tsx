@@ -35,7 +35,7 @@ export function IngredientMergePanel({ clusters }: { clusters: DuplicateCluster[
   return (
     <Card className="flex flex-col gap-md">
       <div className="min-w-0">
-        <h3 className="font-title-md text-title-md">Duplicate ingredients</h3>
+        <h2 className="font-title-md text-title-md">Duplicate ingredients</h2>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
           The optimiser pools by ingredient, so two rows meaning the same thing means two packs
           bought and no saving reported. Folding one into the other repoints every recipe, pantry
