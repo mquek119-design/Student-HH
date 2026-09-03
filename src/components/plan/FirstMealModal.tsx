@@ -2,11 +2,12 @@
 
 import { useFormStatus } from 'react-dom';
 import { useActionState } from 'react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Icon } from '@/components/media/Icon';
 import { FoodImage } from '@/components/media/FoodImage';
 import { Reveal } from '@/components/motion/Reveal';
 import { addMealToPlan, type PlanActionState } from '@/app/plan/actions';
+import { useModalA11y } from '@/components/ui/useModalA11y';
 import type { Recipe } from '@/lib/types';
 
 const INITIAL: PlanActionState = { status: 'idle', message: '' };
@@ -24,9 +25,12 @@ interface FirstMealModalProps {
 export function FirstMealModal({ recipes }: FirstMealModalProps) {
   const [dismissed, setDismissed] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const isVisible = !dismissed && recipes.length > 0;
 
-  if (dismissed) return null;
-  if (recipes.length === 0) return null;
+  useModalA11y(dialogRef, isVisible, () => setDismissed(true));
+
+  if (!isVisible) return null;
 
   // Show only the first 5 recipes
   const shown = recipes.slice(0, 5);
@@ -38,9 +42,11 @@ export function FirstMealModal({ recipes }: FirstMealModalProps) {
 
       {/* Modal */}
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="first-meal-title"
+        tabIndex={-1}
         className="fixed inset-x-0 bottom-0 z-50 flex items-end justify-center"
       >
         <div className="w-full max-w-md rounded-t-xl bg-surface-0 p-md shadow-lg animate-fade-in-up">

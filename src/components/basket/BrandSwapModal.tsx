@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/media/Icon';
 import { formatPence } from '@/lib/money';
 import { searchTescoProducts, updateIngredientProductMapping } from '@/app/basket/actions';
 import { FoodImage } from '@/components/media/FoodImage';
 import { parsePackFromTitle } from '@/lib/packParsing';
+import { useModalA11y } from '@/components/ui/useModalA11y';
 
 interface BrandSwapModalProps {
   isOpen: boolean;
@@ -32,6 +33,9 @@ export function BrandSwapModal({ isOpen, onClose, basketItemId, ingredientId, it
   const [isPending, startTransition] = useTransition();
   const [isSaving, startSaving] = useTransition();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useModalA11y(dialogRef, isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -69,9 +73,11 @@ export function BrandSwapModal({ isOpen, onClose, basketItemId, ingredientId, it
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="brand-swap-title"
+      tabIndex={-1}
       className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-md"
     >
       <Card className="w-full max-w-lg flex flex-col gap-md max-h-[85vh] overflow-y-auto">
