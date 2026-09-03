@@ -195,6 +195,13 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
           placeholder="e.g. Chicken breast"
           className="w-full px-3 py-3 rounded-lg bg-surface-container-lowest border border-surface-container-highest focus:ring-2 focus:ring-primary focus:border-primary text-body-lg"
           autoComplete="off"
+          role="combobox"
+          aria-expanded={isOpen && suggestions.length > 0}
+          aria-controls="ingredient-suggestions"
+          aria-autocomplete="list"
+          aria-activedescendant={
+            selectedIndex >= 0 ? `ingredient-option-${selectedIndex}` : undefined
+          }
         />
         {error && <p className="font-body-sm text-[12px] text-error">{error}</p>}
         {!error && (
@@ -207,12 +214,13 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
       {isOpen && suggestions.length > 0 && (
         <Reveal>
           <div className="absolute top-full left-0 right-0 z-10 mt-xs bg-surface-container-lowest border border-surface-container-highest rounded-lg shadow-ambient-card overflow-hidden">
-            <ul className="max-h-[240px] overflow-y-auto">
+            <ul id="ingredient-suggestions" role="listbox" className="max-h-[240px] overflow-y-auto">
               {suggestions.map((suggestion, index) => (
-                <li key={suggestion.id}>
+                <li key={suggestion.id} role="option" aria-selected={selectedIndex === index}>
                   <button
                     id={`ingredient-option-${index}`}
                     type="button"
+                    tabIndex={-1}
                     onClick={() => handleSelectSuggestion(suggestion)}
                     className={`w-full text-left px-3 py-2 flex items-center gap-md transition-colors ${
                       selectedIndex === index
@@ -244,15 +252,12 @@ export function IngredientAutocomplete({ onAdd }: IngredientAutocompleteProps) {
         </Reveal>
       )}
 
-      {isLoading && input.trim() && (
-        <div className="text-[12px] text-on-surface-variant">Searching…</div>
-      )}
-
-      {!isLoading && input.trim() && suggestions.length === 0 && isOpen && (
-        <div className="text-[12px] text-on-surface-variant">
-          No existing ingredients found. Press Enter to add "{input.trim()}" as a new ingredient.
-        </div>
-      )}
+      <div aria-live="polite" className="text-[12px] text-on-surface-variant">
+        {isLoading && input.trim() && 'Searching…'}
+        {!isLoading && input.trim() && suggestions.length === 0 && isOpen && (
+          <>No existing ingredients found. Press Enter to add &ldquo;{input.trim()}&rdquo; as a new ingredient.</>
+        )}
+      </div>
     </div>
   );
 }
